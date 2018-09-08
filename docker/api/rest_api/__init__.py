@@ -14,7 +14,7 @@ app.config['SECRET_KEY'] = 'myappsecretkey'
 #### web home ####
 @app.route("/")
 def home():
-    return "<h2>Project Youcmt API index page</h2>"
+    return "<h2>project-youcmt API index</h2> <a href=\"https://github.com/playdafuture/YouDMC\">project page(repo)</a>"
 
 
 ###########################
