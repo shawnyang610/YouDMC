@@ -2,35 +2,29 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title> login header </title>
+<title> body content js test </title>
 <link rel="stylesheet" href="images/style.css">
+<script src="scripts/test.js">  </script>
 </head>
 
 
-<body>
+<body onload="setup();">
 
 <div class="header">
   <a href="#default" class="logo"><img src="images/logo.png" width=100></a>
   <div class="header-right">
-    <form>
-      <table>
-        <tr>
-          <td rowspan="2"> <a href="#register">Register</a> </td>
-          <td> Username: </td>
-          <td> Password: </td>
-          <td rowspan="2"> <a href="#login">Login</a> </td>
-        </tr>
-        <tr>
-          <td> <input type="text" name="username"> </td>
-          <td> <input type="password" name="password"> </td>
-        </tr>
-      </table>
-    </form>
+    <table>
+      <tr>
+        <td rowspan="2"> <a href="#account">Account</a> </td>
+        <td rowspan="2"> <a href="#logout">Logout</a> </td>
+      </tr>
+    </table>
   </div>
 </div> <!-- end of header -->
 
-<div style="padding-left:20px">
-  <h1>Contents to be filled here</h1>
+<div id="contents" style="padding-left:20px">
+  <button type="button" onclick="insertTimeStamp()">Insert Timestamp</button>
+  <p id="demo">JS NOT running</p>
 </div> <!-- end of contents -->
 
 <div class="footer">
