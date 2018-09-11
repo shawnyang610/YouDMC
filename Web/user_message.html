@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<title> message test </title>
+<link rel="stylesheet" href="images/style.css">
+<script src="scripts/test.js">  </script>
+</head>
+
+
+<body onload="setup();">
+
+<div class="header">
+  <a href="#default" class="logo"><img src="images/logo.png" width=100></a>
+  <div class="header-right">
+    <table>
+      <tr>
+        <td rowspan="2"> <a href="#account">Account</a> </td>
+        <td rowspan="2"> <a href="#logout">Logout</a> </td>
+      </tr>
+    </table>
+  </div>
+</div> <!-- end of header -->
+
+<div id="contents" style="padding:20px">
+  <button type="button" onclick="insertMessage()">Insert Message</button>
+  <p id="jsStatus">JS NOT running</p>
+</div> <!-- end of contents -->
+
+<div class="footer">
+  <div class="padding"> Designed for <a href="https://www.cs.qc.cuny.edu/gradclasses.html#CSCI731" title="Software Development Practicum">CSCI_731</a> | &copy; Copyright No Rights Reserved | <a href="https://www.cs.qc.cuny.edu/" title="Computer Science Department">Queens College Computer Science</a> </div>
+</div> <!-- end of footer -->
+
+</body>
+</html>
