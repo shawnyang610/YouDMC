@@ -2,4 +2,4 @@ FROM nginx:1.14
 RUN rm /etc/nginx/nginx.conf
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/
-COPY onecmt.conf /etc/nginx/conf.d/
+COPY youcmt.conf /etc/nginx/conf.d/
