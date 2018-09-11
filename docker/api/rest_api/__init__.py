@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
@@ -14,7 +14,7 @@ app.config['SECRET_KEY'] = 'myappsecretkey'
 #### web home ####
 @app.route("/")
 def home():
-    return "<h2>project-youcmt API index</h2> <a href=\"https://github.com/playdafuture/YouDMC\">project page(repo)</a>"
+    return render_template("api_index.html")
 
 
 ###########################
@@ -46,4 +46,6 @@ jwt = JWTManager(app)
 ###########################
 api = Api(app)
 
+from rest_api.resources.env import DateTime # noqa
 
+api.add_resource(DateTime, "/api/datetime")
