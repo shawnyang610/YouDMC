@@ -5,10 +5,10 @@ services:
     restart: always
     build: ./api
     expose:
-      - "8000"
+      - "8001"
     volumes:
       - /usr/src/app/api/rest_api/static
-    command: /usr/local/bin/gunicorn -w 2 -b :8000 rest_api:app
+    command: /usr/local/bin/gunicorn -w 2 -b :8001 rest_api:app
     depends_on:
       - postgres
 
