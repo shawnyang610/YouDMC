@@ -49,6 +49,7 @@ function insertMessage(newMessage) {
 
   cell = document.createElement("td"); //Message Content
   cellText = document.createTextNode(messages[verse]);
+  cell.colSpan = "2";
   cell.appendChild(cellText);
   botRow.appendChild(cell);
 
