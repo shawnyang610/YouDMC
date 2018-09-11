@@ -9,12 +9,7 @@ function test() {
   appendToPage('open');
   request.onload = function() {
     appendToPage('onload');
-    var data = JSON.parse(this.response);
-    var string = data.datetime;
-    var newP = document.createElement("p");
-    newP.innerHTML = string;
-    alert(string);
-    document.getElementById("contents").appendChild(newP);
+    appendToPage(JSON.parse(this.response).datetime);
   }
   request.send();
 }
