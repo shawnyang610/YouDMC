@@ -12,7 +12,7 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SECRET_KEY'] = 'myappsecretkey'
 
 #### web home ####
-@app.route("/")
+@app.route("/api/")
 def home():
     return render_template("api_index.html")
 
