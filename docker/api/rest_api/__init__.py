@@ -48,9 +48,11 @@ api = Api(app)
 
 
 from rest_api.resources.env import DateTime # noqa
-
 api.add_resource(DateTime, "/api/datetime")
 
+from rest_api.resources.user import UserRegister, UserInfo # noqa
+api.add_resource(UserRegister, "/api/user/register")
+api.add_resource(UserInfo, "/api/user/info")
 ####################################
 #### allow rest api request header
 ######################################
