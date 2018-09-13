@@ -46,6 +46,17 @@ jwt = JWTManager(app)
 ###########################
 api = Api(app)
 
+
 from rest_api.resources.env import DateTime # noqa
 
 api.add_resource(DateTime, "/api/datetime")
+
+####################################
+#### allow rest api request header
+######################################
+@app.after_request
+def after_request(response):
+  response.headers.add('Access-Control-Allow-Origin', '*')
+  response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+  response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+  return response
