@@ -53,6 +53,10 @@ api.add_resource(DateTime, "/api/datetime")
 from rest_api.resources.user import UserRegister, UserInfo # noqa
 api.add_resource(UserRegister, "/api/user/register")
 api.add_resource(UserInfo, "/api/user/info")
+
+from rest_api.resources.video import VideoInfo # noqa
+api.add_resource(VideoInfo, "/api/video/info")
+
 ####################################
 #### allow rest api request header
 ######################################

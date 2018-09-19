@@ -1,4 +1,5 @@
 from flask_restful import Resource, reqparse
+from flask import request
 from werkzeug.security import generate_password_hash
 from rest_api.models.user import UserModel
 
@@ -51,24 +52,24 @@ class UserRegister(Resource):
 
 
 class UserInfo(Resource):
-    parser=reqparse.RequestParser()
-    parser.add_argument(
-        "username", type=str, required=False, help="username cannot be blank."
-    )
-    parser.add_argument(
-        "email", type=str, required=False, help="email cannot be blank."
-    )
+    # parser=reqparse.RequestParser()
+    # parser.add_argument(
+    #     "username", type=str, required=False, help="username cannot be blank."
+    # )
+    # parser.add_argument(
+    #     "email", type=str, required=False, help="email cannot be blank."
+    # )
 
-    def post(self):
-        data = self.parser.parse_args()
-        if 'username' in data.keys():
+    def get(self):
+        args = request.args
+        if 'username' in args.keys():
             # get user by username
-            user = UserModel.find_by_username(data['username'])
+            user = UserModel.find_by_username(args['username'])
 
 
-        elif 'email' in data.keys():
+        elif 'email' in args.keys():
             # get user by email
-            user = UserModel.find_by_email(data['email'])
+            user = UserModel.find_by_email(args['email'])
         else:
             return {
                 "message":"error, provide either username or email parameter."
