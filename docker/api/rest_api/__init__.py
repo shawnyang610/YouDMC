@@ -8,6 +8,7 @@ from os.path import abspath, dirname
 #### config flask app ####
 ###########################
 app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['SECRET_KEY'] = 'myappsecretkey'
 

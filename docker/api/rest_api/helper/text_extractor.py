@@ -1,6 +1,9 @@
+from __future__ import unicode_literals
 import re
 import urllib
-from pafy import pafy
+import youtube_dl
+
+#### Native Extractor using Regex | Work in Progress #########
 
 class VideoPageExtor():
 
@@ -47,27 +50,50 @@ class VideoPageExtor():
             author = match[0]
         return author
 
-class VideoPageExtorPafy():
+#### DEPRECATED Extracting Method using Pafy #################
 
-    # default constructor
-    # param:
-    # src: webpage source code
-    def __init__(self, url):
-        self.vid = pafy.new(url)
+# class VideoPageExtorPafy():
+
+#     # default constructor
+#     # param:
+#     # src: webpage source code
+#     def __init__(self, url):
+#         self.vid = pafy.new(url)
     
-    def is_valid(self):
-        pass
+#     def is_valid(self):
+#         pass
+
+#     # extract title
+#     def get_title(self):
+#         return self.vid.title
+
+#     # extract author
+#     def get_author(self):
+#         return self.vid.author
+
+#     def get_date(self):
+#         return self.vid.published
+
+#     def get_description(self):
+#         return self.vid.description
+
+
+class VideoPageExtorTYDL():
+    def __init__(self, url):
+        self.ydl_opts ={}
+        ydl = youtube_dl.YoutubeDL(self.ydl_opts)
+        self.meta=ydl.extract_info(url, download=False)
 
     # extract title
     def get_title(self):
-        return self.vid.title
+        return self.meta["title"]
 
     # extract author
     def get_author(self):
-        return self.vid.author
+        return self.meta["uploader"]
 
     def get_date(self):
-        return self.vid.published
+        return self.meta["upload_date"]
 
     def get_description(self):
-        return self.vid.description
+        return self.meta["description"]

@@ -1,7 +1,9 @@
 from flask_restful import Resource
 from flask import request
 from rest_api.models.video import VideoModel # noqa
-from rest_api.helper.text_extractor import VideoPageExtorPafy
+from rest_api.helper.text_extractor import VideoPageExtorTYDL
+import youtube_dl
+from flask import make_response, json
 
 
 class VideoInfo(Resource):
@@ -25,7 +27,8 @@ class VideoInfo(Resource):
             url = 'https://youtube.com/watch?v='+args["vid"]
 
             try:
-                extractor = VideoPageExtorPafy(url)
+                # extractor = VideoPageExtorPafy(url)
+                extractor = VideoPageExtorTYDL(url)
                 # video doesn't exist on youtube:
                 # if not extractor.is_valid():
                 #     return {
@@ -36,7 +39,7 @@ class VideoInfo(Resource):
                 author = extractor.get_author()
                 date = extractor.get_date()
                 description = extractor.get_description()
-            except IOError:
+            except (IOError, youtube_dl.utils.DownloadError):
                 return {
                     "message":"video doesn't exist."
                 },404
@@ -51,10 +54,14 @@ class VideoInfo(Resource):
             video.save_to_db()
 
         # return video info
-        return {
+        res= {
             "vid":video.vid,
             "title":video.title,
             "date":video.video_date,
             "author":video.author,
             "description":video.description
         }
+        response = make_response(json.dumps(res))
+        response.headers["content-type"]="application/json"
+
+        return response

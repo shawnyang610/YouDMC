@@ -83,6 +83,6 @@ class UserInfo(Resource):
         return {
             "username":user.username,
             "email":user.email,
-            "registration date":str(user.date),
+            "registration_date":str(user.date),
             "profile_img":user.profile_img
         }
