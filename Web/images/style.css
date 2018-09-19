@@ -55,6 +55,22 @@ body {
 	clear:both;
 }
 
+.column {
+    float: left;
+}
+
+/* Middle column */
+.column.main {
+    width: 50%;
+}
+
+/* Left and right column */
+.column.side {
+    width: 25%;
+}
+
+
+
 @media screen and (max-width: 500px) {
   .header a {
     float: none;
@@ -63,5 +79,9 @@ body {
   }
   .header-right {
     float: none;
+  }
+
+  .column.side, .column.main {
+    width: 100%;
   }
 }

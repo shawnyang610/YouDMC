@@ -1,17 +1,17 @@
-function setup() {
-  document.getElementById("jsStatus").innerHTML="JS running"; //indicate js is working
-}
-
-function test() {
-  appendToPage('test');
+function getUserInfo(url) { //run automatically when page is loaded
+  appendToPage('script running');
   var request = new XMLHttpRequest();
-  request.open('GET', 'https://youcmt.com/api/datetime', true);
+  request.open('GET', url, true);
   appendToPage('open');
   request.onload = function() {
     if (request.status >= 200 && request.status < 400) {
       appendToPage('request success, status = ' + request.status);
       appendToPage('onload');
-      appendToPage(JSON.parse(this.response).datetime);
+      appendToPage(JSON.stringify(this.responseText));
+      appendToPage(JSON.parse(this.response).username);
+      appendToPage(JSON.parse(this.response).email);
+      //appendToPage(JSON.parse(this.response).'registration date');
+      appendToPage(JSON.parse(this.response).profile_img);
     } else {
       appendToPage('request failed, status = ' + request.status);
     }
@@ -25,7 +25,6 @@ function test() {
 
   request.send();
   appendToPage('request sent, status = ' + request.status);
-  appendToPage('force:' + JSON.parse(this.response).datetime);
 }
 
 function appendToPage(someString) {

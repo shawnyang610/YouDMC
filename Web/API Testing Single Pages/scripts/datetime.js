@@ -1,9 +1,5 @@
-function setup() {
-  document.getElementById("jsStatus").innerHTML="JS running"; //indicate js is working
-}
-
-function test() {
-  appendToPage('test');
+function run() { //run automatically when page is loaded
+  appendToPage('script running');
   var request = new XMLHttpRequest();
   request.open('GET', 'https://youcmt.com/api/datetime', true);
   appendToPage('open');
@@ -25,7 +21,6 @@ function test() {
 
   request.send();
   appendToPage('request sent, status = ' + request.status);
-  appendToPage('force:' + JSON.parse(this.response).datetime);
 }
 
 function appendToPage(someString) {
