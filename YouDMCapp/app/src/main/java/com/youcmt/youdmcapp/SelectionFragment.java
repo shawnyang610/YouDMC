@@ -29,6 +29,7 @@ public class SelectionFragment extends Fragment {
             public void onClick(View view) {
                 FragmentTransaction fragmentTransaction =
                         getActivity().getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.replace(R.id.fragment_container, new LoginFragment());
                 fragmentTransaction.commit();
             }
@@ -39,6 +40,7 @@ public class SelectionFragment extends Fragment {
             public void onClick(View view) {
                 FragmentTransaction fragmentTransaction =
                         getActivity().getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.replace(R.id.fragment_container, new RegisterFragment());
                 fragmentTransaction.commit();
             }

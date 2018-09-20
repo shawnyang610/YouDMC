@@ -1,8 +1,10 @@
 package com.youcmt.youdmcapp;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +14,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.youcmt.youdmcapp.model.User;
-import com.youcmt.youdmcapp.model.UserRequest;
-import com.youcmt.youdmcapp.model.VideoRequest;
+
+import java.util.HashMap;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -24,6 +26,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 /**
  * Created by Stanislav Ostrovskii on 9/19/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
+ * This fragment allows a user to log in to the service with their credentials.
  */
 
 public class LoginFragment extends Fragment {
@@ -54,6 +57,11 @@ public class LoginFragment extends Fragment {
                 login();
             }
         });
+
+        //enable back button
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         return view;
     }
 
@@ -64,23 +72,32 @@ public class LoginFragment extends Fragment {
     private void login() {
         String username = mUsernameEditText.getText().toString();
         String password = mPasswordEditText.getText().toString();
-        Log.i(TAG, "Username: " + username + " Password: " + password);
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://youcmt.com/api/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         YouCmtClient client = retrofit.create(YouCmtClient.class);
-        Call<User> response = client.login(username, password);
+
+        HashMap header = new HashMap();
+        header.put("Content-Type", "application/json");
+        Call<User> response = client.login(username, header);
+
+        Log.d(TAG, "URL: " + response.request().url().toString());
+
         response.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
-                User user = response.body();
 
+                if(response.code()==200) {
+                    User user = response.body();
+                     Log.d(TAG, user.getUsername());
+                }
+                else Log.d(TAG, String.valueOf(response.code()) + " ");
             }
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-
+                Log.d(TAG, "Failed");
             }
         });
     }

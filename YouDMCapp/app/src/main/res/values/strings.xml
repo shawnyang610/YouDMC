@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">YouDMCapp</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="skip">Skip for now</string>
+    <string name="login_to_youcmt">Login to YouCMT:</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="choose_username">Pick a Username</string>
+    <string name="username_hint">Select a Username?</string>
+    <string name="email">E-mail</string>
+    <string name="reenter_password">Re-enter Password</string>
+    <string name="disclaimer">By registering, you agree to YouCMT\'s Terms of Service, which do not exist.</string>
 </resources>
