@@ -12,4 +12,6 @@
     <string name="email">E-mail</string>
     <string name="reenter_password">Re-enter Password</string>
     <string name="disclaimer">By registering, you agree to YouCMT\'s Terms of Service, which do not exist.</string>
+    <string name="logged_in">You are successfully logged in!</string>
+    <string name="sign_out">Sign out</string>
 </resources>

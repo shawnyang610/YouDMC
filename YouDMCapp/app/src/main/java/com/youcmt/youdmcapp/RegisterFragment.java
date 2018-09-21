@@ -1,5 +1,6 @@
 package com.youcmt.youdmcapp;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -37,6 +38,13 @@ public class RegisterFragment extends Fragment {
     private EditText mPasswordEditText;
     private EditText mReenterEditText;
     private Button mRegisterButton;
+    private LoginCallbacks mHostingActivity;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mHostingActivity = (LoginCallbacks) context;
+    }
 
     @Nullable
     @Override
@@ -164,24 +172,23 @@ public class RegisterFragment extends Fragment {
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
                 if(response.code()==201)
                 {
-                    login();
+                    mHostingActivity.onSuccessfulRegistration();
                 }
                 else if(response.code()==400)
                 {
-                    Toast.makeText(getActivity(), "Username or email taken!", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Message: " + response.message());
+                    Toast.makeText(getActivity(), response.message(), Toast.LENGTH_SHORT).show();
                 }
-                else Toast.makeText(getActivity(), "Unknown error occurred!", Toast.LENGTH_SHORT).show();
+                else
+                {
+                    Toast.makeText(getActivity(), "Unknown error occurred!", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.d(TAG,"failed");
                 Toast.makeText(getActivity(), t.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             }
         });
-    }
-
-    private void login() {
-
     }
 }

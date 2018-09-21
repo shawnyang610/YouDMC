@@ -1,6 +1,6 @@
 package com.youcmt.youdmcapp;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,7 +14,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.youcmt.youdmcapp.model.User;
+import com.youcmt.youdmcapp.model.UserError;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.HashMap;
 
 import retrofit2.Call;
@@ -36,6 +41,13 @@ public class LoginFragment extends Fragment {
     private EditText mPasswordEditText;
     private Button mForgotButton;
     private Button mLoginButton;
+    private LoginCallbacks mHostingActivity;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mHostingActivity = (LoginCallbacks) context;
+    }
 
     @Nullable
     @Override
@@ -90,17 +102,38 @@ public class LoginFragment extends Fragment {
 
                 if(response.code()==200) {
                     User user = response.body();
-                     Log.d(TAG, user.getUsername());
+                    mHostingActivity.onSuccessfulLogin();
                 }
-                else Log.d(TAG, String.valueOf(response.code()) + " ");
+                else if(response.code()==404)
+                {
+                    try {
+                        Log.d(TAG, String.valueOf(response.code()) + " " + response.errorBody().string());
+                        JSONObject errorMessage = new JSONObject(response.errorBody().string());
+                        Toast.makeText(getActivity(), errorMessage.getString("message"), Toast.LENGTH_SHORT).show();
+
+                    } catch (IOException e) {
+                        displayUnknownError();
+                        e.printStackTrace();
+                    } catch (JSONException j)
+                    {
+                        displayUnknownError();
+                        j.printStackTrace();
+                    }
+                }
+                else {
+                    displayUnknownError();
+                }
+
             }
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-                Log.d(TAG, "Failed");
+                Toast.makeText(getActivity(), "Network error! Check your internet connection.",Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-
+    private void displayUnknownError() {
+        Toast.makeText(getActivity(), "Unknown error occurred!", Toast.LENGTH_SHORT).show();
+    }
 }

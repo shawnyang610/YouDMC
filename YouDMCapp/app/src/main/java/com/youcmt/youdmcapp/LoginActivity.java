@@ -1,5 +1,6 @@
 package com.youcmt.youdmcapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -10,15 +11,22 @@ import android.util.Log;
 import android.view.MenuItem;
 
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements LoginCallbacks {
+    public static final String LOGGED_IN = "LoggedIn";
     private static final String TAG = "LoginActivity";
     private SharedPreferences mPreferences;
+    private SharedPreferences.Editor mEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        mPreferences = getSharedPreferences("youCmt", MODE_PRIVATE);
+        mPreferences = getSharedPreferences("com.youcmt.youdmcapp", MODE_PRIVATE);
+        mEditor = mPreferences.edit();
+        if(mPreferences.getBoolean(LOGGED_IN, false))
+        {
+            startMainActivity();
+        }
         displayFragment();
     }
 
@@ -56,5 +64,28 @@ public class LoginActivity extends AppCompatActivity {
                 onBackPressed();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSuccessfulLogin() {
+
+        mEditor.putBoolean(LOGGED_IN, true).apply();
+        startMainActivity();
+    }
+
+    public void onSuccessfulRegistration() {
+
+        mEditor.putBoolean(LOGGED_IN, true).apply();
+        startMainActivity();
+    }
+
+    /**
+     * Starts MainActivity, as the user is considered logged in.
+     */
+    private void startMainActivity()
+    {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
