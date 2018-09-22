@@ -2,7 +2,7 @@ from rest_api import db
 from datetime import datetime
 
 class UserModel(db.Model):
-    __tablename = "users"
+    __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.String(10), default="ACTIVE")
@@ -25,6 +25,14 @@ class UserModel(db.Model):
     @classmethod
     def find_by_id (cls, id):
         return cls.query.filter_by(id=id, is_deleted=0).first()
+    
+    @classmethod
+    def find_by_username (cls, username):
+        return cls.query.filter_by(username=username, is_deleted=0).first()
+    
+    @classmethod
+    def find_by_email (cls, email):
+        return cls.query.filter_by(email=email, is_deleted=0).first()
 
     def save_to_db (self):
         db.session.add(self)

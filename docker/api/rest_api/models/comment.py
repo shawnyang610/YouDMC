@@ -1,11 +1,12 @@
 from rest_api import db
 from datetime import datetime
+# from rest_api.models.user import UserModel # noqa
 
 class CommentModel(db.Model):
     __tablename__="comments"
 
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.Datetime, nullable=False, default=datetime.utcnow)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     text = db.Column(db.String)
     parent_comment_id = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
