@@ -1,14 +1,14 @@
 <!doctype html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta charset="utf-8">
-<title> API Test </title>
-<link rel="stylesheet" href="images/style.css">
-<script src="scripts/api.js">  </script>
-<script>
-  var videoID = "something"
-</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <title> Modules Test </title>
+  <link rel="stylesheet" href="images/mod_style.css">
+  <script src="scripts/DOM.js">  </script>
+  <script>
+    var videoID = "something"
+  </script>
 </head>
 
 
@@ -16,32 +16,34 @@
 
 <div class="header">
   <a href="#default" class="logo"><img src="images/logo.png" width=100></a>
-  <div class="header-right">
-    <table>
-      <tr>
-        <td rowspan="2"> <a href="#account">Account</a> </td>
-        <td rowspan="2"> <a href="#logout">Logout</a> </td>
-      </tr>
-    </table>
+  <div id="header-right">
+    <!-- based on user logged in or not -->
   </div> <!-- end of header-right -->
 </div> <!-- end of header -->
-
+<div class = "testButtons">
+  <button type="button" onclick="clear_header()">Clear Header</button>
+  <button type="button" onclick="fill_header_loggedOut()">Logged Out Header</button>
+  <button type="button" onclick="fill_header_loggedIn()">Logged In Header</button>
+  <br>
+  <button type="button" onclick="insert_randomMessage()">Insert Random Message</button>
+  <button type="button" onclick="clear_messages()">Clear All Messages</button>
+  <br>
+  <button type="button" onclick="show_embedVideo()">Show Embed Video</button>
+  <button type="button" onclick="hide_embedVideo()">Hide Embed Video</button>
+  <br>
+  <button type="button" onclick="show_sidepanel()">Show Sidepanel</button>
+  <button type="button" onclick="hide_sidepanel()">Hide Sidepanel</button>
+</div>
 <div class = "row">
-  <div id="content" style="padding:20px" class = column main>
-    <div id="video">
-      <iframe type="text/html" width="800" height="450" src="https://www.youtube.com/embed/M7lc1UVf-VE"> Embed Video
-      </iframe>
-    </div>
-    <button type="button" onclick="test()">Test API</button>
-    <p id="jsStatus">JS NOT running</p>
+  <div id="content" style="padding:20px" class = column.main>
+    <div id="video"> </div> <!-- placeholder for embedded video -->
+    <div id="write"> </div> <!-- placeholder for writting comments -->
+    <div id="comments"> </div> <!-- placeholder for other comments -->
   </div> <!-- end of contents -->
 
-  <div id="aside" class = column side>
-    <p>This is where the side panel is going to be</p>
+  <div id="aside" class = column.side> <!-- placeholder for side panel -->
   </div> <!-- end of aside -->
-</div>
-
-
+</div> <!-- end of row -->
 
 <div class="footer">
   <div class="padding"> Designed for <a href="https://www.cs.qc.cuny.edu/gradclasses.html#CSCI731" title="Software Development Practicum">CSCI_731</a> | &copy; Copyright No Rights Reserved | <a href="https://www.cs.qc.cuny.edu/" title="Computer Science Department">Queens College Computer Science</a> </div>
