@@ -14,7 +14,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.youcmt.youdmcapp.model.User;
-import com.youcmt.youdmcapp.model.UserError;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +26,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import static com.youcmt.youdmcapp.Constants.BASE_API_URL;
 
 /**
  * Created by Stanislav Ostrovskii on 9/19/2018.
@@ -85,7 +86,7 @@ public class LoginFragment extends Fragment {
         String username = mUsernameEditText.getText().toString();
         String password = mPasswordEditText.getText().toString();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://youcmt.com/api/")
+                .baseUrl(BASE_API_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         YouCmtClient client = retrofit.create(YouCmtClient.class);
@@ -93,8 +94,6 @@ public class LoginFragment extends Fragment {
         HashMap header = new HashMap();
         header.put("Content-Type", "application/json");
         Call<User> response = client.login(username, header);
-
-        Log.d(TAG, "URL: " + response.request().url().toString());
 
         response.enqueue(new Callback<User>() {
             @Override
@@ -107,7 +106,7 @@ public class LoginFragment extends Fragment {
                 else if(response.code()==404)
                 {
                     try {
-                        Log.d(TAG, String.valueOf(response.code()) + " " + response.errorBody().string());
+                        Log.d(TAG, String.valueOf(response.code()));
                         JSONObject errorMessage = new JSONObject(response.errorBody().string());
                         Toast.makeText(getActivity(), errorMessage.getString("message"), Toast.LENGTH_SHORT).show();
 

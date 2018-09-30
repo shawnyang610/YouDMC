@@ -16,8 +16,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
-
-        <!--<service android:name=".FetchVideoService"/>-->
+        <activity android:name=".VideoActivity"
+            android:parentActivityName=".MainActivity"/>
+        <service
+            android:name=".FetchVideoService"
+            android:exported="false"/>
     </application>
 
 </manifest>

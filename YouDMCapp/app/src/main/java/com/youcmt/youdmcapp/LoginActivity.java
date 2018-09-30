@@ -33,12 +33,10 @@ public class LoginActivity extends AppCompatActivity implements LoginCallbacks {
     private void displayFragment()
     {
         Fragment fragment;
-        //TODO if user is already logged in, will go to main page later
-
         fragment = new SelectionFragment();
         FragmentTransaction fragmentTransaction =
                 getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.add(R.id.fragment_container, fragment);
+        fragmentTransaction.replace(R.id.fragment_container, fragment);
         fragmentTransaction.commit();
     }
 
@@ -77,6 +75,7 @@ public class LoginActivity extends AppCompatActivity implements LoginCallbacks {
 
         mEditor.putBoolean(LOGGED_IN, true).apply();
         startMainActivity();
+        finish();
     }
 
     /**
