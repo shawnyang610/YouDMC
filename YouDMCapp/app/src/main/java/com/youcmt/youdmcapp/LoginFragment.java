@@ -1,6 +1,6 @@
 package com.youcmt.youdmcapp;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,6 +15,10 @@ import android.widget.Toast;
 
 import com.youcmt.youdmcapp.model.User;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.HashMap;
 
 import retrofit2.Call;
@@ -22,6 +26,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import static com.youcmt.youdmcapp.Constants.BASE_API_URL;
 
 /**
  * Created by Stanislav Ostrovskii on 9/19/2018.
@@ -36,6 +42,13 @@ public class LoginFragment extends Fragment {
     private EditText mPasswordEditText;
     private Button mForgotButton;
     private Button mLoginButton;
+    private LoginCallbacks mHostingActivity;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mHostingActivity = (LoginCallbacks) context;
+    }
 
     @Nullable
     @Override
@@ -73,7 +86,7 @@ public class LoginFragment extends Fragment {
         String username = mUsernameEditText.getText().toString();
         String password = mPasswordEditText.getText().toString();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://youcmt.com/api/")
+                .baseUrl(BASE_API_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         YouCmtClient client = retrofit.create(YouCmtClient.class);
@@ -82,25 +95,44 @@ public class LoginFragment extends Fragment {
         header.put("Content-Type", "application/json");
         Call<User> response = client.login(username, header);
 
-        Log.d(TAG, "URL: " + response.request().url().toString());
-
         response.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
 
                 if(response.code()==200) {
                     User user = response.body();
-                     Log.d(TAG, user.getUsername());
+                    mHostingActivity.onSuccessfulLogin();
                 }
-                else Log.d(TAG, String.valueOf(response.code()) + " ");
+                else if(response.code()==404)
+                {
+                    try {
+                        Log.d(TAG, String.valueOf(response.code()));
+                        JSONObject errorMessage = new JSONObject(response.errorBody().string());
+                        Toast.makeText(getActivity(), errorMessage.getString("message"), Toast.LENGTH_SHORT).show();
+
+                    } catch (IOException e) {
+                        displayUnknownError();
+                        e.printStackTrace();
+                    } catch (JSONException j)
+                    {
+                        displayUnknownError();
+                        j.printStackTrace();
+                    }
+                }
+                else {
+                    displayUnknownError();
+                }
+
             }
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-                Log.d(TAG, "Failed");
+                Toast.makeText(getActivity(), "Network error! Check your internet connection.",Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-
+    private void displayUnknownError() {
+        Toast.makeText(getActivity(), "Unknown error occurred!", Toast.LENGTH_SHORT).show();
+    }
 }

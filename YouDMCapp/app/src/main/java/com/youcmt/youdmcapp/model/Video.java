@@ -1,32 +1,42 @@
 package com.youcmt.youdmcapp.model;
 
-import java.util.Date;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Created by Stanislav Ostrovskii on 9/18/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
  */
 
-public class Video {
-    private String url;
+public class Video implements Parcelable {
+    private String vid;
     private String title;
-    private Comment[] comments;
-    private Date datetime;
+    private String date;
+    private String author;
+    private String description;
 
-    public Video()
-    {}
-
-    public Video(String url)
-    {
-        this.url = url;
+    protected Video(Parcel in) {
+        vid = in.readString();
+        title = in.readString();
+        date = in.readString();
+        author = in.readString();
+        description = in.readString();
     }
 
-    public String getUrl() {
-        return url;
-    }
+    public static final Creator<Video> CREATOR = new Creator<Video>() {
+        @Override
+        public Video createFromParcel(Parcel in) {
+            return new Video(in);
+        }
 
-    public void setUrl(String url) {
-        this.url = url;
+        @Override
+        public Video[] newArray(int size) {
+            return new Video[size];
+        }
+    };
+
+    public String getVid() {
+        return vid;
     }
 
     public String getTitle() {
@@ -37,19 +47,45 @@ public class Video {
         this.title = title;
     }
 
-    public Comment[] getComments() {
-        return comments;
+    public String getDate() {
+        return date;
     }
 
-    public void setComments(Comment[] comments) {
-        this.comments = comments;
+    public void setDate(String date) {
+        this.date = date;
     }
 
-    public Date getDatetime() {
-        return datetime;
+    public String getAuthor() {
+        return author;
     }
 
-    public void setDatetime(Date datetime) {
-        this.datetime = datetime;
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setVid(String vid) {
+        this.vid = vid;
+    }
+
+    @Override
+    public int describeContents() {
+        return hashCode();
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(vid);
+        parcel.writeString(title);
+        parcel.writeString(date);
+        parcel.writeString(author);
+        parcel.writeString(description);
     }
 }

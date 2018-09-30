@@ -1,8 +1,7 @@
 package com.youcmt.youdmcapp;
 
-import com.google.gson.JsonObject;
 import com.youcmt.youdmcapp.model.User;
-import com.youcmt.youdmcapp.model.VideoRequest;
+import com.youcmt.youdmcapp.model.Video;
 
 
 import java.util.HashMap;
@@ -13,16 +12,17 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.HeaderMap;
 import retrofit2.http.POST;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
- * Created by stan_ on 9/18/2018.
+ * Created by Stanislav Ostrovskii on 9/18/2018.
+ * Copyright 2018 youcmt.com team. All rights reserved.
  */
 
 public interface YouCmtClient {
-    @GET("video/info?vid={url}")
-    Call<VideoRequest> videoWithUrl(@Path("url") String url, @Body VideoRequest request);
+    @GET("video/info")
+    Call<Video> videoWithUrl(@Query("vid") String url,
+                             @HeaderMap HashMap<String,String> headerMa);
 
     @POST("user/register")
     Call<ResponseBody> registerUser(@Body User user, @HeaderMap HashMap<String,String> headerMap);

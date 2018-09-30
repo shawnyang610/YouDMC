@@ -12,4 +12,13 @@
     <string name="email">E-mail</string>
     <string name="reenter_password">Re-enter Password</string>
     <string name="disclaimer">By registering, you agree to YouCMT\'s Terms of Service, which do not exist.</string>
+    <string name="logged_in">You are successfully logged in!</string>
+    <string name="sign_out">Sign out</string>
+    <string name="video_info_message">The Video will be embedded here or have a thumbnail</string>
+    <string name="comments">Comments</string>
+    <string name="marcus_aerelius_quote">When you arise in the morning, think of what a precious privilege it is to be alive - to breathe, to think, to enjoy, to love.</string>
+    <string name="reply">Reply</string>
+    <string name="view_replies">View Replies</string>
+    <string name="enter_video_url_hint">Enter video URL</string>
+    <string name="search_video">Search Video</string>
 </resources>
