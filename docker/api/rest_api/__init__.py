@@ -67,6 +67,9 @@ api.add_resource(UserInfo, "/api/user/info")
 from rest_api.resources.video import VideoInfo # noqa
 api.add_resource(VideoInfo, "/api/video/info")
 
+from rest_api.resources.comment import Comment # noqa
+api.add_resource(Comment, "/api/comment")
+
 ####################################
 #### allow rest api request header
 ######################################
