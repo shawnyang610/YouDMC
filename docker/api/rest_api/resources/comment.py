@@ -48,12 +48,6 @@ class Comment(Resource):
         else:
             comments = CommentModel.find_all_by_parent_comment_id(args['parent_comment_id'])
 
-        if comments is None:
-            return {
-                "message":"no comments found"
-            }, 204
-        
+
         comment_list = [comment.to_json() for comment in comments]
         return {"comments":comment_list},200
-
-
