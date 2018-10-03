@@ -1,8 +1,10 @@
 function setup() {
   fill_header_loggedOut();
+  hideCommentBox();
 }
 
 function fill_header_loggedOut() {
+  clear_header();
   var form = document.createElement("form");
   var table = document.createElement("table");
 
@@ -54,6 +56,7 @@ function fill_header_loggedOut() {
 }
 
 function fill_header_loggedIn() {
+  clear_header();
   var form = document.createElement("form");
   var table = document.createElement("table");
 
@@ -87,11 +90,15 @@ function clear_header() {
 }
 
 function show_sidepanel() {
-
+  document.getElementById("content").style.width = "75%";
+  document.getElementById("aside").style.width = "25%";
+  document.getElementById("aside").innerHTML = "Side panel content to be filled";
 }
 
 function hide_sidepanel() {
-
+  document.getElementById("content").style.width = "100%";
+  document.getElementById("aside").style.width = "0%";
+  document.getElementById("aside").innerHTML = "";
 }
 
 function insert_randomMessage() {
@@ -150,7 +157,9 @@ function insert_randomMessage() {
 function clear_messages() {
   document.getElementById("comments").innerHTML = "";
 }
+
 function show_embedVideo(videoID) {
+  hide_embedVideo();
   var frame = document.createElement('iframe');
   frame.setAttribute('type', 'text/html');
   frame.setAttribute('width', '800');
@@ -161,4 +170,22 @@ function show_embedVideo(videoID) {
 
 function hide_embedVideo() {
   document.getElementById("video").innerHTML = "";
+}
+
+function showCommentBox() {
+  document.getElementById("write").innerHTML = "";
+  document.getElementById("write").innerHTML = "[Comment Box is here]";
+}
+
+function hideCommentBox() {
+  document.getElementById("write").innerHTML = "";
+  var commentTrigger = document.createElement("a");
+  commentTrigger.appendChild(document.createTextNode("Add your comment here..."));
+  commentTrigger.href = "#comment";
+  commentTrigger.setAttribute("onclick", "showCommentBox()");
+  document.getElementById("write").appendChild(commentTrigger);
+}
+
+function submitComment() {
+
 }
