@@ -1,6 +1,7 @@
 function setup() {
   fill_header_loggedOut();
   hideCommentBox();
+  fetchComments();
 }
 
 function fill_header_loggedOut() {
@@ -154,6 +155,14 @@ function insert_randomMessage() {
   document.getElementById("comments").appendChild(newP);
 }
 
+function insert_fetchedComment(commentObject) {
+  //inserting plain text for now
+  var comment = JSON.stringify(commentObject);
+  var newP = document.createElement("p");
+  newP.innerHTML = comment;
+  document.getElementById("comments").appendChild(newP);
+}
+
 function clear_messages() {
   document.getElementById("comments").innerHTML = "";
 }
@@ -173,12 +182,32 @@ function hide_embedVideo() {
 }
 
 function showCommentBox() {
-  document.getElementById("write").innerHTML = "";
-  document.getElementById("write").innerHTML = "[Comment Box is here]";
+  //todo: put all elements into table/grid for better allignment
+  //include profile picture
+  document.getElementById("write").innerHTML = ""; //clear
+  var activeComment = document.createElement("textarea");
+  activeComment.id = "commentTextArea";
+  activeComment.setAttribute('rows','5');
+  activeComment.style.resize = 'none';
+  activeComment.style.width = document.getElementById("content").style.width;
+  document.getElementById("write").appendChild(activeComment);
+
+  var cancelButton = document.createElement("button");
+  cancelButton.appendChild(document.createTextNode("Cancel"));
+  cancelButton.setAttribute('onclick','hideCommentBox()');
+  cancelButton.style.float = "right";
+  var submitButton = document.createElement("button");
+  submitButton.appendChild(document.createTextNode("Submit"));
+  submitButton.setAttribute('onclick','submitComment()');
+  submitButton.style.float = "right";
+
+  document.getElementById("write").appendChild(document.createElement("br"));
+  document.getElementById("write").appendChild(cancelButton);
+  document.getElementById("write").appendChild(submitButton);
 }
 
 function hideCommentBox() {
-  document.getElementById("write").innerHTML = "";
+  document.getElementById("write").innerHTML = ""; //clear
   var commentTrigger = document.createElement("a");
   commentTrigger.appendChild(document.createTextNode("Add your comment here..."));
   commentTrigger.href = "#comment";
@@ -187,5 +216,54 @@ function hideCommentBox() {
 }
 
 function submitComment() {
+  var commentText = document.getElementById("commentTextArea").value;
+  if (!commentText) {
+    alert("Comment cannot be empty");
+    return;
+  }
+  var url = "https://youcmt.com/api/comment";
+  var userID = 1; //or current logged in user
+  var vidID = "TEST"; //or use meta info id
 
+  var data = new FormData();
+  data.append('user_id', userID);
+  data.append('text', commentText);
+  data.append('vid', vidID);
+
+  var request = new XMLHttpRequest();
+  request.open('POST', url, true);
+  request.onload = function() {
+    if (request.status >= 200 && request.status < 400) {
+      console.log("Request success");
+    } else {
+      console.log('request failed, status = ' + request.status);
+    }
+  };
+  request.send(data);
+}
+
+function fetchComments() {
+  var videoID = "TEST"; //or use meta info id
+  var url = "https://youcmt.com/api/comment?vid=" + videoID;
+  var request = new XMLHttpRequest();
+  request.open('GET', url, true);
+  request.onload = function() {
+    if (request.status >= 200 && request.status < 400) {
+      var commentsArray = JSON.parse(this.response).comments;
+      console.log(JSON.stringify(commentsArray));
+      for (i = 0; i < commentsArray.length; i++) {
+        console.log(commentsArray[i]);
+        insert_fetchedComment(commentsArray[i]);
+      }
+    } else {
+      console.log('request failed, status = ' + request.status);
+    }
+  };
+  request.error = function(e) {
+      console.log("request.error called. Error: " + e);
+  };
+  request.onreadystatechange = function(){
+      console.log("request.onreadystatechange called. readyState: " + this.readyState);
+  };
+  request.send();
 }
