@@ -60,6 +60,14 @@ body {
   float: left;
 }
 
+#write {
+  background-color: white;
+}
+
+#comments {
+  background-color: lightcyan;
+}
+
 /* Side Panel */
 #aside {
   width: 0%;
