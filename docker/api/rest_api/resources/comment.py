@@ -17,9 +17,9 @@ class Comment(Resource):
     parser.add_argument(
         "parent_comment_id", type=int, required=False
     )
-    parser.add_argument(
-        "top_comment_id", type=int, required=False
-    )
+    # parser.add_argument(
+    #     "top_comment_id", type=int, required=False
+    # )
     def post(self):
         args = self.parser.parse_args()
  
@@ -28,10 +28,21 @@ class Comment(Resource):
             comment.save_to_db()
 
 
-        elif args['parent_comment_id'] and args['top_comment_id']:
+        elif args['parent_comment_id']:
+            parent_comment= CommentModel.find_by_id(args['parent_comment_id'])
+            if not parent_comment:
+                return {
+                    "message":"parent comment id not found."
+                }, 404
+
+            if parent_comment.top_comment_id == 0:
+                top_comment_id = parent_comment.id
+            else:
+                top_comment_id = parent_comment.top_comment_id
+
             kwargs = {
                     'parent_comment_id':args['parent_comment_id'],
-                    'top_comment_id':args['top_comment_id']
+                    'top_comment_id':top_comment_id
                     }
             comment = CommentModel(
                 text=args['text'],
