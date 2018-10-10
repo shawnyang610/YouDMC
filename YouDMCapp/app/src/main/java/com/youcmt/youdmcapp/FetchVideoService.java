@@ -3,6 +3,7 @@ package com.youcmt.youdmcapp;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -16,7 +17,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.youcmt.youdmcapp.Constants.BASE_API_URL;
+import static com.youcmt.youdmcapp.Constants.*;
 
 /**
  * Created by Stanislav Ostrovskii on 9/27/2018.
@@ -24,14 +25,10 @@ import static com.youcmt.youdmcapp.Constants.BASE_API_URL;
  */
 
 public class FetchVideoService extends IntentService {
-    private final static String TAG = "IntentService";
+    private final static String TAG = "FetchVideoService";
     final static int SUCCESS = 0;
     final static int FAIL = 1;
-    final static int IN_PROGRESS = 2;
-    final static String EXTRA_VIDEO_URL = "com.youcmt.youdmcapp.video_url";
-    final static String EXTRA_OUT_MESSAGE = "com.youcmt.youdmcapp.out_message";
-    final static String FETCH_VIDEO_INFO = "com.youcmt.youdmcapp.fetch_video_info";
-    final static String EXTRA_VIDEO_STATUS = "com.youcmt.youdmcapp.video_statis";
+
     /**
      * Use this method to create a new Intent for this service
      * @param context
@@ -53,7 +50,6 @@ public class FetchVideoService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         if(intent!=null) {
             String url = intent.getStringExtra(EXTRA_VIDEO_URL);
-            Log.d(TAG, "URL: " + url);
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_API_URL)
                     .addConverterFactory(GsonConverterFactory.create())
@@ -64,7 +60,7 @@ public class FetchVideoService extends IntentService {
             Call<Video> response = client.videoWithUrl(url, header);
             response.enqueue(new Callback<Video>() {
                 @Override
-                public void onResponse(Call<Video> call, Response<Video> response) {
+                public void onResponse(@NonNull Call<Video> call, @NonNull Response<Video> response) {
                     if(response.code()==200)
                     {
                         Video video = response.body();
@@ -73,7 +69,6 @@ public class FetchVideoService extends IntentService {
                             returnToActivity(SUCCESS, video);
                         }
                         else returnToActivity(FAIL);
-
                     }
                     else
                     {
@@ -84,7 +79,9 @@ public class FetchVideoService extends IntentService {
 
                 @Override
                 public void onFailure(Call<Video> call, Throwable t) {
+                    Log.d(TAG, "onFailure() called");
                     returnToActivity(FAIL);
+
                 }
             });
 
@@ -98,7 +95,7 @@ public class FetchVideoService extends IntentService {
         returnIntent.setAction(FETCH_VIDEO_INFO);
         returnIntent.putExtra(EXTRA_VIDEO_STATUS, statusCode);
         if(video.length!=0) {
-            returnIntent.putExtra(EXTRA_OUT_MESSAGE, video[0].getTitle());
+            returnIntent.putExtra(EXTRA_VIDEO, video[0]);
             Log.d(TAG, video[0].getTitle());
         }
         sendBroadcast(returnIntent);
