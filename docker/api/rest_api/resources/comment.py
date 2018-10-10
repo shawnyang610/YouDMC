@@ -15,29 +15,41 @@ class Comment(Resource):
         "vid", type=str, required=False
     )
     parser.add_argument(
-        "parent_comment_id", type=str, required=False
+        "parent_comment_id", type=int, required=False
+    )
+    parser.add_argument(
+        "top_comment_id", type=int, required=False
     )
     def post(self):
         args = self.parser.parse_args()
-        if  ('text' not in args.keys() or
-            'user_id' not in args.keys() or
-            ('vid' not in args.keys() and 'parent_comment_id' not in args.keys())):
+ 
+        if args['vid']:
+            comment = CommentModel(text=args['text'], user_id=args['user_id'], **{'vid':args['vid']})
+            comment.save_to_db()
+
+
+        elif args['parent_comment_id'] and args['top_comment_id']:
+            kwargs = {
+                    'parent_comment_id':args['parent_comment_id'],
+                    'top_comment_id':args['top_comment_id']
+                    }
+            comment = CommentModel(
+                text=args['text'],
+                user_id=args['user_id'],
+                **kwargs
+                )
+            comment.save_to_db()
+        else:
             return {
                 "message":"required parameter(s) missing."
             },400
-        elif 'vid' in args.keys():
-            comment = CommentModel(text=args['text'], user_id=args['user_id'], **{'vid':args['vid']})
-            comment.save_to_db()
-        else: # 'parent_comment_id' in args.keys()
-            comment = CommentModel(text=args['text'], user_id=args['user_id'], **{'vid':args['parent_comment_id']})
-            comment.save_to_db()
         return {
             "message":"comment saved."
         },200
 
     def get (self):
         args = request.args
-        if ('vid' not in args.keys() and 'parent_comment_id' not in args.keys()):
+        if ('vid' not in args.keys() and 'parent_comment_id' not in args.keys() and 'top_comment_id' not in args.keys()):
             return {
                 "message":"required parameter missing."
             }, 400
@@ -45,9 +57,10 @@ class Comment(Resource):
         elif 'vid' in args.keys():
             comments = CommentModel.find_all_by_vid(args['vid'])
         
+        elif 'parent_comment_id' in args.keys():
+            comments = CommentModel.find_all_by_parent_comment_id(int(args['parent_comment_id']))
         else:
-            comments = CommentModel.find_all_by_parent_comment_id(args['parent_comment_id'])
-
+            comments = CommentModel.find_all_by_top_comment_id(int(args['top_comment_id']))
 
         comment_list = [comment.to_json() for comment in comments]
         return {"comments":comment_list},200
