@@ -15,9 +15,12 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".VideoActivity" />
-
-        <!--<service android:name=".FetchVideoService"/>-->
+        <activity android:name=".MainActivity" />
+        <activity android:name=".VideoActivity"
+            android:parentActivityName=".MainActivity"/>
+        <service
+            android:name=".FetchVideoService"
+            android:exported="false"/>
     </application>
 
 </manifest>
