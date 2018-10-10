@@ -29,9 +29,32 @@
   <br>
   <button type="button" onclick="show_embedVideo()">Show Embed Video</button>
   <button type="button" onclick="hide_embedVideo()">Hide Embed Video</button>
-  <br>
   <button type="button" onclick="show_sidepanel()">Show Sidepanel</button>
   <button type="button" onclick="hide_sidepanel()">Hide Sidepanel</button>
+  <br>
+  <div id = testSectionVID>Current page = </div>
+  <!--
+  <input type="text" name="newVideoID">
+  <button type="button" onclick="setNewMetaVideoID()">Set</button>
+  <script>
+    function setNewMetaVideoID() {
+      //get new id from form
+      console.log("Getting nID");
+      var nID = document.getElementById("newVideoID");
+      console.log("nID = " + nID);
+      if (nID == null || nID == "") {
+        alert("New Video ID cannot be empty!");
+        return; //in case empty
+      }
+      console.log("nID = " + nID.value);
+      //set new meta
+      document.querySelector('meta[name="videoID"]').setAttribute("content", nID);
+      refresh_messages();
+      document.getElementById("testSectionVID").innerHTML = "Current page = ";
+      document.getElementById("testSectionVID").appendChild(document.createTextNode(getMeta("videoID"))); //getMeta(videoID)
+    }
+  </script>
+  -->
 </div>
 <div class = "row">
   <div id="content">
@@ -44,6 +67,7 @@
   </div> <!-- end of aside -->
 </div> <!-- end of row -->
 
+<!--
 <div class="footer">
   <div class="padding"> Designed for <a href="https://www.cs.qc.cuny.edu/gradclasses.html#CSCI731" title="Software Development Practicum">CSCI_731</a> | &copy; Copyright No Rights Reserved | <a href="https://www.cs.qc.cuny.edu/" title="Computer Science Department">Queens College Computer Science</a> </div>
 </div> <!-- end of footer -->
