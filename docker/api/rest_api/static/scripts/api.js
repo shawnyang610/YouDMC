@@ -1,19 +1,17 @@
-function getVideoInfo(videoID) { //run automatically when page is loaded
-  appendToPage('script running');
+function setup() {
+  document.getElementById("jsStatus").innerHTML="JS running"; //indicate js is working
+}
+
+function test() {
+  appendToPage('test');
   var request = new XMLHttpRequest();
-  var url = 'https://youcmt.com/api/video/info?vid=' + videoID;
-  request.open('GET', url, true);
+  request.open('GET', 'https://youcmt.com/api/datetime', true);
   appendToPage('open');
   request.onload = function() {
     if (request.status >= 200 && request.status < 400) {
       appendToPage('request success, status = ' + request.status);
       appendToPage('onload');
-      appendToPage(JSON.parse(this.response).responseText);
-      appendToPage(JSON.parse(this.response).vid);
-      appendToPage(JSON.parse(this.response).title);
-      appendToPage(JSON.parse(this.response).date);
-      appendToPage(JSON.parse(this.response).author);
-      appendToPage(JSON.parse(this.response).description);
+      appendToPage(JSON.parse(this.response).datetime);
     } else {
       appendToPage('request failed, status = ' + request.status);
     }
@@ -27,6 +25,7 @@ function getVideoInfo(videoID) { //run automatically when page is loaded
 
   request.send();
   appendToPage('request sent, status = ' + request.status);
+  appendToPage('force:' + JSON.parse(this.response).datetime);
 }
 
 function appendToPage(someString) {

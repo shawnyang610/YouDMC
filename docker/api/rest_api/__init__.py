@@ -24,7 +24,7 @@ def home():
         v = args['v']
     else:
         v = 'home'
-    return render_template("video_info.html", v=v)
+    return render_template("meta_test.html", v=v)
 
 
 ###########################
