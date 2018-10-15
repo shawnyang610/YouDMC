@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
@@ -14,8 +14,17 @@ app.config['SECRET_KEY'] = 'myappsecretkey'
 
 #### web home ####
 @app.route("/api/")
-def home():
+def api_index():
     return render_template("api_index.html")
+
+@app.route("/")
+def home():
+    args = request.args
+    if "v" in args.keys():
+        v = args['v']
+    else:
+        v = 'home'
+    return render_template("meta_test_v2.html", v=v)
 
 
 ###########################
@@ -57,6 +66,9 @@ api.add_resource(UserInfo, "/api/user/info")
 
 from rest_api.resources.video import VideoInfo # noqa
 api.add_resource(VideoInfo, "/api/video/info")
+
+from rest_api.resources.comment import Comment # noqa
+api.add_resource(Comment, "/api/comment")
 
 ####################################
 #### allow rest api request header

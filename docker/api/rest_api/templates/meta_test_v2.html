@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="videoID" content="{{v}}"> <!-- changed by server -->
+  <meta name="staticResourcePath" content="https://youcmt.com/static/"> <!-- changed by server -->
+  <meta charset="utf-8">
+  <title> Modules and Meta Test </title>
+  <link rel="stylesheet" href="{{url_for("static", filename="images/mod_style.css")}}">
+  <script src="{{url_for("static", filename="scripts/Meta_DOM_v2.js")}}">  </script>
+</head>
+
+<body onload="setup();">
+
+<div class="header">
+  <a href="#default" class="logo" id = "logoIcon"><img src="{{url_for("static", filename="images/logo.png")}}" width=100></a>
+  <div id="header-right">
+    <!-- based on user logged in or not -->
+  </div> <!-- end of header-right -->
+</div> <!-- end of header -->
+<div class = "testButtons">
+  <button type="button" onclick="clear_header()">Clear Header</button>
+  <button type="button" onclick="fill_header_loggedOut()">Logged Out Header</button>
+  <button type="button" onclick="fill_header_loggedIn()">Logged In Header</button>
+  <br>
+  <button type="button" onclick="insert_randomMessage()">Insert Random Message</button>
+  <button type="button" onclick="clear_messages()">Clear All Messages (Local) </button>
+  <button type="button" onclick="delete_messages()">Delete All Messages (API Request) </button>
+  <button type="button" onclick="refresh_messages()">Refresh Messages</button>
+  <br>
+  <button type="button" onclick="show_embedVideo()">Show Embed Video</button>
+  <button type="button" onclick="hide_embedVideo()">Hide Embed Video</button>
+  <button type="button" onclick="show_sidepanel()">Show Sidepanel</button>
+  <button type="button" onclick="hide_sidepanel()">Hide Sidepanel</button>
+  <br>
+  <div id = testSectionVID>Current page = </div>
+</div>
+<div class = "row">
+  <div id="content">
+    <div id="videoEmbed"> </div> <!-- placeholder for embedded video -->
+    <div id="videoInfo"> </div> <!-- placeholder for video info -->
+    <div id="write"> </div> <!-- placeholder for writting comments -->
+    <div id="comments"> </div> <!-- placeholder for other comments -->
+  </div> <!-- end of contents -->
+
+  <div id="aside"> <!-- placeholder for side panel -->
+  </div> <!-- end of aside -->
+</div> <!-- end of row -->
+
+</body>
+</html>

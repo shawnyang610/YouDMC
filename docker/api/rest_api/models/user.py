@@ -13,9 +13,12 @@ class UserModel(db.Model):
     password_hash = db.Column(db.String(128), nullable = False)
     email = db.Column(db.String, nullable=False,unique = True)
     profile_img = db.Column(db.String, nullable=False)
+    comments = db.relationship ("CommentModel", lazy="dynamic")
 
     def __init__ (self, role, username, password_hash, email, profile_img):
+        # role = (admin, guest, user)
         self.role = role
+        # username = (admin, guest, any user name)
         self.username = username
         self.password_hash = password_hash
         self.email = email
