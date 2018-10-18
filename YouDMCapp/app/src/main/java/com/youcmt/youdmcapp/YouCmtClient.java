@@ -1,10 +1,12 @@
 package com.youcmt.youdmcapp;
 
+import com.youcmt.youdmcapp.model.Comment;
 import com.youcmt.youdmcapp.model.User;
 import com.youcmt.youdmcapp.model.Video;
 
 
 import java.util.HashMap;
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -22,7 +24,7 @@ import retrofit2.http.Query;
 public interface YouCmtClient {
     @GET("video/info")
     Call<Video> videoWithUrl(@Query("vid") String url,
-                             @HeaderMap HashMap<String,String> headerMa);
+                             @HeaderMap HashMap<String,String> headerMap);
 
     @POST("user/register")
     Call<ResponseBody> registerUser(@Body User user, @HeaderMap HashMap<String,String> headerMap);
@@ -30,4 +32,8 @@ public interface YouCmtClient {
     @GET("user/info")
     Call<User> login( @Query("username") String response,
                        @HeaderMap HashMap<String,String> headerMap);
+
+    @GET("comment")
+    Call<List<Comment>> loadComments(@Query("vid") String url,
+                                     @HeaderMap HashMap<String, String> headerMap);
 }

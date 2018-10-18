@@ -14,11 +14,35 @@
     <string name="disclaimer">By registering, you agree to YouCMT\'s Terms of Service, which do not exist.</string>
     <string name="logged_in">You are successfully logged in!</string>
     <string name="sign_out">Sign out</string>
-    <string name="video_info_message">The Video will be embedded here or have a thumbnail</string>
+    <string name="video_info_message">The video will be embedded here or have a thumbnail</string>
     <string name="comments">Comments</string>
-    <string name="marcus_aerelius_quote">When you arise in the morning, think of what a precious privilege it is to be alive - to breathe, to think, to enjoy, to love.</string>
     <string name="reply">Reply</string>
     <string name="view_replies">View Replies</string>
     <string name="enter_video_url_hint">Enter video URL</string>
     <string name="search_video">Search Video</string>
+    <string name="unfinished">This functionality is not yet enabled.</string>
+    <plurals name="minutes_ago">
+        <item quantity="one">%d minute ago</item>
+        <item quantity="other">%d minutes ago</item>
+    </plurals>
+    <plurals name="hours_ago">
+        <item quantity="one">%d hour ago</item>
+        <item quantity="other">%d hours ago</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+    <plurals name="weeks_ago">
+        <item quantity="one">%d week ago</item>
+        <item quantity="other">%d weeks ago</item>
+    </plurals>
+    <plurals name="years_ago">
+        <item quantity="one">%d year ago</item>
+        <item quantity="other">%d years ago</item>
+    </plurals>
+    <string name="just_now">Just now</string>
+    <string name="no_comments">No comments found. Be the first!</string>
+
+
 </resources>

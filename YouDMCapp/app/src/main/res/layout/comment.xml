@@ -20,7 +20,7 @@
         android:layout_below="@+id/username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/marcus_aerelius_quote"/>
+        android:text="NO"/>
 
     <Button
         android:id="@+id/reply_button"

@@ -112,7 +112,8 @@ public class MainActivity extends AppCompatActivity {
                     finish();
                 }
                 else{
-                    Toast.makeText(this, "Logout unsuccessful", Toast.LENGTH_SHORT);
+                    Toast.makeText(this,
+                            "Logout unsuccessful. Oops.", Toast.LENGTH_SHORT).show();
                 }
                 return true;
             default: return super.onOptionsItemSelected(item);
