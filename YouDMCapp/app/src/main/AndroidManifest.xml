@@ -26,7 +26,8 @@
         <activity
             android:name=".VideoActivity"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden"/>
         <service
             android:name=".FetchVideoService"
             android:exported="false"/>

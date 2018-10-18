@@ -43,6 +43,5 @@
     </plurals>
     <string name="just_now">Just now</string>
     <string name="no_comments">No comments found. Be the first!</string>
-
-
+    <string name="add_comment">Add a comment...</string>
 </resources>

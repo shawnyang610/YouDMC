@@ -3,7 +3,7 @@
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="horizontal"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="wrap_content">
     <ImageView
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -11,26 +11,24 @@
         android:padding="4dp"
         android:src="@mipmap/unset_avatar_ic"/>
     <RelativeLayout android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:padding="4dp">
         <TextView
             android:id="@+id/username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="CowKiller1337"/>
+            android:textStyle="bold"/>
         <TextView
             android:id="@+id/timestamp"
             android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="6 days ago"/>
+            android:layout_alignParentEnd="true"/>
         <TextView
             android:id="@+id/body"
             android:layout_below="@+id/username"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="NOOOO"/>
+            android:layout_height="wrap_content"/>
         <Button
             android:id="@+id/reply_button"
             style="@android:style/Widget.DeviceDefault.Button.Borderless.Small"
@@ -38,7 +36,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/body"
-            android:text="@string/reply"/>
+            android:text="@string/reply"
+            android:layout_toEndOf="@id/view_replies_button"/>
         <Button
             android:id="@+id/view_replies_button"
             style="@android:style/Widget.DeviceDefault.Button.Borderless.Small"
@@ -46,7 +45,8 @@
             android:layout_below="@id/body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/view_replies"/>
+            android:text="@string/view_replies"
+            android:layout_alignParentStart="true"/>
 
     <ImageView
         android:id="@+id/imageView"
