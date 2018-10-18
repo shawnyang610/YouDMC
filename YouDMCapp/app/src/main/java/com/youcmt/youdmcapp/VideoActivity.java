@@ -1,10 +1,8 @@
 package com.youcmt.youdmcapp;
 
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -19,7 +17,7 @@ import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import com.youcmt.youdmcapp.model.Comment;
-import com.youcmt.youdmcapp.model.User;
+import com.youcmt.youdmcapp.model.CommentResponse;
 import com.youcmt.youdmcapp.model.Video;
 
 import org.json.JSONException;
@@ -71,7 +69,7 @@ public class VideoActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        updateRecyclerView();
+        fetchComments();
     }
 
     @Override
@@ -108,12 +106,7 @@ public class VideoActivity extends AppCompatActivity
         YouTubePlayerSupportFragment youTubePlayerFragment =
                 (YouTubePlayerSupportFragment) getSupportFragmentManager().findFragmentById(R.id.youtube_fragment);
         if(youTubePlayerFragment!=null) youTubePlayerFragment.initialize(Constants.YOUTUBE_API_KEY, this);
-        mRecyclerView = findViewById(R.id.comment_rv);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.setNestedScrollingEnabled(false);
     }
-
-
 
     /**
      * Seeks to choose an appropriate text size depending on video title length
@@ -146,30 +139,6 @@ public class VideoActivity extends AppCompatActivity
         finish();
     }
 
-    private void updateRecyclerView()
-    {
-        fetchComments();
-        if(mComments==null)
-        {
-            mComments = new ArrayList<Comment>(0);
-            mRecyclerView.setVisibility(GONE);
-            findViewById(R.id.no_comments_tv).setVisibility(View.VISIBLE);
-        }
-        else {
-            mRecyclerView.setVisibility(View.VISIBLE);
-            findViewById(R.id.no_comments_tv).setVisibility(View.GONE);
-        }
-        if(mCommentAdapter==null)
-        {
-            mCommentAdapter = new CommentAdapter(mComments, this);
-        }
-        else {
-            mCommentAdapter.notifyDataSetChanged();
-        }
-        mRecyclerView.setVisibility(View.VISIBLE);
-        mRecyclerView.setAdapter(mCommentAdapter);
-    }
-
     private void fetchComments()
     {
         Retrofit retrofit = new Retrofit.Builder().baseUrl(BASE_API_URL)
@@ -177,13 +146,14 @@ public class VideoActivity extends AppCompatActivity
         HashMap header = new HashMap();
         header.put("Content-Type", "application/json");
         YouCmtClient client = retrofit.create(YouCmtClient.class);
-        Call<List<Comment>> call = client.loadComments(mVideo.getVid(), header);
+        Call<CommentResponse> call = client.loadComments(mVideo.getVid(), header);
         Log.d(TAG, call.request().url().toString());
-        call.enqueue(new Callback<List<Comment>>() {
+        call.enqueue(new Callback<CommentResponse>() {
             @Override
-            public void onResponse(Call<List<Comment>> call, Response<List<Comment>> response) {
+            public void onResponse(Call<CommentResponse> call, Response<CommentResponse> response) {
                 if(response.code()==200) {
-                    mComments = response.body();
+                    CommentResponse commentResponse = response.body();
+                    processComments(commentResponse);
                     Log.d(TAG, "Success");
                 }
                 else if(response.code()==404)
@@ -213,8 +183,9 @@ public class VideoActivity extends AppCompatActivity
             }
 
             @Override
-            public void onFailure(Call<List<Comment>> call, Throwable t) {
+            public void onFailure(Call<CommentResponse> call, Throwable t) {
                 Log.d(TAG, "onFailureCalled " );
+                Log.d(TAG, t.getMessage());
                 displayUnknownError();
             }
         });
@@ -222,5 +193,41 @@ public class VideoActivity extends AppCompatActivity
 
     private void displayUnknownError() {
         Toast.makeText(this, "Unknown error occurred! Oops!", Toast.LENGTH_SHORT).show();
+    }
+
+    private void processComments(CommentResponse response)
+    {
+        mRecyclerView = findViewById(R.id.comment_rv);
+        if(response.getCommentList()!=null){
+            mComments = new ArrayList<>(response.getCommentList().size());
+            for(Comment comment: response.getCommentList())
+            {
+                mComments.add(comment);
+            }
+            Log.d(TAG, "We fetched " + mComments.size() + " comments");
+        }
+        else displayUnknownError();
+
+        if(mComments==null || mComments.size()==0)
+        {
+            mComments = new ArrayList<Comment>(0);
+            mRecyclerView.setVisibility(GONE);
+            findViewById(R.id.no_comments_tv).setVisibility(View.VISIBLE);
+        }
+        else {
+            mRecyclerView.setVisibility(View.VISIBLE);
+
+            findViewById(R.id.no_comments_tv).setVisibility(View.GONE);
+            if(mCommentAdapter==null)
+            {
+                mCommentAdapter = new CommentAdapter(mComments, this);
+            }
+            else {
+                mCommentAdapter.notifyDataSetChanged();
+            }
+            mRecyclerView.setAdapter(mCommentAdapter);
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            //mRecyclerView.setNestedScrollingEnabled(false);
+        }
     }
 }

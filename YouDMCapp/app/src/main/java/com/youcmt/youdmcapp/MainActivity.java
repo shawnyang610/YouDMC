@@ -46,9 +46,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
-        Log.d(TAG, "onCreate called");
+    protected void onCreate(Bundle savedInstanceState)
+    {
         setContentView(R.layout.activity_main);
         mPreferences = getSharedPreferences("com.youcmt.youdmcapp", MODE_PRIVATE);
         super.onCreate(savedInstanceState);

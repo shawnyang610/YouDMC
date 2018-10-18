@@ -1,6 +1,7 @@
 package com.youcmt.youdmcapp;
 
 import com.youcmt.youdmcapp.model.Comment;
+import com.youcmt.youdmcapp.model.CommentResponse;
 import com.youcmt.youdmcapp.model.User;
 import com.youcmt.youdmcapp.model.Video;
 
@@ -34,6 +35,6 @@ public interface YouCmtClient {
                        @HeaderMap HashMap<String,String> headerMap);
 
     @GET("comment")
-    Call<List<Comment>> loadComments(@Query("vid") String url,
-                                     @HeaderMap HashMap<String, String> headerMap);
+    Call<CommentResponse> loadComments(@Query("vid") String url,
+                                       @HeaderMap HashMap<String, String> headerMap);
 }

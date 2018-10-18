@@ -2,7 +2,6 @@ package com.youcmt.youdmcapp;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
@@ -17,7 +16,6 @@ import com.youcmt.youdmcapp.model.Comment;
  */
 
 public class CommentHolder extends RecyclerView.ViewHolder {
-    private Comment mComment;
     private Context mContext;
     private TextView mTimestamp;
     private TextView mUsername;
@@ -25,6 +23,7 @@ public class CommentHolder extends RecyclerView.ViewHolder {
 
     public CommentHolder(@NonNull View itemView, Context context) {
         super(itemView);
+        mContext = context;
         mUsername = itemView.findViewById(R.id.username);
         mCommentBody = itemView.findViewById(R.id.body);
         mTimestamp = itemView.findViewById(R.id.timestamp);
@@ -32,10 +31,9 @@ public class CommentHolder extends RecyclerView.ViewHolder {
 
     public void bindComment(Comment comment)
     {
-        mComment = comment;
-        mUsername.setText(mComment.getUsername());
-        mCommentBody.setText(mComment.getText());
-        mTimestamp.setText(getTimeAgoString(mComment.getDate()));
+        mUsername.setText(comment.getUsername());
+        mCommentBody.setText(comment.getText());
+        mTimestamp.setText(getTimeAgoString(comment.getDate()));
     }
     private String getTimeAgoString(String date)
     {
