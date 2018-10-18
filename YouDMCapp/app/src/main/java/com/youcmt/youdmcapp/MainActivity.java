@@ -15,9 +15,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.youcmt.youdmcapp.model.Video;
+
+import static com.youcmt.youdmcapp.Constants.*;
 import static com.youcmt.youdmcapp.FetchVideoService.FAIL;
 import static com.youcmt.youdmcapp.FetchVideoService.SUCCESS;
 
@@ -30,17 +32,26 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private ResponseReceiver mReceiver;
     private SharedPreferences mPreferences;
-    private TextView mTextView;
     private EditText mUrlEditText;
     private Button mSearchButton;
     private ProgressBar mProgressBar;
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.getType()!=null &&
+                intent.getType().equals("text/plain")) {
+            setIntent(intent);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        Log.d(TAG, "onCreate called");
         setContentView(R.layout.activity_main);
         mPreferences = getSharedPreferences("com.youcmt.youdmcapp", MODE_PRIVATE);
         super.onCreate(savedInstanceState);
-        mTextView = findViewById(R.id.title_tv);
         mUrlEditText = findViewById(R.id.url_search_et);
         mProgressBar = findViewById(R.id.progress_bar);
         mSearchButton = findViewById(R.id.search_button);
@@ -66,8 +77,19 @@ public class MainActivity extends AppCompatActivity {
         //register the ResponseReceiver
         mReceiver = new ResponseReceiver();
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(FetchVideoService.FETCH_VIDEO_INFO);
+        intentFilter.addAction(FETCH_VIDEO_INFO);
         registerReceiver(mReceiver, intentFilter);
+
+        Intent intent = getIntent();
+        if (intent.getType()!=null &&
+                intent.getType().equals("text/plain")) {
+            Bundle extras = getIntent().getExtras();
+            String value = extras.getString(Intent.EXTRA_TEXT);
+            if(value!=null)
+            {
+                mUrlEditText.setText(value);
+            }
+        }
     }
 
     @Override
@@ -90,7 +112,8 @@ public class MainActivity extends AppCompatActivity {
                     finish();
                 }
                 else{
-                    Toast.makeText(this, "Logout unsuccessful", Toast.LENGTH_SHORT);
+                    Toast.makeText(this,
+                            "Logout unsuccessful. Oops.", Toast.LENGTH_SHORT).show();
                 }
                 return true;
             default: return super.onOptionsItemSelected(item);
@@ -101,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
      * @param url pass the full url. The method will parse the URL.
      */
     private void askForVideo (String url) throws Exception {
+        url = url.trim();
         if(url.contains("="))
         {
             String[] parts = url.split("=");
@@ -119,26 +143,25 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = FetchVideoService.newIntent(this, url);
             startService(intent);
         } catch (Exception e) {
-            mTextView.setText(e.getMessage());
+            mUrlEditText.setText(e.getMessage());
         }
     }
 
     public class ResponseReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "ResponseReceiver.onReceive called");
-            int status = intent.getIntExtra(FetchVideoService.EXTRA_VIDEO_STATUS, FAIL);
-            Log.d(TAG, "Status: " + String.valueOf(status));
+            int status = intent.getIntExtra(EXTRA_VIDEO_STATUS, FAIL);
             mProgressBar.setVisibility(View.INVISIBLE);
             mSearchButton.setVisibility(View.VISIBLE);
             if(status==FAIL)
             {
-                mTextView.setText("");
-                mTextView.setHint("Error retrieving video!");
+                mUrlEditText.setText("");
+                mUrlEditText.setHint("Error retrieving video!");
             }
             else if(status==SUCCESS) {
-                String text = intent.getStringExtra(FetchVideoService.EXTRA_OUT_MESSAGE);
-                mTextView.setText(text);
+                Video video = intent.getParcelableExtra(EXTRA_VIDEO);
+                Intent videoActivityIntent = VideoActivity.newIntent(getApplicationContext(), video);
+                startActivity(videoActivityIntent);
             }
         }
     }
