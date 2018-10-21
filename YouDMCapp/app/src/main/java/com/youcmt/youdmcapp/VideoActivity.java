@@ -30,11 +30,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.TimeZone;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -44,11 +41,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.view.View.GONE;
-import static com.youcmt.youdmcapp.Constants.BASE_API_URL;
-import static com.youcmt.youdmcapp.Constants.EXTRA_VIDEO;
-import static com.youcmt.youdmcapp.Constants.ID_ADMIN;
-import static com.youcmt.youdmcapp.Constants.ID_GUEST;
-import static com.youcmt.youdmcapp.Constants.USER_ID;
+import static com.youcmt.youdmcapp.Constants.*;
 
 /**
  * Created by Stanislav Ostrovskii on 9/30/2018.
@@ -222,8 +215,7 @@ public class VideoActivity extends AppCompatActivity
 
             @Override
             public void onFailure(Call<CommentResponse> call, Throwable t) {
-                Log.d(TAG, "onFailureCalled " );
-                Log.d(TAG, t.getMessage());
+                Log.d(TAG, "onFailureCalled "  + t.getMessage());
                 displayUnknownError();
             }
         });
@@ -286,10 +278,8 @@ public class VideoActivity extends AppCompatActivity
             for(Comment comment: response.getCommentList())
             {
                 mComments.add(comment);
-                Log.d(TAG, "ParentID: " + comment.getParent_comment_id() +
-                    " TopID: " + comment.getTop_comment_id() + " ID: " + comment.getId());
             }
-            Log.d(TAG, "We fetched " + mComments.size() + " comments");
+            Log.d(TAG, "Fetched " + mComments.size() + " comments");
         }
         else displayUnknownError();
 
