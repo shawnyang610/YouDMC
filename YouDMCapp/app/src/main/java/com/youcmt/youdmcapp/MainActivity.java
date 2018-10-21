@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -42,6 +41,11 @@ public class MainActivity extends AppCompatActivity {
         if (intent.getType()!=null &&
                 intent.getType().equals("text/plain")) {
             setIntent(intent);
+            if(!mPreferences.getBoolean(LOGGED_IN, false))
+            {
+                mPreferences.edit().putBoolean(LOGGED_IN, true)
+                        .putInt(USER_ID, ID_GUEST).apply();
+            }
         }
     }
 
@@ -104,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         {
             case R.id.logout:
                 Boolean success =
-                        mPreferences.edit().putBoolean(LoginActivity.LOGGED_IN, false).commit();
+                        mPreferences.edit().putBoolean(LOGGED_IN, false).putInt(USER_ID, ID_NONE).commit();
                 if(success) {
                     Intent intent = new Intent(this, LoginActivity.class);
                     startActivity(intent);

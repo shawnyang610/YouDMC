@@ -27,6 +27,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.youcmt.youdmcapp.Constants.ID_ADMIN;
 import static com.youcmt.youdmcapp.Constants.BASE_API_URL;
 
 /**
@@ -101,7 +102,7 @@ public class LoginFragment extends Fragment {
 
                 if(response.code()==200) {
                     User user = response.body();
-                    mHostingActivity.onSuccessfulLogin();
+                    mHostingActivity.onSuccessfulLogin(ID_ADMIN);
                 }
                 else if(response.code()==404)
                 {
@@ -122,7 +123,6 @@ public class LoginFragment extends Fragment {
                 else {
                     displayUnknownError();
                 }
-
             }
 
             @Override

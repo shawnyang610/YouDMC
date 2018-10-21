@@ -9,20 +9,21 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 
+import static com.youcmt.youdmcapp.Constants.LOGGED_IN;
+import static com.youcmt.youdmcapp.Constants.USER_ID;
+
 
 public class LoginActivity extends AppCompatActivity implements LoginCallbacks {
-    public static final String LOGGED_IN = "LoggedIn";
     private static final String TAG = "LoginActivity";
-    private SharedPreferences mPreferences;
     private SharedPreferences.Editor mEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        mPreferences = getSharedPreferences("com.youcmt.youdmcapp", MODE_PRIVATE);
-        mEditor = mPreferences.edit();
-        if(mPreferences.getBoolean(LOGGED_IN, false))
+        SharedPreferences preferences = getSharedPreferences("com.youcmt.youdmcapp", MODE_PRIVATE);
+        mEditor = preferences.edit();
+        if(preferences.getBoolean(LOGGED_IN, false))
         {
             startMainActivity();
         }
@@ -64,14 +65,15 @@ public class LoginActivity extends AppCompatActivity implements LoginCallbacks {
     }
 
     @Override
-    public void onSuccessfulLogin() {
-
+    public void onSuccessfulLogin(int userId) {
+        mEditor.putInt(USER_ID, userId).apply();
         mEditor.putBoolean(LOGGED_IN, true).apply();
         startMainActivity();
+        finish();
     }
 
-    public void onSuccessfulRegistration() {
-
+    public void onSuccessfulRegistration(int userId) {
+        mEditor.putInt(USER_ID, userId).apply();
         mEditor.putBoolean(LOGGED_IN, true).apply();
         startMainActivity();
         finish();

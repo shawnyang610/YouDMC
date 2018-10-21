@@ -1,13 +1,11 @@
 package com.youcmt.youdmcapp;
 
-import com.youcmt.youdmcapp.model.Comment;
+import com.youcmt.youdmcapp.model.CommentPostRequest;
 import com.youcmt.youdmcapp.model.CommentResponse;
 import com.youcmt.youdmcapp.model.User;
 import com.youcmt.youdmcapp.model.Video;
 
-
 import java.util.HashMap;
-import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -37,4 +35,8 @@ public interface YouCmtClient {
     @GET("comment")
     Call<CommentResponse> loadComments(@Query("vid") String url,
                                        @HeaderMap HashMap<String, String> headerMap);
+
+    @POST("comment")
+    Call<ResponseBody> postComment(@Body CommentPostRequest postRequest,
+            @HeaderMap HashMap<String,String> headerMap);
 }
