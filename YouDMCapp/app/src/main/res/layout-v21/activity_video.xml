@@ -45,14 +45,30 @@
                 android:layout_margin="8dp"
                 android:text="@string/comments"
                 android:textAppearance="@style/TextAppearance.AppCompat"/>
-
-            <EditText
-                android:id="@+id/new_comment_et"
-                style="@android:style/Widget.Material.Light.EditText"
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/add_comment"
-                android:inputType="textAutoCorrect"/>
+                android:orientation="horizontal">
+                <EditText
+                    android:id="@+id/new_comment_et"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/add_comment"
+                    android:inputType="textAutoCorrect"
+                    android:layout_toLeftOf="@id/send_button"
+                    android:layout_toStartOf="@id/send_button"
+                    style="@android:style/Widget.Material.Light.EditText"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_send"
+                    android:id="@+id/send_button"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_alignParentEnd="true"
+                    android:visibility="gone"/>
+            </RelativeLayout>
             <TextView
                 android:id="@+id/no_comments_tv"
                 android:layout_width="match_parent"
@@ -65,6 +81,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/comment_rv"/>
+            <ProgressBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/comment_pb"
+                android:visibility="visible"/>
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 </LinearLayout>

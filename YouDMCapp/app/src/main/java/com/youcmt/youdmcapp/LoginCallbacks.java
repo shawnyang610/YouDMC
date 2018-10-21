@@ -10,6 +10,6 @@ package com.youcmt.youdmcapp;
  */
 
 public interface LoginCallbacks {
-    void onSuccessfulLogin();
-    void onSuccessfulRegistration();
+    void onSuccessfulLogin(int userId);
+    void onSuccessfulRegistration(int userId);
 }

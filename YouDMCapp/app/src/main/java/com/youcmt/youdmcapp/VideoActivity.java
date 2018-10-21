@@ -8,8 +8,12 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +21,7 @@ import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import com.youcmt.youdmcapp.model.Comment;
+import com.youcmt.youdmcapp.model.CommentPostRequest;
 import com.youcmt.youdmcapp.model.CommentResponse;
 import com.youcmt.youdmcapp.model.Video;
 
@@ -25,9 +30,13 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TimeZone;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -37,6 +46,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static android.view.View.GONE;
 import static com.youcmt.youdmcapp.Constants.BASE_API_URL;
 import static com.youcmt.youdmcapp.Constants.EXTRA_VIDEO;
+import static com.youcmt.youdmcapp.Constants.ID_ADMIN;
+import static com.youcmt.youdmcapp.Constants.ID_GUEST;
+import static com.youcmt.youdmcapp.Constants.USER_ID;
 
 /**
  * Created by Stanislav Ostrovskii on 9/30/2018.
@@ -44,15 +56,17 @@ import static com.youcmt.youdmcapp.Constants.EXTRA_VIDEO;
  */
 
 public class VideoActivity extends AppCompatActivity
-        implements YouTubePlayer.OnInitializedListener {
+        implements YouTubePlayer.OnInitializedListener
+{
     private static final String TAG = "VideoActivity";
     private List<Comment> mComments;
     private Video mVideo;
     private TextView mTitleView;
     private RecyclerView mRecyclerView;
     private CommentAdapter mCommentAdapter;
-    private CommentHolder mCommentHolder;
-
+    private EditText mCommentEditText;
+    private ImageView mSendButton;
+    private int mUserId;
     /**
      * Use this method to create an intent for this activity.
      * @param context parent activity context
@@ -77,6 +91,8 @@ public class VideoActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_video);
+        mUserId = getPreferences(MODE_PRIVATE).getInt(USER_ID, ID_GUEST);
+        mComments = new ArrayList<>(1);
         mVideo = getIntent().getParcelableExtra(EXTRA_VIDEO);
         mTitleView = findViewById(R.id.title_tv);
         mTitleView.setText(mVideo.getTitle());
@@ -106,6 +122,32 @@ public class VideoActivity extends AppCompatActivity
         YouTubePlayerSupportFragment youTubePlayerFragment =
                 (YouTubePlayerSupportFragment) getSupportFragmentManager().findFragmentById(R.id.youtube_fragment);
         if(youTubePlayerFragment!=null) youTubePlayerFragment.initialize(Constants.YOUTUBE_API_KEY, this);
+        mCommentEditText = findViewById(R.id.new_comment_et);
+        mSendButton = findViewById(R.id.send_button);
+        mCommentEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if(charSequence.length()>0) mSendButton.setVisibility(View.VISIBLE);
+                else mSendButton.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        mSendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                postComment(mCommentEditText.getText().toString());
+                mCommentEditText.setText("");
+            }
+        });
     }
 
     /**
@@ -129,8 +171,7 @@ public class VideoActivity extends AppCompatActivity
 
     @Override
     public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
-        Toast.makeText(this, "An error occurred.", Toast.LENGTH_SHORT).show();
-        Log.d(TAG, "on Failure called:  " + youTubeInitializationResult);
+        Toast.makeText(this, "Error: Do you have the Youtube app installed?", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -143,18 +184,15 @@ public class VideoActivity extends AppCompatActivity
     {
         Retrofit retrofit = new Retrofit.Builder().baseUrl(BASE_API_URL)
                 .addConverterFactory(GsonConverterFactory.create()).build();
-        HashMap header = new HashMap();
-        header.put("Content-Type", "application/json");
         YouCmtClient client = retrofit.create(YouCmtClient.class);
-        Call<CommentResponse> call = client.loadComments(mVideo.getVid(), header);
-        Log.d(TAG, call.request().url().toString());
+        Call<CommentResponse> call = client.loadComments(mVideo.getVid(), header());
         call.enqueue(new Callback<CommentResponse>() {
             @Override
             public void onResponse(Call<CommentResponse> call, Response<CommentResponse> response) {
+
                 if(response.code()==200) {
                     CommentResponse commentResponse = response.body();
                     processComments(commentResponse);
-                    Log.d(TAG, "Success");
                 }
                 else if(response.code()==404)
                 {
@@ -191,6 +229,50 @@ public class VideoActivity extends AppCompatActivity
         });
     }
 
+    private void postComment(String commentText)
+    {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_API_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        YouCmtClient client = retrofit.create(YouCmtClient.class);
+
+        CommentPostRequest postRequest = new CommentPostRequest();
+        postRequest.setText(commentText);
+        postRequest.setVid(mVideo.getVid());
+        postRequest.setUser_id(mUserId);
+
+        Call<ResponseBody> response = client.postComment(postRequest, header());
+        Log.d(TAG, "URL: " + response.request().url().toString());
+        response.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+                Log.d(TAG, "Response code: " + response.code());
+                if(response.code()==200)
+                {
+                    Toast.makeText(getBaseContext(), "Comment posted!", Toast.LENGTH_SHORT).show();
+                    mRecyclerView.setVisibility(GONE);
+                    findViewById(R.id.comment_pb).setVisibility(View.VISIBLE);
+                    fetchComments(); //reload comment list
+
+                }
+                else if(response.code()==400)
+                {
+                    Toast.makeText(getBaseContext(), "Unable to process request!", Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    Toast.makeText(getBaseContext(), "Unknown error occurred!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(getBaseContext(), t.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
     private void displayUnknownError() {
         Toast.makeText(this, "Unknown error occurred! Oops!", Toast.LENGTH_SHORT).show();
     }
@@ -198,11 +280,14 @@ public class VideoActivity extends AppCompatActivity
     private void processComments(CommentResponse response)
     {
         mRecyclerView = findViewById(R.id.comment_rv);
+        findViewById(R.id.comment_pb).setVisibility(GONE);
         if(response.getCommentList()!=null){
-            mComments = new ArrayList<>(response.getCommentList().size());
+            mComments.clear();
             for(Comment comment: response.getCommentList())
             {
                 mComments.add(comment);
+                Log.d(TAG, "ParentID: " + comment.getParent_comment_id() +
+                    " TopID: " + comment.getTop_comment_id() + " ID: " + comment.getId());
             }
             Log.d(TAG, "We fetched " + mComments.size() + " comments");
         }
@@ -210,7 +295,7 @@ public class VideoActivity extends AppCompatActivity
 
         if(mComments==null || mComments.size()==0)
         {
-            mComments = new ArrayList<Comment>(0);
+            mComments = new ArrayList<>(0);
             mRecyclerView.setVisibility(GONE);
             findViewById(R.id.no_comments_tv).setVisibility(View.VISIBLE);
         }
@@ -221,13 +306,20 @@ public class VideoActivity extends AppCompatActivity
             if(mCommentAdapter==null)
             {
                 mCommentAdapter = new CommentAdapter(mComments, this);
+                mRecyclerView.setAdapter(mCommentAdapter);
             }
             else {
                 mCommentAdapter.notifyDataSetChanged();
             }
-            mRecyclerView.setAdapter(mCommentAdapter);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            //mRecyclerView.setNestedScrollingEnabled(false);
         }
     }
+
+    private HashMap header()
+    {
+        HashMap header = new HashMap();
+        header.put("Content-Type", "application/json");
+        return header;
+    }
+
 }

@@ -26,6 +26,9 @@ import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.youcmt.youdmcapp.Constants.BASE_API_URL;
+import static com.youcmt.youdmcapp.Constants.ID_ADMIN;
+
 /**
  * Created by Stanislav Ostrovskii on 9/19/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
@@ -152,7 +155,7 @@ public class RegisterFragment extends Fragment {
     private void registerProcess(String username, String email, String password)
     {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://youcmt.com/api/")
+                .baseUrl(BASE_API_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         YouCmtClient youCmtClient = retrofit.create(YouCmtClient.class);
@@ -172,7 +175,7 @@ public class RegisterFragment extends Fragment {
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
                 if(response.code()==201)
                 {
-                    mHostingActivity.onSuccessfulRegistration();
+                    mHostingActivity.onSuccessfulRegistration(ID_ADMIN);
                 }
                 else if(response.code()==400)
                 {
