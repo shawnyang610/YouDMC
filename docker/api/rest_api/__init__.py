@@ -2,6 +2,8 @@ from flask import Flask, render_template, request
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
+from werkzeug.security import generate_password_hash
 from os.path import abspath, dirname
 
 ###########################
@@ -23,7 +25,7 @@ def home():
     if "v" in args.keys():
         v = args['v']
     else:
-        v = 'home'
+        v = ''
     return render_template("meta_test_v2.html", v=v)
 
 
