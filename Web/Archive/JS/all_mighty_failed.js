@@ -1,12 +1,4 @@
-var currentTime;
-
-async function setup() {
-  await serverTime();
-  loadPage();
-}
-
-function loadPage() {
-  console.log("loadpage started");
+function setup() {
   loadLogo(); //make sure logo path is correct
   var VID = getMeta("videoID");
   if (VID == "") {
@@ -152,26 +144,28 @@ function hide_sidepanel() {
       like: number of likes
       dislike: number of dislikes
       count: number of replies
+  appendLocation
+    the location object to append the comment
 */
-function insert_fetchedComment(commentObject) {
+function appendComment(commentObject, appendLocation) {
   var newP = document.createElement("p");
-  newP.id = commentObject.id; //set proper ID so other guys can find him
-  newP.style.border = "solid #00ffff"; //not needed for production
-
   var messageTable = document.createElement("TABLE");
   var tblBody = document.createElement("tbody");
   var topRow = document.createElement("tr"); //for header info
   var bodyRow = document.createElement("tr"); //for main text
   var infoRow = document.createElement("tr"); //for up/down and reply link
-  var moreRow = document.createElement("tr"); //only if there are replies
   var replyRow = document.createElement("tr"); //reserved space for reply box
+  replyRow.id = commentObject.id + ".replyRow";
+  var moreRow = document.createElement("tr"); //only if there are replies, only for root comments
+  moreRow.id = commentObject.id + ".moreRow";
 
   var cell, cellText;
 
   //---top row: profile picture (spans 2 rows), username, and time
   cell = document.createElement("td"); //Profile Picture
   var profilePic = document.createElement("img");
-  profilePic.setAttribute("src", getMeta("staticResourcePath") + "images/profile1.png"); //user profile picture
+  profilePic.setAttribute("src", getMeta("staticResourcePath") + "images/profile1.png");
+  //this should be commentObject.userid.profilepicture instead of images/profile1.png
   profilePic.setAttribute("width", "75");
   cell.rowSpan = "2";
   cell.appendChild(profilePic);
@@ -193,7 +187,7 @@ function insert_fetchedComment(commentObject) {
   //--- body row: for the actual text
   cell = document.createElement("td"); //Message Content
   cellText = document.createTextNode(commentObject.text);
-  cell.colSpan = "2";
+  cell.colSpan = "5"; //text body should go all across
   cell.appendChild(cellText);
   bodyRow.appendChild(cell);
   //---end of body row
@@ -224,13 +218,23 @@ function insert_fetchedComment(commentObject) {
   cell = document.createElement("td"); //reply link
   var replyLink = document.createElement("a");
   replyLink.appendChild(document.createTextNode("Reply"));
-  replyLink.href = "#reply"; //this should trigger reply box <<<---------------------------------
+  replyLink.href = "#reply"; //this should trigger reply box <<<-------------------------------------------
   replyLink.setAttribute("onclick", "showReplyBox("+ commentObject.id +")");
   cell.appendChild(replyLink);
   infoRow.appendChild(cell);
   //---end of info row
 
-  //--- more row: only show this if there is replies to this thread
+  //--- reply row: reserved space for reply reply box
+  //  - this is hidden until trigged by pressing reply and will go back to hidden when pressed "cancel"
+  cell = document.createElement("td"); //empty space
+  replyRow.appendChild(cell);
+  cell = document.createElement("td"); //empty space
+  cell.id = commentObject.id + "replyCell";
+  cell.rowSpan = "2";
+  replyRow.appendChild(cell);
+  //---end of reply row
+
+  //--- more row: only show this if there is replies to this thread && this is a root comment
   cell = document.createElement("td"); //empty space
   moreRow.appendChild(cell);
   cell = document.createElement("td"); //show replies link
@@ -243,134 +247,22 @@ function insert_fetchedComment(commentObject) {
   showRepliesLink.appendChild(cellText);
   showRepliesLink.setAttribute("onclick", "fetchReplies("+ commentObject.id +")");
   cell.appendChild(showRepliesLink);
-  cell.rowSpan = "2";
-  cell.id = commentObject.id + "fetchRepliesCell";
+  cell.rowSpan = "5";
+  cell.id = commentObject.id + ".rootCommentRepliesCell";
   moreRow.appendChild(cell);
   //---end of more row
 
-  //--- reply row: reserved space for reply reply box
-  cell = document.createElement("td"); //empty space
-  replyRow.appendChild(cell);
-  cell = document.createElement("td"); //empty space
-  cell.id = commentObject.id + "replyCell";
-  cell.rowSpan = "2";
-  replyRow.appendChild(cell);
-  //---end of reply row
-
   //finishing touches
   tblBody.appendChild(topRow);
   tblBody.appendChild(bodyRow);
   tblBody.appendChild(infoRow);
-  if (commentObject.count > 0) { //toggle t/f for testing
+  tblBody.appendChild(replyRow);
+  if (commentObject.count > 0 && commentObject.top_comment_id == 0) { //only if comment is root and has replies
     tblBody.appendChild(moreRow);
   }
-  tblBody.appendChild(replyRow);
   messageTable.appendChild(tblBody);
   newP.appendChild(messageTable);
   document.getElementById("comments").appendChild(newP);
-}
-
-function insert_fetchedReply(commentObject, parentObject) {
-  /**
-    This only works for "replies" which are non-root comments
-    The parent object should be the cell reserved for posting replies
-    Structure:cell -> p object -> messageTable -> Table body -> rows
-                   -> next p object
-                   -> next p object
-  */
-  var newP = document.createElement("p");
-  newP.id = commentObject.id; //set proper ID so other guys can find him
-  newP.style.border = "solid #ff00ff"; //not needed for production
-
-  var messageTable = document.createElement("TABLE");
-  var tblBody = document.createElement("tbody");
-  var topRow = document.createElement("tr"); //for header info
-  var bodyRow = document.createElement("tr"); //for main text
-  var infoRow = document.createElement("tr"); //for up/down and reply link
-  var moreRow = document.createElement("tr"); //only if there are replies
-  var replyRow = document.createElement("tr"); //reserved space for reply box
-
-  var cell, cellText;
-
-  //---top row: profile picture (spans 2 rows), username, and time
-  cell = document.createElement("td"); //Profile Picture
-  var profilePic = document.createElement("img");
-  profilePic.setAttribute("src", getMeta("staticResourcePath") + "images/profile1.png"); //user profile picture
-  profilePic.setAttribute("width", "75");
-  cell.rowSpan = "2";
-  cell.appendChild(profilePic);
-  topRow.appendChild(cell);
-
-  cell = document.createElement("td"); //Message User
-  var userLink = document.createElement("a");
-  userLink.appendChild(document.createTextNode(commentObject.username));
-  userLink.href = "#user_" + commentObject.username;
-  cell.appendChild(userLink);
-  topRow.appendChild(cell);
-
-  cell = document.createElement("td"); //Message Time
-  cellText = document.createTextNode(translateDateTime(commentObject.date));
-  cell.appendChild(cellText);
-  topRow.appendChild(cell);
-  //---end of top row
-
-  //--- body row: for the actual text
-  cell = document.createElement("td"); //Message Content
-  cellText = document.createTextNode(commentObject.text);
-  cell.colSpan = "2";
-  cell.appendChild(cellText);
-  bodyRow.appendChild(cell);
-  //---end of body row
-
-  //--- info row: for thumbs up, down, and reply link
-  cell = document.createElement("td"); //empty space
-  infoRow.appendChild(cell);
-  var thumbsUpChar = '\u{1F44D}';
-  var thumbsDownChar = '\u{1F44E}';
-  cell = document.createElement("td"); //vote up button/char/icon and count
-  var voteUpButton = document.createElement("a");
-  voteUpButton.appendChild(document.createTextNode(thumbsUpChar));
-  voteUpButton.href = "#votedUP";
-  cell.appendChild(voteUpButton);
-  cellText = document.createTextNode(commentObject.like);
-  cell.appendChild(cellText);
-  infoRow.appendChild(cell);
-
-  cell = document.createElement("td"); //vote down button/char/icon and count
-  var voteDownButton = document.createElement("a");
-  voteDownButton.appendChild(document.createTextNode(thumbsDownChar));
-  voteDownButton.href = "#votedDown";
-  cell.appendChild(voteDownButton);
-  cellText = document.createTextNode(commentObject.dislike);
-  cell.appendChild(cellText);
-  infoRow.appendChild(cell);
-
-  cell = document.createElement("td"); //reply link
-  var replyLink = document.createElement("a");
-  replyLink.appendChild(document.createTextNode("Reply"));
-  replyLink.setAttribute("onclick", "showReplyBox("+ commentObject.id +")");
-  cell.appendChild(replyLink);
-  infoRow.appendChild(cell);
-  //---end of info row
-
-  //--- reply row: reserved space for reply reply box
-  cell = document.createElement("td"); //empty space
-  replyRow.appendChild(cell);
-  cell = document.createElement("td"); //empty space
-  cell.id = commentObject.id + "replyCell";
-  cell.rowSpan = "2";
-  replyRow.appendChild(cell);
-  //---end of reply row
-
-  //finishing touches
-  tblBody.appendChild(topRow);
-  tblBody.appendChild(bodyRow);
-  tblBody.appendChild(infoRow);
-  tblBody.appendChild(replyRow);
-
-  messageTable.appendChild(tblBody);
-  newP.appendChild(messageTable);
-  parentObject.appendChild(newP);
 }
 
 function clear_messages() {
@@ -470,8 +362,9 @@ function showVideoInfo() {
       console.log("request.error called. Error: " + e);
   };
   request.onreadystatechange = function(){
-      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
+      console.log("request.onreadystatechange called. readyState: " + this.readyState);
   };
+
   request.send();
 }
 
@@ -488,7 +381,6 @@ function showhideDescription() {
 }
 
 function showCommentBox() { //show the page comment box for root comment
-  hideCommentBox();
   //todo: put all elements into table/grid for better allignment
   //include profile picture
   document.getElementById("write").innerHTML = ""; //clear
@@ -514,7 +406,6 @@ function showCommentBox() { //show the page comment box for root comment
 }
 
 function showReplyBox(parentCommentID) {
-  hideReplyBox(parentCommentID);
   var parent = document.getElementById(parentCommentID + "replyCell");
   if (parent == null) {
     console.log("Unexpected Error! " + parentCommentID + " does not exist in this page");
@@ -624,10 +515,11 @@ function fetchComments() { //fethes all root comments for the current page
   request.onload = function() {
     if (request.status >= 200 && request.status < 400) {
       var commentsArray = JSON.parse(this.response).comments;
-      //console.log(JSON.stringify(commentsArray));
-      for (i = commentsArray.length - 1; i >= 0 ; i--) { //in reverse-chrono order
-        //console.log(commentsArray[i]);
-        insert_fetchedComment(commentsArray[i]);
+      console.log(JSON.stringify(commentsArray));
+      var rootCommentArea = document.getElementById("comments");
+      for (i = 0; i < commentsArray.length ; i++) { // this should come in reverse-chrono order
+        console.log(commentsArray[i]);
+        appendComment(commentsArray[i], rootCommentArea);
       }
     } else {
       console.log('request failed, status = ' + request.status);
@@ -637,13 +529,13 @@ function fetchComments() { //fethes all root comments for the current page
       console.log("request.error called. Error: " + e);
   };
   request.onreadystatechange = function(){
-      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
+      console.log("request.onreadystatechange called. readyState: " + this.readyState);
   };
   request.send();
 }
 
 function fetchReplies(topCommentID) { //fetches all replies based on a root comment
-  var repliesCell = document.getElementById(topCommentID + "fetchRepliesCell");
+  var repliesCell = document.getElementById(topCommentID + ".rootCommentRepliesCell");
   repliesCell.innerHTML = "";
   var url = "https://youcmt.com/api/comment?top_comment_id=" + topCommentID;
   var request = new XMLHttpRequest();
@@ -654,7 +546,7 @@ function fetchReplies(topCommentID) { //fetches all replies based on a root comm
       console.log(JSON.stringify(commentsArray));
       for (i = 0; i < commentsArray.length ; i++) { //in chrono order
         console.log(commentsArray[i]);
-        insert_fetchedReply(commentsArray[i], repliesCell); //comment object, parent object (the cell)
+        appendComment(commentsArray[i], repliesCell); //comment object, parent object (the cell)
       }
     } else {
       console.log('request failed, status = ' + request.status);
@@ -670,68 +562,7 @@ function fetchReplies(topCommentID) { //fetches all replies based on a root comm
 }
 
 function translateDateTime(commentTime) {
-  var ct = new Date(commentTime);
-  var st = new Date(currentTime);
-  console.log("commentTime = " + ct);
-  console.log("serverTime = " + st);
-  var diff = (st-ct)/60000; //1 min = 60 000 ms
-
-  if (diff < 1) {
-    return "Just now";
-  } else if (diff < 2) {
-    return "1 minute ago";
-  } else if (diff < 60) {
-    return diff + " minutes ago";
-  } else {
-    diff /= 60; //diff is now in hours
-    if (diff < 2) {
-      return "1 hour ago";
-    } else if (diff < 24) {
-      return Math.floor(diff) + " hours ago";
-    } else {
-      diff /= 24; //diff is now in days
-      if (diff < 2) {
-        return " 1 day ago";
-      } else if (diff < 30) {
-        return Math.floor(diff) + " days ago";
-      } else {
-        diff /= 30.42; //diff is now in months
-        if (diff < 2) {
-          return "1 month ago";
-        } else if (diff < 12) {
-          return Math.floor(diff) + " months ago";
-        } else {
-          diff /= 12; //diff is now in years
-          if (diff < 2) {
-            return "1 year ago";
-          } else {
-            return Math.floor(diff) + " years ago";
-          }
-        }
-      }
-    }
-  }
-  return ct;
-}
-
-async function serverTime() {
-  var request = new XMLHttpRequest();
-  request.open('GET', 'https://youcmt.com/api/datetime', true);
-  request.onload = function() {
-    if (request.status >= 200 && request.status < 400) {
-      var responseTime = JSON.parse(this.response).datetime;
-      console.log("set current time = " + responseTime);
-      //callback();
-      currentTime = responseTime;
-      return;
-    } else {
-      console.log('request failed, status = ' + request.status);
-    }
-  };
-  request.error = function(e) {
-      console.log("request.error called. Error: " + e);
-  };
-  request.send();
+  return "TIMESTAMP";
 }
 
 function getMeta(name) {
