@@ -23,6 +23,7 @@ db.drop_all()
 from rest_api.models.video import VideoModel # noqa
 from rest_api.models.user import UserModel # noqa
 from rest_api.models.comment import CommentModel # noqa
+from rest_api.models.jwt import RevokedTokenModel # noqa
 db.create_all()
 
 #### init db with essential data ####

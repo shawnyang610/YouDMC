@@ -51,7 +51,17 @@ app.config["JWT_BLACKLIST_ENABLED"] =True
 app.config["JWT_BLACKLIST_TOKEN_CHECKS"] = ["access", "refresh"]
 
 jwt = JWTManager(app)
+from rest_api.models.jwt import RevokedTokenModel # noqa
 
+@jwt.token_in_blacklist_loader
+def is_blacklisted(decrypted_token):
+    jti = decrypted_token["jti"]
+    return RevokedTokenModel.is_jti_blacklisted(jti)
+
+# TODO
+@jwt.user_claims_loader
+def add_claims_to_access_token(identity):
+    pass
 
 ###########################
 #### config api  ######
@@ -62,9 +72,15 @@ api = Api(app)
 from rest_api.resources.env import DateTime # noqa
 api.add_resource(DateTime, "/api/datetime")
 
-from rest_api.resources.user import UserRegister, UserInfo # noqa
+from rest_api.resources.user import UserRegister, UserLogin, UserLogoutAccess, UserLogoutRefresh # noqa
 api.add_resource(UserRegister, "/api/user/register")
-api.add_resource(UserInfo, "/api/user/info")
+api.add_resource(UserLogin, "/api/user/login")
+api.add_resource(UserLogoutAccess, "/api/user/logout_access")
+api.add_resource(UserLogoutRefresh, "/api/user/logout_refresh")
+
+from rest_api.resources.jwt import TokenRefresh # noqa
+api.add_resource(TokenRefresh, "/api/refresh_token")
+
 
 from rest_api.resources.video import VideoInfo # noqa
 api.add_resource(VideoInfo, "/api/video/info")
