@@ -78,8 +78,9 @@ api.add_resource(UserLogin, "/api/user/login")
 api.add_resource(UserLogoutAccess, "/api/user/logout_access")
 api.add_resource(UserLogoutRefresh, "/api/user/logout_refresh")
 
-from rest_api.resources.jwt import TokenRefresh # noqa
+from rest_api.resources.jwt import TokenRefresh, AccessTokenCheck # noqa
 api.add_resource(TokenRefresh, "/api/refresh_token")
+api.add_resource(AccessTokenCheck, "/api/check_token")
 
 
 from rest_api.resources.video import VideoInfo # noqa
