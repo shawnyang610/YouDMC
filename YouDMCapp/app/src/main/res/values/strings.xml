@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">YouDMCapp</string>
+    <string name="app_name">YouCMT</string>
     <string name="login">Login</string>
     <string name="register">Register</string>
     <string name="skip">Skip for now</string>
@@ -43,5 +43,8 @@
     </plurals>
     <string name="just_now">Just now</string>
     <string name="no_comments">No comments found. Be the first!</string>
-    <string name="add_comment">Add a comment...</string>
+    <string name="add_comment">Add a comment…</string>
+    <string name="replies">Replies</string>
+    <string name="no_replies">No replies</string>
+    <string name="add_reply">Add a reply</string>
 </resources>

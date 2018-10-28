@@ -13,8 +13,6 @@ import java.util.List;
 /**
  * Created by Stanislav Ostrovskii on 10/17/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
- * Like the CommentHolder, this is an independent class solely to keep VideoActivity
- * cleaner and more focused.
  */
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentHolder> {

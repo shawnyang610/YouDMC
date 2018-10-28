@@ -13,79 +13,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </RelativeLayout>
+
     <android.support.v4.widget.NestedScrollView
-        android:id="@+id/main_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingBottom="4dp">
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
-                tools:text="Video Title"
-                android:id="@+id/title_tv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                android:textSize="24sp"
-                android:drawableEnd="@drawable/ic_arrow_drop_down"
-                android:drawableRight="@drawable/ic_arrow_drop_down"/>
-            <TextView
-                tools:text="Video Description"
-                android:id="@+id/video_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:visibility="gone"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:text="@string/comments"
-                android:textAppearance="@style/TextAppearance.AppCompat"/>
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <EditText
-                    android:id="@+id/new_comment_et"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/add_comment"
-                    android:inputType="textAutoCorrect"
-                    android:layout_toLeftOf="@id/send_button"
-                    android:layout_toStartOf="@id/send_button"
-                    style="@android:style/Widget.Material.Light.EditText"/>
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/ic_send"
-                    android:id="@+id/send_button"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_alignParentEnd="true"
-                    android:visibility="gone"/>
-            </RelativeLayout>
-            <TextView
-                android:id="@+id/no_comments_tv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:text="@string/no_comments"
-                android:visibility="gone"
-                android:padding="4dp"/>
-            <android.support.v7.widget.RecyclerView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/comment_rv"/>
-            <ProgressBar
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/comment_pb"
-                android:visibility="visible"/>
-        </LinearLayout>
+            android:layout_height="match_parent"
+            android:id="@+id/fragment_container_comment"/>
     </android.support.v4.widget.NestedScrollView>
 </LinearLayout>
