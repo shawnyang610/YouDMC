@@ -24,6 +24,7 @@ from rest_api.models.video import VideoModel # noqa
 from rest_api.models.user import UserModel # noqa
 from rest_api.models.comment import CommentModel # noqa
 from rest_api.models.jwt import RevokedTokenModel # noqa
+from rest_api.models.rating import RatingModel # noqa
 db.create_all()
 
 #### init db with essential data ####

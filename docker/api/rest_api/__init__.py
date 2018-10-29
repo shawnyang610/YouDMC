@@ -2,8 +2,8 @@ from flask import Flask, render_template, request
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
-from flask_jwt_extended import JWTManager
-from werkzeug.security import generate_password_hash
+# from flask_jwt_extended import JWTManager
+# from werkzeug.security import generate_password_hash
 from os.path import abspath, dirname
 
 ###########################
@@ -78,8 +78,9 @@ api.add_resource(UserLogin, "/api/user/login")
 api.add_resource(UserLogoutAccess, "/api/user/logout_access")
 api.add_resource(UserLogoutRefresh, "/api/user/logout_refresh")
 
-from rest_api.resources.jwt import TokenRefresh # noqa
+from rest_api.resources.jwt import TokenRefresh, AccessTokenCheck # noqa
 api.add_resource(TokenRefresh, "/api/refresh_token")
+api.add_resource(AccessTokenCheck, "/api/check_token")
 
 
 from rest_api.resources.video import VideoInfo # noqa
@@ -87,6 +88,9 @@ api.add_resource(VideoInfo, "/api/video/info")
 
 from rest_api.resources.comment import Comment # noqa
 api.add_resource(Comment, "/api/comment")
+
+from rest_api.resources.rating import RateComment # noqa
+api.add_resource(RateComment, "/api/rate_comment")
 
 ####################################
 #### allow rest api request header
