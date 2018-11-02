@@ -11,6 +11,7 @@ from flask_jwt_extended import (
     get_jwt_identity
 )
 from rest_api.models.jwt import RevokedTokenModel
+import datetime
 
 class UserRegister(Resource):
     parser = reqparse.RequestParser()
@@ -23,6 +24,8 @@ class UserRegister(Resource):
     parser.add_argument(
         "email", type=str, required=True, help="email cannot be blank."
     )
+
+    expires = datetime.timedelta(days=365)
 
     def post(self):
         data = self.parser.parse_args()
@@ -56,7 +59,7 @@ class UserRegister(Resource):
                 "id":user.id
             }
 
-            access_token = create_access_token(identity=identity, fresh=True)
+            access_token = create_access_token(identity=identity, fresh=True, expires_delta=self.expires)
             refresh_token = create_refresh_token(identity=identity)
             return {
                 "message":"user registered!",
@@ -84,6 +87,9 @@ class UserLogin(Resource):
     user_parser.add_argument(
         'password', type=str, required=True, help='password cannot be blank.'
     )
+
+    expires = datetime.timedelta(days=365)
+
     def post(self):
         data = self.user_parser.parse_args()
         user = UserModel.find_by_username(data['username'])
@@ -98,7 +104,7 @@ class UserLogin(Resource):
                 "role":user.role,
                 "id":user.id
             }
-            access_token = create_access_token(identity=identity, fresh=True)
+            access_token = create_access_token(identity=identity, fresh=True, expires_delta=self.expires)
             refresh_token = create_refresh_token(identity=identity)
             return {
                 "message":"Succesfully logged in",
