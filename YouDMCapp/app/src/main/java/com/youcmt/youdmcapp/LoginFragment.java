@@ -13,7 +13,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.youcmt.youdmcapp.model.User;
+import com.youcmt.youdmcapp.model.LoginRequest;
+import com.youcmt.youdmcapp.model.LoginResponse;
+
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,9 +28,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
-import static com.youcmt.youdmcapp.Constants.ID_ADMIN;
-import static com.youcmt.youdmcapp.Constants.BASE_API_URL;
 
 /**
  * Created by Stanislav Ostrovskii on 9/19/2018.
@@ -86,50 +85,53 @@ public class LoginFragment extends Fragment {
     private void login() {
         String username = mUsernameEditText.getText().toString();
         String password = mPasswordEditText.getText().toString();
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_API_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        YouCmtClient client = retrofit.create(YouCmtClient.class);
+
+        ApiEndPoint client = RetrofitClient.getApiEndpoint();
+        LoginRequest request = new LoginRequest(username, password);
 
         HashMap header = new HashMap();
         header.put("Content-Type", "application/json");
-        Call<User> response = client.login(username, header);
 
-        response.enqueue(new Callback<User>() {
+        Call<LoginResponse> response = client.login(request, header);
+        Log.d(TAG, "URL: " + response.request().url().toString());
+
+        response.enqueue(new Callback<LoginResponse>() {
             @Override
-            public void onResponse(Call<User> call, Response<User> response) {
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
 
                 if(response.code()==200) {
-                    User user = response.body();
-                    mHostingActivity.onSuccessfulLogin(ID_ADMIN);
-                }
-                else if(response.code()==404)
-                {
-                    try {
-                        Log.d(TAG, String.valueOf(response.code()));
-                        JSONObject errorMessage = new JSONObject(response.errorBody().string());
-                        Toast.makeText(getActivity(), errorMessage.getString("message"), Toast.LENGTH_SHORT).show();
-
-                    } catch (IOException e) {
-                        displayUnknownError();
-                        e.printStackTrace();
-                    } catch (JSONException j)
-                    {
-                        displayUnknownError();
-                        j.printStackTrace();
-                    }
+                    LoginResponse loginResponse = response.body();
+                    Log.d(TAG, loginResponse.getMessage());
+                    mHostingActivity.onSuccessfulLogin(loginResponse);
                 }
                 else {
-                    displayUnknownError();
+                    displayErrorMessage(response);
                 }
             }
 
             @Override
-            public void onFailure(Call<User> call, Throwable t) {
-                Toast.makeText(getActivity(), "Network error! Check your internet connection.",Toast.LENGTH_SHORT).show();
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                Toast.makeText(getActivity(), "Network error! Check your internet connection.", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void displayErrorMessage(Response<LoginResponse> response) {
+        try {
+            Log.d(TAG, String.valueOf(response.code()));
+            JSONObject errorMessage = new JSONObject(response.errorBody().string());
+            String errorString = errorMessage.getString("message");
+            errorString = errorString.substring(0, 1).toUpperCase() + errorString.substring(1);
+            Toast.makeText(getActivity(), errorString, Toast.LENGTH_SHORT).show();
+
+        } catch (IOException e) {
+            displayUnknownError();
+            e.printStackTrace();
+        } catch (JSONException j)
+        {
+            displayUnknownError();
+            j.printStackTrace();
+        }
     }
 
     private void displayUnknownError() {
