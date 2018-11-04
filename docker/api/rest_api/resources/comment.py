@@ -142,3 +142,15 @@ class Comment_Loggedin(Resource):
         return {
             "message":"comment saved."
         },200
+
+class UserComment(Resource):
+
+    @jwt_required
+    def get(self):
+        user_id =int(get_jwt_identity()["id"])
+        comments = CommentModel.find_all_by_user_id(user_id=user_id)
+        comment_list = [comment.to_json() for comment in comments]
+        return{
+            "comments":comment_list
+        },200
+
