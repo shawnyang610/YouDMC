@@ -34,13 +34,10 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static com.youcmt.youdmcapp.Constants.BASE_API_URL;
 import static com.youcmt.youdmcapp.Constants.EXTRA_VIDEO;
 import static com.youcmt.youdmcapp.Constants.ID_GUEST;
 import static com.youcmt.youdmcapp.Constants.USER_ID;
@@ -131,10 +128,8 @@ public class CommentFragment extends Fragment {
 
     private void fetchComments()
     {
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(BASE_API_URL)
-                .addConverterFactory(GsonConverterFactory.create()).build();
-        YouCmtClient client = retrofit.create(YouCmtClient.class);
-        Call<CommentResponse> call = client.loadComments(mVideo.getVid(), header());
+        ApiEndPoint endPoint = RetrofitClient.getApiEndpoint();
+        Call<CommentResponse> call = endPoint.loadComments(mVideo.getVid(), header());
         call.enqueue(new Callback<CommentResponse>() {
             @Override
             public void onResponse(Call<CommentResponse> call, Response<CommentResponse> response) {
@@ -176,11 +171,7 @@ public class CommentFragment extends Fragment {
 
     private void postComment(String commentText)
     {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_API_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        YouCmtClient client = retrofit.create(YouCmtClient.class);
+        ApiEndPoint client = RetrofitClient.getApiEndpoint();
 
         CommentPostRequest postRequest = new CommentPostRequest();
         postRequest.setText(commentText.trim());
@@ -228,10 +219,7 @@ public class CommentFragment extends Fragment {
         mFragmentView.findViewById(R.id.comment_pb).setVisibility(GONE);
         if(response.getCommentList()!=null){
             mComments.clear();
-            for(Comment comment: response.getCommentList())
-            {
-                mComments.add(comment);
-            }
+            mComments.addAll(response.getCommentList());
             Log.d(TAG, "Fetched " + mComments.size() + " comments");
         }
         else displayUnknownError();

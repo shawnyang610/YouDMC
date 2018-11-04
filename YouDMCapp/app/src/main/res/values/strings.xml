@@ -47,4 +47,5 @@
     <string name="replies">Replies</string>
     <string name="no_replies">No replies</string>
     <string name="add_reply">Add a reply</string>
+    <string name="sign_in_up">Sign in/Sign up</string>
 </resources>

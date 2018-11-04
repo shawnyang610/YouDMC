@@ -13,21 +13,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.youcmt.youdmcapp.model.User;
+import com.youcmt.youdmcapp.model.LoginResponse;
+import com.youcmt.youdmcapp.model.RegisterRequest;
 
 import java.util.HashMap;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
-import static com.youcmt.youdmcapp.Constants.BASE_API_URL;
-import static com.youcmt.youdmcapp.Constants.ID_ADMIN;
 
 /**
  * Created by Stanislav Ostrovskii on 9/19/2018.
@@ -154,28 +149,22 @@ public class RegisterFragment extends Fragment {
      */
     private void registerProcess(String username, String email, String password)
     {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_API_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        YouCmtClient youCmtClient = retrofit.create(YouCmtClient.class);
-
-        User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPassword(password);
+        ApiEndPoint apiEndPoint = RetrofitClient.getApiEndpoint();
+        RegisterRequest user = new RegisterRequest(username, password, email);
 
         HashMap header = new HashMap();
         header.put("Content-Type", "application/json");
 
-        Call<ResponseBody> response = youCmtClient.registerUser(user, header);
+        Call<LoginResponse> response = apiEndPoint.registerUser(user, header);
         Log.d(TAG, "URL: " + response.request().url().toString());
-        response.enqueue(new Callback<ResponseBody>() {
+
+        response.enqueue(new Callback<LoginResponse>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+            public void onResponse(Call<LoginResponse> call, retrofit2.Response<LoginResponse> response) {
                 if(response.code()==201)
                 {
-                    mHostingActivity.onSuccessfulRegistration(ID_ADMIN);
+                    LoginResponse loginResponse = response.body();
+                    mHostingActivity.onSuccessfulRegistration(loginResponse);
                 }
                 else if(response.code()==400)
                 {
@@ -189,7 +178,7 @@ public class RegisterFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
                 Toast.makeText(getActivity(), t.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             }
         });

@@ -9,8 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import static com.youcmt.youdmcapp.Constants.ID_GUEST;
-
 /**
  * Created by Stanislav Ostrovskii on 9/18/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
@@ -54,7 +52,7 @@ public class SelectionFragment extends Fragment {
         mSkipButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mHostingActivity.onSuccessfulLogin(ID_GUEST);
+                mHostingActivity.onGuestLogin();
             }
         });
         return view;

@@ -37,7 +37,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static com.youcmt.youdmcapp.Constants.BASE_API_URL;
 import static com.youcmt.youdmcapp.Constants.ID_GUEST;
 import static com.youcmt.youdmcapp.Constants.USER_ID;
 
@@ -126,9 +125,7 @@ public class ReplyFragment extends Fragment {
     }
     private void fetchComments()
     {
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(BASE_API_URL)
-                .addConverterFactory(GsonConverterFactory.create()).build();
-        YouCmtClient client = retrofit.create(YouCmtClient.class);
+        ApiEndPoint client = RetrofitClient.getApiEndpoint();
         retrofit2.Call<CommentResponse> call = client.loadComments(String.valueOf(mComment.getId()), header());
         call.enqueue(new Callback<CommentResponse>() {
             @Override
@@ -171,11 +168,7 @@ public class ReplyFragment extends Fragment {
 
     private void postReply(String commentText)
     {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_API_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        YouCmtClient client = retrofit.create(YouCmtClient.class);
+        ApiEndPoint client = RetrofitClient.getApiEndpoint();
 
         CommentPostRequest postRequest = new CommentPostRequest();
         postRequest.setText(commentText.trim());

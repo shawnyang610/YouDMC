@@ -9,7 +9,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 
+import com.youcmt.youdmcapp.model.LoginResponse;
+
+import static com.youcmt.youdmcapp.Constants.ACCESS_TOKEN;
+import static com.youcmt.youdmcapp.Constants.ID_GUEST;
 import static com.youcmt.youdmcapp.Constants.LOGGED_IN;
+import static com.youcmt.youdmcapp.Constants.REFRESH_TOKEN;
 import static com.youcmt.youdmcapp.Constants.USER_ID;
 
 
@@ -64,17 +69,32 @@ public class LoginActivity extends AppCompatActivity implements LoginCallbacks {
         return super.onOptionsItemSelected(item);
     }
 
+    //TODO these methods seem the same for all intents and purposes. Merge?
     @Override
-    public void onSuccessfulLogin(int userId) {
-        mEditor.putInt(USER_ID, userId).apply();
+    public void onSuccessfulLogin(LoginResponse response) {
+        mEditor.putInt(USER_ID, response.getId()).apply();
         mEditor.putBoolean(LOGGED_IN, true).apply();
+        mEditor.putString(ACCESS_TOKEN, response.getAccess_token()).apply();
+        mEditor.putString(REFRESH_TOKEN, response.getRefresh_token()).apply();
         startMainActivity();
         finish();
     }
 
-    public void onSuccessfulRegistration(int userId) {
-        mEditor.putInt(USER_ID, userId).apply();
+    public void onSuccessfulRegistration(LoginResponse response) {
+        mEditor.putInt(USER_ID, response.getId()).apply();
         mEditor.putBoolean(LOGGED_IN, true).apply();
+        mEditor.putString(ACCESS_TOKEN, response.getAccess_token()).apply();
+        mEditor.putString(REFRESH_TOKEN, response.getRefresh_token()).apply();
+        startMainActivity();
+        finish();
+    }
+
+    @Override
+    public void onGuestLogin() {
+        mEditor.putInt(USER_ID, ID_GUEST).apply();
+        mEditor.putBoolean(LOGGED_IN, true).apply();
+        mEditor.putString(ACCESS_TOKEN, null);
+        mEditor.putString(REFRESH_TOKEN, null);
         startMainActivity();
         finish();
     }

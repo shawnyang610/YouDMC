@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -17,6 +18,14 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.youcmt.youdmcapp.model.Video;
+
+import java.io.IOException;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 import static com.youcmt.youdmcapp.Constants.*;
 import static com.youcmt.youdmcapp.FetchVideoService.FAIL;
@@ -99,28 +108,145 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.main_menu, menu);
+        if(mPreferences.getInt(USER_ID, ID_GUEST)==ID_GUEST) {
+            menu.findItem(R.id.logout).setVisible(false);
+            menu.findItem(R.id.sign_up).setVisible(true);
+        }
         return super.onCreateOptionsMenu(menu);
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId())
         {
-            case R.id.logout:
+            case R.id.logout: {
+                revokeTokens();
                 Boolean success =
-                        mPreferences.edit().putBoolean(LOGGED_IN, false).putInt(USER_ID, ID_NONE).commit();
-                if(success) {
+                        mPreferences.edit()
+                                .putBoolean(LOGGED_IN, false)
+                                .putInt(USER_ID, ID_NONE)
+                                .putString(ACCESS_TOKEN, null)
+                                .putString(REFRESH_TOKEN, null)
+                                .commit();
+                if (success) {
                     Intent intent = new Intent(this, LoginActivity.class);
                     startActivity(intent);
                     finish();
+                } else {
+                    Toast.makeText(this, "Logout unsuccessful. Oops.", Toast.LENGTH_SHORT).show();
                 }
-                else{
-                    Toast.makeText(this,
-                            "Logout unsuccessful. Oops.", Toast.LENGTH_SHORT).show();
-                }
+                return true;
+            }
+            case R.id.sign_up: {
+                mPreferences.edit().putBoolean(LOGGED_IN, false).putInt(USER_ID, ID_NONE).apply();
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+            }
+            //Debugging code
+            case R.id.check_token:
+                checkToken();
                 return true;
             default: return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void revokeTokens() {
+        ApiEndPoint client = RetrofitClient.getApiEndpoint();
+        Call<ResponseBody> callAccess = client.logoutAccess("Bearer " + mPreferences.getString(ACCESS_TOKEN, ""));
+        Call<ResponseBody> callRefresh = client.logoutRefresh("Bearer " + mPreferences.getString(REFRESH_TOKEN, ""));
+
+        Log.d(TAG, callAccess.request().url().toString()+ " " + callRefresh.request().url().toString());
+        callAccess.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Log.d(TAG, "Access code: " + response.code());
+                if(response.code()==200)
+                {
+                    try {
+                        Log.d(TAG, "Body: " + response.body().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else {
+                    try {
+                        Toast.makeText(MainActivity.this, "Error code "
+                                + response.code() + ": " + response.errorBody().string(), Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        Toast.makeText(MainActivity.this, "Critical security error!", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Critical security error occurred!", Toast.LENGTH_LONG).show();
+            }
+        });
+        callRefresh.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Log.d(TAG, "Refresh code: " + response.code());
+                if(response.code()==200)
+                {
+                    try {
+                        Log.d(TAG, "Body: " + response.body().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else {
+                    try {
+                        Toast.makeText(MainActivity.this, "Error code "
+                                + response.code() + ": " + response.errorBody().string(), Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        Toast.makeText(MainActivity.this, "Critical security error!", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Critical security error!", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void checkToken() {
+        String token = "Bearer " + mPreferences.getString(ACCESS_TOKEN, "");
+        Log.d(TAG, "Token: " + token);
+        ApiEndPoint client = RetrofitClient.getApiEndpoint();
+        Call<ResponseBody> call = client.checkToken(token);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                if(response.code()==422) {
+                    try {
+                        Toast.makeText(MainActivity.this, response.errorBody().string(), Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this, "IOException " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                }
+                else  {
+                    try {
+                        Toast.makeText(MainActivity.this, response.body().string(), Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this, "IOException " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Failed to check token!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**

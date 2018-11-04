@@ -1,5 +1,7 @@
 package com.youcmt.youdmcapp;
 
+import com.youcmt.youdmcapp.model.LoginResponse;
+
 /**
  * Created by Stanislav Ostrovskii on 9/19/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
@@ -10,6 +12,7 @@ package com.youcmt.youdmcapp;
  */
 
 public interface LoginCallbacks {
-    void onSuccessfulLogin(int userId);
-    void onSuccessfulRegistration(int userId);
+    void onSuccessfulLogin(LoginResponse response);
+    void onSuccessfulRegistration(LoginResponse response);
+    void onGuestLogin();
 }
