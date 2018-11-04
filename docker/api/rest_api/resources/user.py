@@ -12,6 +12,7 @@ from flask_jwt_extended import (
 )
 from rest_api.models.jwt import RevokedTokenModel
 import datetime
+from rest_api.helper.email import registration_confirmation
 
 class UserRegister(Resource):
     parser = reqparse.RequestParser()
@@ -58,25 +59,27 @@ class UserRegister(Resource):
                 "role":user.role,
                 "id":user.id
             }
-
-            access_token = create_access_token(identity=identity, fresh=True, expires_delta=self.expires)
-            refresh_token = create_refresh_token(identity=identity)
-            return {
-                "message":"user registered!",
-                "role":user.role,
-                "id":user.id,
-                "username":user.username,
-                "email":user.email,
-                "profile_img":user.profile_img,
-                "reg_date": str(user.date),
-                "access_token": access_token,
-                "refresh_token": refresh_token
-            },201
-
         except:
             return {
                 "message":"something went wrong during user registration."
             },500
+            
+        access_token = create_access_token(identity=identity, fresh=True, expires_delta=self.expires)
+        refresh_token = create_refresh_token(identity=identity)
+
+        registration_confirmation(username=user.username, recipient=user.email)
+        
+        return {
+            "message":"user registered!",
+            "role":user.role,
+            "id":user.id,
+            "username":user.username,
+            "email":user.email,
+            "profile_img":user.profile_img,
+            "reg_date": str(user.date),
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        },201
 
 
 class UserLogin(Resource):
