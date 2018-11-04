@@ -1,7 +1,9 @@
 package com.youcmt.youdmcapp;
 
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -38,9 +40,8 @@ import retrofit2.Response;
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.youcmt.youdmcapp.Constants.ACCESS_TOKEN;
 import static com.youcmt.youdmcapp.Constants.EXTRA_VIDEO;
-import static com.youcmt.youdmcapp.Constants.ID_GUEST;
-import static com.youcmt.youdmcapp.Constants.USER_ID;
 
 /**
  * Created by Stanislav Ostrovskii on 10/25/2018.
@@ -55,16 +56,17 @@ public class CommentFragment extends Fragment {
     private CommentAdapter mCommentAdapter;
     private EditText mCommentEditText;
     private ImageView mSendButton;
-    private int mUserId;
     private Video mVideo;
     private List<Comment> mComments;
+    private SharedPreferences mPreferences;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mComments = new ArrayList<>(1);
-        mUserId = getActivity().getPreferences(MODE_PRIVATE).getInt(USER_ID, ID_GUEST);
         mVideo = getActivity().getIntent().getParcelableExtra(EXTRA_VIDEO);
+        mPreferences = getActivity()
+                .getSharedPreferences("com.youcmt.youdmcapp", MODE_PRIVATE);
     }
 
     @Nullable
@@ -176,9 +178,8 @@ public class CommentFragment extends Fragment {
         CommentPostRequest postRequest = new CommentPostRequest();
         postRequest.setText(commentText.trim());
         postRequest.setVid(mVideo.getVid());
-        postRequest.setUser_id(mUserId);
 
-        Call<ResponseBody> response = client.postComment(postRequest, header());
+        Call<ResponseBody> response = client.postComment(getAuthHeader(), postRequest, header());
         Log.d(TAG, "URL: " + response.request().url().toString());
         response.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -192,13 +193,18 @@ public class CommentFragment extends Fragment {
                     fetchComments(); //reload comment list
 
                 }
-                else if(response.code()==400)
-                {
-                    Toast.makeText(getActivity(), "Unable to process request!", Toast.LENGTH_SHORT).show();
-                }
                 else
                 {
-                    Toast.makeText(getActivity(), "Unknown error occurred!", Toast.LENGTH_SHORT).show();
+                    try {
+                        Toast.makeText(getActivity(), "Error code " +
+                        response.code() + ": " + response.errorBody().string(), Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        displayUnknownError();
+                    } catch (NullPointerException n) {
+                        n.printStackTrace();
+                        displayUnknownError();
+                    }
                 }
             }
 
@@ -244,6 +250,11 @@ public class CommentFragment extends Fragment {
             }
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         }
+    }
+
+    @NonNull
+    private String getAuthHeader() {
+        return "Bearer " + mPreferences.getString(ACCESS_TOKEN, "");
     }
 
     private HashMap header()

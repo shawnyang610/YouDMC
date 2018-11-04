@@ -37,13 +37,17 @@ public interface ApiEndPoint {
     Call<LoginResponse> login(@Body LoginRequest loginRequest,
                        @HeaderMap HashMap<String,String> headerMap);
 
-    @GET("comment")
+    @GET("comment/get/comments")
     Call<CommentResponse> loadComments(@Query("vid") String url,
                                        @HeaderMap HashMap<String, String> headerMap);
 
-    @POST("comment")
-    Call<ResponseBody> postComment(@Body CommentPostRequest postRequest,
+    @POST("comment/post/user")
+    Call<ResponseBody> postComment(@Header("Authorization") String authorization,@Body CommentPostRequest postRequest,
             @HeaderMap HashMap<String,String> headerMap);
+
+    @POST("comment/post/user")
+    Call<ResponseBody> postCommentGuest(@Body CommentPostRequest postRequest,
+                                   @HeaderMap HashMap<String,String> headerMap);
 
     @GET("check_token")
     Call<ResponseBody> checkToken (@Header("Authorization") String authorization);
