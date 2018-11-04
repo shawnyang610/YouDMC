@@ -110,12 +110,19 @@ api.add_resource(AccessTokenCheck, "/api/check_token")
 from rest_api.resources.video import VideoInfo # noqa
 api.add_resource(VideoInfo, "/api/video/info")
 
-from rest_api.resources.comment import Comment, Comment_Loggedin, GetComments,UserComment, EditComment # noqa
+from rest_api.resources.comment import(
+    Comment,
+    Comment_Loggedin,
+    GetComments,UserComment,
+    EditComment,
+    DeleteComment) # noqa
+
 api.add_resource(Comment, "/api/comment/post/guest")
 api.add_resource(Comment_Loggedin, "/api/comment/post/user")
 api.add_resource(GetComments, "/api/comment/get/comments")
 api.add_resource(UserComment, "/api/comment/get/user_comments")
 api.add_resource(EditComment, "/api/comment/edit")
+api.add_resource(DeleteComment, "/api/comment/delete")
 
 from rest_api.resources.rating import RateComment # noqa
 api.add_resource(RateComment, "/api/rate_comment")
@@ -129,3 +136,4 @@ def after_request(response):
   response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
   response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
   return response
+  

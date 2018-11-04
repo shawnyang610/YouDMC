@@ -80,6 +80,6 @@ class CommentModel(db.Model):
 
     def delete_from_db (self):
         self.is_deleted=1
-        db.session.add(self)
+        # db.session.add(self)
         db.session.commit()
     

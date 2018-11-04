@@ -5,6 +5,7 @@ from flask_jwt_extended import(
     jwt_required,
     get_jwt_identity
 )
+from datetime import datetime
 
 class Comment(Resource):
 
@@ -192,6 +193,7 @@ class EditComment(Resource):
         if comment:
             if comment.user_id == user_id or user_role == 'admin':
                 comment.text = data['text']
+                comment.date = datetime.utcnow
                 try:
                     comment.save_to_db()
                 except:
@@ -213,3 +215,34 @@ class EditComment(Resource):
             },404
 
         
+class DeleteComment(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument(
+        "comment_id", type=int, required=True, help="comment_id cannot be blank."
+    )
+    @jwt_required
+    def post(self):
+        comment_id = self.parser.parse_args()["comment_id"]
+        user_id = get_jwt_identity()["id"]
+        user_role = get_jwt_identity()["role"]
+        comment = CommentModel.find_by_id(id=comment_id)
+        if comment:
+            if comment.user_id == user_id or user_role=="admin":
+                try:
+                    comment.delete_from_db()
+                except:
+                    return {
+                        "message":"something went wrong updating comments."
+                    },500
+                return {
+                    "message":"comment deleted successfully."
+                },200
+
+            else:
+                return {
+                    "message":"unauthorized access."
+                },401
+        else:
+            return {
+                "message":"no comment found for comment_id:{}".format(comment_id)
+            },404
