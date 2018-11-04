@@ -4,6 +4,7 @@ from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
 # from flask_jwt_extended import JWTManager
 # from werkzeug.security import generate_password_hash
+# from flask_mail import Mail, Message
 from os.path import abspath, dirname
 
 ###########################
@@ -63,10 +64,33 @@ def is_blacklisted(decrypted_token):
 def add_claims_to_access_token(identity):
     pass
 
+
+###########################
+#### config flask-mail  ######
+###########################
+
+app.config["MAIL_SERVER"]="smtp.gmail.com"
+app.config["MAIL_PORT"]=465
+app.config["MAIL_USE_TLS"] = False
+app.config["MAIL_USE_SSL"] = True
+app.config["MAIL_USERNAME"] = "info.youcmt@gmail.com"
+app.config["MAIL_PASSWORD"] = "Youcmtcmt"
+
+# testing
+# @app.route("/email")
+# def email():
+#     mail = Mail(app)
+#     msg = Message("test", sender="info.youcmt@gmail.com", recipients=["info.youcmt@gmail.com", "shawnyang610@gmail.com"])
+#     msg.body = "text body"
+#     msg.html = "<b>HTML</b>"
+#     mail.send(msg)
+#     return "sent"
+
 ###########################
 #### config api  ######
 ###########################
 api = Api(app)
+
 
 
 from rest_api.resources.env import DateTime # noqa
@@ -86,8 +110,19 @@ api.add_resource(AccessTokenCheck, "/api/check_token")
 from rest_api.resources.video import VideoInfo # noqa
 api.add_resource(VideoInfo, "/api/video/info")
 
-from rest_api.resources.comment import Comment # noqa
-api.add_resource(Comment, "/api/comment")
+from rest_api.resources.comment import(
+    Comment,
+    Comment_Loggedin,
+    GetComments,UserComment,
+    EditComment,
+    DeleteComment) # noqa
+
+api.add_resource(Comment, "/api/comment/post/guest")
+api.add_resource(Comment_Loggedin, "/api/comment/post/user")
+api.add_resource(GetComments, "/api/comment/get/comments")
+api.add_resource(UserComment, "/api/comment/get/user_comments")
+api.add_resource(EditComment, "/api/comment/edit")
+api.add_resource(DeleteComment, "/api/comment/delete")
 
 from rest_api.resources.rating import RateComment # noqa
 api.add_resource(RateComment, "/api/rate_comment")
@@ -101,3 +136,4 @@ def after_request(response):
   response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
   response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
   return response
+  

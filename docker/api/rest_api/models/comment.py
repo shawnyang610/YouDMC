@@ -60,16 +60,19 @@ class CommentModel(db.Model):
     
     @classmethod
     def find_all_by_vid (cls, vid):
-        return cls.query.filter_by(vid=vid, is_deleted=0).order_by(cls.date)
+        return cls.query.filter_by(vid=vid, is_deleted=0).order_by(cls.date.desc())
 
     @classmethod
     def find_all_by_parent_comment_id(cls, parent_comment_id):
-        return cls.query.filter_by(parent_comment_id=parent_comment_id, is_deleted=0).order_by(cls.date)
+        return cls.query.filter_by(parent_comment_id=parent_comment_id, is_deleted=0).order_by(cls.date.desc())
 
     @classmethod
     def find_all_by_top_comment_id(cls, top_comment_id):
-        return cls.query.filter_by(top_comment_id=top_comment_id, is_deleted=0).order_by(cls.date)
+        return cls.query.filter_by(top_comment_id=top_comment_id, is_deleted=0).order_by(cls.date.desc())
 
+    @classmethod
+    def find_all_by_user_id(cls, user_id):
+        return cls.query.filter_by(user_id=user_id, is_deleted=0).order_by(cls.date.desc())
 
     def save_to_db (self):
         db.session.add(self)
@@ -77,6 +80,6 @@ class CommentModel(db.Model):
 
     def delete_from_db (self):
         self.is_deleted=1
-        db.session.add(self)
+        # db.session.add(self)
         db.session.commit()
     

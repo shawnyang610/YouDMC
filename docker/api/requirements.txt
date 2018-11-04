@@ -6,3 +6,4 @@ Flask-JWT-Extended==3.12.1
 gunicorn==19.9.0
 Pillow==5.2.0
 youtube_dl==2018.9.18
+flask-mail==0.9.1
