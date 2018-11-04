@@ -1,98 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-<title>YouCMT Test Page</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-* {
-    box-sizing: border-box;
-}
-
-/* Style the header */
-header {
-    background-color: #00ffff;
-    padding: 30px;
-    text-align: center;
-    font-size: 35px;
-    color: white;
-}
-
-/* Container for flexboxes */
-section {
-    display: -webkit-flex;
-    display: flex;
-}
-
-/* Style the navigation menu */
-nav {
-    -webkit-flex: 1;
-    -ms-flex: 1;
-    flex: 1;
-    background: #ccc;
-    padding: 20px;
-}
-
-/* Style the list inside the menu */
-nav ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-/* Style the content */
-article {
-    -webkit-flex: 3;
-    -ms-flex: 3;
-    flex: 3;
-    background-color: #f1f1f1;
-    padding: 10px;
-}
-
-/* Style the footer */
-footer {
-    background-color: #777;
-    padding: 10px;
-    text-align: center;
-    color: white;
-}
-
-/* Responsive layout - makes the menu and the content (inside the section) sit on top of each other instead of next to each other */
-@media (max-width: 600px) {
-    section {
-      -webkit-flex-direction: column;
-      flex-direction: column;
-    }
-}
-</style>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="videoID" content="test"> <!-- changed by server dQw4w9WgXcQ -->
+  <meta name="staticResourcePath" content=""> <!-- changed by server -->
+  <meta charset="utf-8">
+  <title> UI Revamp </title>
+  <link rel="stylesheet" href="images/mod_style.css">
+  <script src="scripts/all_mighty.js">  </script>
 </head>
 
+<body onload="setup();">
 
-<body>
-<header>
-  <img src = "images/mainlogo.png" style="width:150px;">
-  <div class="login">
-    <p id = "current_user">Unregistered User</p>
-    <form action="/login">
-      username:
-      <input type="text" name="username">
-      password:
-      <input type="password" name="password">
-      <input type="submit" value="login">
-    </form>
-  </div>
-</header>
+<div class="header">
+  <a href="#default" class="logo" id = "logoIcon"><img src="images/logo.png" width=100></a>
+  <div id="header-right">
+    <!-- based on user logged in or not -->
+  </div> <!-- end of header-right -->
+</div> <!-- end of header -->
+<div class = "testButtons">
+  <button type="button" onclick="clear_header()">Clear Header</button>
+  <button type="button" onclick="fill_header_loggedOut()">Logged Out Header</button>
+  <button type="button" onclick="fill_header_loggedIn()">Logged In Header</button>
+  <br>
+  <button type="button" onclick="insert_randomMessage()">Insert Random Message</button>
+  <button type="button" onclick="clear_messages()">Clear All Messages (Local) </button>
+  <button type="button" onclick="delete_messages()">Delete All Messages (API Request) </button>
+  <button type="button" onclick="refresh_messages()">Refresh Messages</button>
+  <br>
+  <button type="button" onclick="show_embedVideo()">Show Embed Video</button>
+  <button type="button" onclick="hide_embedVideo()">Hide Embed Video</button>
+  <button type="button" onclick="show_sidepanel()">Show Sidepanel</button>
+  <button type="button" onclick="hide_sidepanel()">Hide Sidepanel</button>
+  <br>
+  <div id = testSectionVID>Current page = </div>
+</div>
+<div class = "row">
+  <div id="content">
+    <div id="videoEmbed"> </div> <!-- placeholder for embedded video -->
+    <div id="videoInfo"> </div> <!-- placeholder for video info -->
+    <div id="write"> </div> <!-- placeholder for writting comments -->
+    <div id="comments"> </div> <!-- placeholder for other comments -->
+  </div> <!-- end of contents -->
 
-<section>
-  <article>
-    <h1>Contents head</h1>
-    <p>Contents to be filled</p>
-  </article>
-</section>
-
-<footer>
-  <p>Footer</p>
-</footer>
+  <div id="aside"> <!-- placeholder for side panel -->
+  </div> <!-- end of aside -->
+</div> <!-- end of row -->
 
 </body>
 </html>
