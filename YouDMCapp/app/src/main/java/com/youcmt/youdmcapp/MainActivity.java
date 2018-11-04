@@ -224,9 +224,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
-                if(response.code()==422) {
+                if(response.code()==200) {
+
                     try {
-                        Toast.makeText(MainActivity.this, response.errorBody().string(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, response.body().string(), Toast.LENGTH_LONG).show();
                     } catch (IOException e) {
                         e.printStackTrace();
                         Toast.makeText(MainActivity.this, "IOException " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -234,7 +235,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else  {
                     try {
-                        Toast.makeText(MainActivity.this, response.body().string(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, "Error code " +
+                                response.code()+ ": "
+                                + response.errorBody().string(), Toast.LENGTH_LONG).show();
                     } catch (IOException e) {
                         e.printStackTrace();
                         Toast.makeText(MainActivity.this, "IOException " + e.getMessage(), Toast.LENGTH_LONG).show();

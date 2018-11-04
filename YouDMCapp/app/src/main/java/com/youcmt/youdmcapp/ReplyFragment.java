@@ -1,6 +1,8 @@
 package com.youcmt.youdmcapp;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -31,14 +33,14 @@ import java.util.List;
 import okhttp3.ResponseBody;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.youcmt.youdmcapp.Constants.ACCESS_TOKEN;
 import static com.youcmt.youdmcapp.Constants.ID_GUEST;
 import static com.youcmt.youdmcapp.Constants.USER_ID;
+
 
 /**
  * Created by Stanislav Ostrovskii on 10/25/2018.
@@ -58,6 +60,7 @@ public class ReplyFragment extends Fragment {
     private EditText mCommentEditText;
     private List<Comment> mComments;
     private ImageView mSendButton;
+    private SharedPreferences mPreferences;
 
     public static ReplyFragment newInstance(Comment comment) {
         ReplyFragment fragment = new ReplyFragment();
@@ -73,6 +76,8 @@ public class ReplyFragment extends Fragment {
         mComment = (Comment) getArguments().getSerializable(COMMENT_KEY);
         mUserId = getActivity().getPreferences(MODE_PRIVATE).getInt(USER_ID, ID_GUEST);
         mComments = new ArrayList<>(1);
+        mPreferences = getActivity()
+                .getSharedPreferences("com.youcmt.youdmcapp", MODE_PRIVATE);
     }
 
     @Nullable
@@ -176,7 +181,7 @@ public class ReplyFragment extends Fragment {
         postRequest.setVid(String.valueOf(mComment.getId()));
         postRequest.setUser_id(mUserId);
 
-        retrofit2.Call<ResponseBody> response = client.postComment(postRequest, header());
+        retrofit2.Call<ResponseBody> response = client.postComment(getAuthHeader(), postRequest, header());
         Log.d(TAG, "URL: " + response.request().url().toString());
         response.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -205,6 +210,11 @@ public class ReplyFragment extends Fragment {
                 Toast.makeText(getActivity(), t.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    @NonNull
+    private String getAuthHeader() {
+        return "Bearer " + mPreferences.getString(ACCESS_TOKEN, "");
     }
 
     private void displayUnknownError() {
