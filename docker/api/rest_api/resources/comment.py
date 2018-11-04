@@ -193,7 +193,7 @@ class EditComment(Resource):
         if comment:
             if comment.user_id == user_id or user_role == 'admin':
                 comment.text = data['text']
-                comment.date = datetime.utcnow
+                comment.date = datetime.utcnow()
                 try:
                     comment.save_to_db()
                 except:
