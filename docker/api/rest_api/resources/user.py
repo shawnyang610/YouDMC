@@ -12,7 +12,8 @@ from flask_jwt_extended import (
 )
 from rest_api.models.jwt import RevokedTokenModel
 import datetime
-from rest_api.helper.email import registration_confirmation
+from rest_api.helper.email import registration_confirmation, confirm_email_owner
+from rest_api import email_confirm_table
 
 class UserRegister(Resource):
     parser = reqparse.RequestParser()
@@ -186,3 +187,57 @@ class UserLogoutRefresh(Resource):
 #             "registration_date":str(user.date),
 #             "profile_img":user.profile_img
 #         }
+
+class ConfirmEmail(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument(
+        "email", type=str, required=True, help="email cannot be blank."
+    )
+
+    def post(self):
+        email = self.parser.parse_args()['email']
+        user = UserModel.find_by_email(email=email)
+        if user:
+            confirm_email_owner(username=user.username, recipient=email)
+            return{
+                "message":"password reset code emailed to {}".format(email)
+            },200
+
+        else:
+            return {
+                "message":"no user with email {} can be found.".format(email)
+            },404
+
+class ResetPassword(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument(
+        "email", type=str, required=True, help="email cannot be blank."
+    )
+    parser.add_argument(
+        "reset_code", type = str, required=True, help="reset_code cannot be blank."
+    )
+    parser.add_argument(
+        "new_password", type = str, required=True, help="new_password cannot be blank."
+    )
+
+    def post(self):
+        data = self.parser.parse_args()
+        if data['reset_code'] == email_confirm_table[data['email']]:
+            # del email_confirm_table[data['email']]
+            user = UserModel.find_by_email(data['email'])
+            if user:
+                user.password_hash= generate_password_hash(data['new_password'])
+                user.save_to_db()
+                return{
+                    "message":"password updated successfully for {}".format(user.username)
+                },200
+            else:
+                return {
+                    "message":"user with email {} not found.".format(data['email'])
+                },404
+            
+
+        else:
+            return {
+                "message":"Incorrect reset code."
+            },401

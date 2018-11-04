@@ -29,6 +29,11 @@ def home():
         v = ''
     return render_template("meta_test_v2.html", v=v)
 
+################################
+#### for password reset ########
+################################
+email_confirm_table = {"head":"FSAFSA"}
+
 
 ###########################
 #### config database ######
@@ -96,11 +101,20 @@ api = Api(app)
 from rest_api.resources.env import DateTime # noqa
 api.add_resource(DateTime, "/api/datetime")
 
-from rest_api.resources.user import UserRegister, UserLogin, UserLogoutAccess, UserLogoutRefresh # noqa
+from rest_api.resources.user import (
+    UserRegister,
+    UserLogin,
+    UserLogoutAccess,
+    UserLogoutRefresh,
+    ConfirmEmail,
+    ResetPassword) # noqa
+
 api.add_resource(UserRegister, "/api/user/register")
 api.add_resource(UserLogin, "/api/user/login")
 api.add_resource(UserLogoutAccess, "/api/user/logout_access")
 api.add_resource(UserLogoutRefresh, "/api/user/logout_refresh")
+api.add_resource(ConfirmEmail, "/api/user/confirm_email")
+api.add_resource(ResetPassword, "/api/user/reset_password")
 
 from rest_api.resources.jwt import TokenRefresh, AccessTokenCheck # noqa
 api.add_resource(TokenRefresh, "/api/refresh_token")
@@ -137,3 +151,4 @@ def after_request(response):
   response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
   return response
   
+
