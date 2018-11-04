@@ -110,10 +110,12 @@ api.add_resource(AccessTokenCheck, "/api/check_token")
 from rest_api.resources.video import VideoInfo # noqa
 api.add_resource(VideoInfo, "/api/video/info")
 
-from rest_api.resources.comment import Comment, Comment_Loggedin, UserComment # noqa
-api.add_resource(Comment, "/api/comment")
-api.add_resource(Comment_Loggedin, "/api/comment_loggedin")
-api.add_resource(UserComment, "/api/user_comments")
+from rest_api.resources.comment import Comment, Comment_Loggedin, GetComments,UserComment, EditComment # noqa
+api.add_resource(Comment, "/api/comment/post/guest")
+api.add_resource(Comment_Loggedin, "/api/comment/post/user")
+api.add_resource(GetComments, "/api/comment/get/comments")
+api.add_resource(UserComment, "/api/comment/get/user_comments")
+api.add_resource(EditComment, "/api/comment/edit")
 
 from rest_api.resources.rating import RateComment # noqa
 api.add_resource(RateComment, "/api/rate_comment")

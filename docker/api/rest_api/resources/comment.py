@@ -62,6 +62,25 @@ class Comment(Resource):
             "message":"comment saved."
         },200
 
+    # def get (self):
+    #     args = request.args
+    #     if ('vid' not in args.keys() and 'parent_comment_id' not in args.keys() and 'top_comment_id' not in args.keys()):
+    #         return {
+    #             "message":"required parameter missing."
+    #         }, 400
+        
+    #     elif 'vid' in args.keys():
+    #         comments = CommentModel.find_all_by_vid(args['vid'])
+        
+    #     elif 'parent_comment_id' in args.keys():
+    #         comments = CommentModel.find_all_by_parent_comment_id(int(args['parent_comment_id']))
+    #     else:
+    #         comments = CommentModel.find_all_by_top_comment_id(int(args['top_comment_id']))
+
+    #     comment_list = [comment.to_json() for comment in comments]
+    #     return {"comments":comment_list},200
+
+class GetComments(Resource):
     def get (self):
         args = request.args
         if ('vid' not in args.keys() and 'parent_comment_id' not in args.keys() and 'top_comment_id' not in args.keys()):
@@ -78,8 +97,7 @@ class Comment(Resource):
             comments = CommentModel.find_all_by_top_comment_id(int(args['top_comment_id']))
 
         comment_list = [comment.to_json() for comment in comments]
-        return {"comments":comment_list},200
-
+        return {"comments":comment_list},200   
 
 
 class Comment_Loggedin(Resource):
@@ -150,7 +168,48 @@ class UserComment(Resource):
         user_id =int(get_jwt_identity()["id"])
         comments = CommentModel.find_all_by_user_id(user_id=user_id)
         comment_list = [comment.to_json() for comment in comments]
+
         return{
             "comments":comment_list
         },200
 
+class EditComment(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument(
+        "comment_id", type=int, required=True, help="comment_id cannot be blank."
+    )
+    parser.add_argument(
+        "text", type=str, required=True, help="text cannot be blank."
+    )
+    @jwt_required
+    def post(self):
+        data = self.parser.parse_args()
+        user_id = get_jwt_identity()['id']
+        user_role =get_jwt_identity()['role']
+
+        comment = CommentModel.find_by_id(id=data['comment_id'])
+
+        if comment:
+            if comment.user_id == user_id or user_role == 'admin':
+                comment.text = data['text']
+                try:
+                    comment.save_to_db()
+                except:
+                    return {
+                        "message":"something went wrong updating comments."
+                    },500
+                return {
+                    "message":"comment text updated successfully."
+                },200
+
+            else:
+                return {
+                    "message":"unauthorized access."
+                },401
+        
+        else:
+            return {
+                "message":"no comment found for comment_id:{}".format(data['comment_id'])
+            },404
+
+        
