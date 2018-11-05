@@ -13,9 +13,9 @@ class Comment(Resource):
     parser.add_argument(
         "text", type=str, required=True, help="text cannot be blank."
     )
-    parser.add_argument(
-        "user_id", type=str, required=True, help="user_id cannot be blank."
-    )
+    # parser.add_argument(
+    #     "user_id", type=str, required=True, help="user_id cannot be blank."
+    # )
     parser.add_argument(
         "vid", type=str, required=False
     )
@@ -27,9 +27,9 @@ class Comment(Resource):
     # )
     def post(self):
         args = self.parser.parse_args()
- 
+        user_id = 2 # 2 is guest id
         if args['vid']:
-            comment = CommentModel(text=args['text'], user_id=args['user_id'], **{'vid':args['vid']})
+            comment = CommentModel(text=args['text'], user_id=user_id, **{'vid':args['vid']})
             comment.save_to_db()
 
 
@@ -51,7 +51,7 @@ class Comment(Resource):
                     }
             comment = CommentModel(
                 text=args['text'],
-                user_id=args['user_id'],
+                user_id=user_id,
                 **kwargs
                 )
             comment.save_to_db()

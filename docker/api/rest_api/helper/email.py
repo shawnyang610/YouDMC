@@ -1,10 +1,27 @@
 from flask_mail import Mail, Message
-from rest_api import app
+from rest_api import app, email_confirm_table
+import random
+import string
 
 def registration_confirmation(username, recipient):
     mail = Mail(app)
     msg = Message("Welcome to youcmt.com!", sender="info.youcmt@gmail.com", recipients=[recipient])
     msg.body = "Hi {}, Thank you for creating a new account with us!".format(username)
     # msg.html = "<b>HTML</b>"
+    mail.send(msg)
+    return
+
+
+def random_code_generator(n):
+    ret = ''.join(random.choice(string.ascii_uppercase + string.digits + string.ascii_lowercase) for _ in range(n))
+    return ret
+
+
+def confirm_email_owner(username, recipient):
+    code = random_code_generator(7)
+    email_confirm_table[recipient]= code
+    mail = Mail(app)
+    msg = Message("Password reset code", sender="info.youcmt@gmail.com", recipients=[recipient])
+    msg.body = "Hi, {} Your password reset code: {}".format(username, code)
     mail.send(msg)
     return
