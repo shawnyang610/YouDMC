@@ -164,15 +164,22 @@ class Comment_Loggedin(Resource):
 
 class UserComment(Resource):
 
-    @jwt_required
+    # @jwt_required
     def get(self):
-        user_id =int(get_jwt_identity()["id"])
-        comments = CommentModel.find_all_by_user_id(user_id=user_id)
-        comment_list = [comment.to_json() for comment in comments]
+        # user_id =int(get_jwt_identity()["id"])
+        args = request.args
+        if "user_id" in args:
+            comments = CommentModel.find_all_by_user_id(user_id=args['user_id'])
+            comment_list = [comment.to_json() for comment in comments]
 
-        return{
-            "comments":comment_list
-        },200
+            return{
+                "comments":comment_list
+            },200
+        else:
+            return {
+                "message":"user_id param cannot be blank."
+            },400
+
 
 class EditComment(Resource):
     parser = reqparse.RequestParser()
