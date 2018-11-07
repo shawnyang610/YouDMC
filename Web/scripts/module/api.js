@@ -59,3 +59,46 @@ function getRootComments(callback) {
   };
   request.send();
 }
+
+function getReplyComments(rootCommentID, callback) {
+
+}
+
+function registerUser(callback) {
+  var url = "https://youcmt.com/api/user/register";
+
+  var data = new FormData(); //body
+  data.append('username', inputArray[0]);
+  data.append('password', inputArray[1]);
+  data.append('email', inputArray[3]);
+
+  var request = new XMLHttpRequest();
+  request.open('POST', url, true);
+  request.onload = function() {
+    if (request.status >= 200 && request.status < 400) {
+      var serverResponse = JSON.parse(this.response);
+      callback(serverResponse);
+    } else if (request.status == 400) { //bad request
+      var serverResponse = JSON.parse(this.response);
+      callback(serverResponse);
+    } else if (request.status == 500) { //server crash/error
+      var serverResponse = "Unknown Error";
+      callback(serverResponse);
+    }
+  };
+  request.error = function(e) {
+      console.log("request.error called. Error: " + e);
+  };
+  request.onreadystatechange = function(){
+      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
+  };
+  request.send(data);
+}
+
+function postGuestComment() {
+
+}
+
+function postUserComment() {
+
+}

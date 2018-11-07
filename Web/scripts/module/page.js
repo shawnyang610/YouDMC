@@ -233,10 +233,9 @@ function displayRootComments() {
     commentsDiv.innerHTML = "This video does not yet have any comments!";
   } else {
     for (i = 0; i < rootCommentsArray.length; i++) {
-      commentsDiv.appendChild(rootCommentsArray[i].getRenderedObject);
+      commentsDiv.appendChild(rootCommentsArray[i].getListItem());
     }
   }
-  console.log(rootCommentsArray);
 }
 
 function fillCommentBox() {

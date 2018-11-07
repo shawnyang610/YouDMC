@@ -58,7 +58,7 @@ RootCommentObject.prototype.getHeader = function() {
 }
 
 //thumbs up/down and reply link
-RootCommentObject.prototype.getInfo = function() {
+RootCommentObject.prototype.getInfo = function() { //not yet interactive
   var info = document.createElement("h6");
   var thumbsUpChar = document.createTextNode('\u{1F44D}');
   var thumbsDownChar = document.createTextNode('\u{1F44E}');
@@ -83,7 +83,7 @@ RootCommentObject.prototype.getInfo = function() {
 }
 
 //the "reply" input box
-RootCommentObject.prototype.getReply = function() {
+RootCommentObject.prototype.getReply = function() { //ui not updated
   var replyBox = document.createElement("div");
   var inputField = document.createElement("textarea");
   //inputField.setAttribute("type", "text");

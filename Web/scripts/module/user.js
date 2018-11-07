@@ -111,7 +111,14 @@ function submitRegistration() {
     return;
   }
 
-  statusText.innerHTML = "Good to go";
+  statusText.innerHTML = "";
+
+  registerUser(updateRegistrationStatus);
+}
+
+function updateRegistrationStatus(status) {
+  console.log(status);
+  statusText.innerHTML = status.message;
 }
 
 function login() {
