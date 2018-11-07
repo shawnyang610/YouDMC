@@ -1,7 +1,18 @@
 from flask_restful import Resource, reqparse
-from flask import request
-from werkzeug.security import generate_password_hash
+# from flask import request
+from werkzeug.security import generate_password_hash, check_password_hash
 from rest_api.models.user import UserModel
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    jwt_required,
+    jwt_refresh_token_required,
+    get_raw_jwt
+)
+from rest_api.models.jwt import RevokedTokenModel
+import datetime
+from rest_api.helper.email import registration_confirmation, confirm_email_owner
+from rest_api import email_confirm_table
 
 class UserRegister(Resource):
     parser = reqparse.RequestParser()
@@ -15,10 +26,12 @@ class UserRegister(Resource):
         "email", type=str, required=True, help="email cannot be blank."
     )
 
+    expires = datetime.timedelta(days=365)
+
     def post(self):
         data = self.parser.parse_args()
         role = "USER"
-        profile_img = "default.jpg"
+        profile_img = "0" # str type, 0~99 preset images
         password_hash = generate_password_hash(data["password"])
         
         user = UserModel.find_by_username(data["username"])
@@ -42,47 +55,150 @@ class UserRegister(Resource):
         )
         try:
             user.save_to_db()
-            return {
-                "message":"user registered!"
-            },201
+            identity = {
+                "role":user.role,
+                "id":user.id
+            }
         except:
             return {
                 "message":"something went wrong during user registration."
             },500
+            
+        access_token = create_access_token(identity=identity, fresh=True, expires_delta=self.expires)
+        refresh_token = create_refresh_token(identity=identity)
 
-
-class UserInfo(Resource):
-    # parser=reqparse.RequestParser()
-    # parser.add_argument(
-    #     "username", type=str, required=False, help="username cannot be blank."
-    # )
-    # parser.add_argument(
-    #     "email", type=str, required=False, help="email cannot be blank."
-    # )
-
-    def get(self):
-        args = request.args
-        if 'username' in args.keys():
-            # get user by username
-            user = UserModel.find_by_username(args['username'])
-
-
-        elif 'email' in args.keys():
-            # get user by email
-            user = UserModel.find_by_email(args['email'])
-        else:
-            return {
-                "message":"error, provide either username or email parameter."
-            }
+        registration_confirmation(username=user.username, recipient=user.email)
         
-        if not user:
-            return {
-                "message":"user not found."
-            },404
-
         return {
+            "message":"user registered!",
+            "role":user.role,
+            "id":user.id,
             "username":user.username,
             "email":user.email,
-            "registration_date":str(user.date),
-            "profile_img":user.profile_img
-        }
+            "profile_img":user.profile_img,
+            "reg_date": str(user.date),
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        },201
+
+
+class UserLogin(Resource):
+    user_parser = reqparse.RequestParser()
+    user_parser.add_argument(
+        'username', type=str, required=True, help='username cannot be blank.'
+    )
+    user_parser.add_argument(
+        'password', type=str, required=True, help='password cannot be blank.'
+    )
+
+    expires = datetime.timedelta(days=365)
+
+    def post(self):
+        data = self.user_parser.parse_args()
+        user = UserModel.find_by_username(data['username'])
+
+        if not user:
+            return {
+                "message" : "username does not exist."
+            },404
+        
+        if check_password_hash(user.password_hash, data['password']):
+            identity = {
+                "role":user.role,
+                "id":user.id
+            }
+            access_token = create_access_token(identity=identity, fresh=True, expires_delta=self.expires)
+            refresh_token = create_refresh_token(identity=identity)
+            return {
+                "message":"Succesfully logged in",
+                "role":user.role,
+                "id":user.id,
+                "username":user.username,
+                "email":user.email,
+                "profile_img":user.profile_img,
+                "reg_date": str(user.date),
+                "access_token": access_token,
+                "refresh_token": refresh_token
+            }
+        else:
+            return {
+                "message":"wrong credentials."
+            },401
+
+class UserLogoutAccess(Resource):
+    @jwt_required
+    def post(self):
+        jti = get_raw_jwt()["jti"]
+        try:
+            revoked_token = RevokedTokenModel(jti)
+            revoked_token.save_to_db()
+            return {"message":"Access Token has been revoked."},200
+        except:
+            return {"message": "Something went wrong"},500
+
+
+class UserLogoutRefresh(Resource):
+    @jwt_refresh_token_required
+    def post(self):
+        jti = get_raw_jwt()["jti"]
+        try:
+            revoked_token = RevokedTokenModel(jti)
+            revoked_token.save_to_db()
+            return {"message":"Refresh Token has been revoked."},200
+        except:
+            return {"message":"Something went wrong"},500
+
+
+class ConfirmEmail(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument(
+        "email", type=str, required=True, help="email cannot be blank."
+    )
+
+    def post(self):
+        email = self.parser.parse_args()['email']
+        user = UserModel.find_by_email(email=email)
+        if user:
+            confirm_email_owner(username=user.username, recipient=email)
+            return{
+                "message":"password reset code emailed to {}".format(email)
+            },200
+
+        else:
+            return {
+                "message":"no user with email {} can be found.".format(email)
+            },404
+
+class ResetPassword(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument(
+        "email", type=str, required=True, help="email cannot be blank."
+    )
+    parser.add_argument(
+        "reset_code", type = str, required=True, help="reset_code cannot be blank."
+    )
+    parser.add_argument(
+        "new_password", type = str, required=True, help="new_password cannot be blank."
+    )
+
+    def post(self):
+        data = self.parser.parse_args()
+        if data['reset_code'] == email_confirm_table[data['email']]:
+            # del email_confirm_table[data['email']]
+            user = UserModel.find_by_email(data['email'])
+            if user:
+                user.password_hash= generate_password_hash(data['new_password'])
+                user.save_to_db()
+                return{
+                    "message":"password updated successfully for {}".format(user.username)
+                },200
+            else:
+                return {
+                    "message":"user with email {} not found.".format(data['email'])
+                },404
+            
+
+        else:
+            return {
+                "message":"Incorrect reset code."
+            },401

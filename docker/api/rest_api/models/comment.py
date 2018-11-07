@@ -8,8 +8,7 @@ class CommentModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     text = db.Column(db.String)
-    like = db.Column(db.Integer, default=0)
-    dislike = db.Column(db.Integer, default=0)
+    ratings = db.relationship("RatingModel")
 
     # a comment has either (parent_comment_id and top_comment_id) or a single vid
     top_comment_id = db.Column(db.Integer, nullable=False)
@@ -41,6 +40,7 @@ class CommentModel(db.Model):
 
     
     def to_json(self):
+        ratings_count = [rating.rating for rating in self.ratings]
         return {
             "id":self.id,
             "date":str(self.date),
@@ -49,8 +49,8 @@ class CommentModel(db.Model):
             "username":self.user.username,
             "top_comment_id": self.top_comment_id,
             "parent_comment_id": self.parent_comment_id,
-            "like":self.like,
-            "dislike":self.dislike,
+            "like":ratings_count.count(1),
+            "dislike":ratings_count.count(-1),
             "count": CommentModel.query.filter_by(top_comment_id=self.id, is_deleted=0).count()
         }
 
@@ -60,16 +60,19 @@ class CommentModel(db.Model):
     
     @classmethod
     def find_all_by_vid (cls, vid):
-        return cls.query.filter_by(vid=vid, is_deleted=0).order_by(cls.date)
+        return cls.query.filter_by(vid=vid, is_deleted=0).order_by(cls.date.desc())
 
     @classmethod
     def find_all_by_parent_comment_id(cls, parent_comment_id):
-        return cls.query.filter_by(parent_comment_id=parent_comment_id, is_deleted=0).order_by(cls.date)
+        return cls.query.filter_by(parent_comment_id=parent_comment_id, is_deleted=0).order_by(cls.date.desc())
 
     @classmethod
     def find_all_by_top_comment_id(cls, top_comment_id):
-        return cls.query.filter_by(top_comment_id=top_comment_id, is_deleted=0).order_by(cls.date)
+        return cls.query.filter_by(top_comment_id=top_comment_id, is_deleted=0).order_by(cls.date.desc())
 
+    @classmethod
+    def find_all_by_user_id(cls, user_id):
+        return cls.query.filter_by(user_id=user_id, is_deleted=0).order_by(cls.date.desc())
 
     def save_to_db (self):
         db.session.add(self)
@@ -77,6 +80,6 @@ class CommentModel(db.Model):
 
     def delete_from_db (self):
         self.is_deleted=1
-        db.session.add(self)
+        # db.session.add(self)
         db.session.commit()
     
