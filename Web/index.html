@@ -2,50 +2,90 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="videoID" content="test"> <!-- changed by server dQw4w9WgXcQ -->
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <meta name="videoID" content="dQw4w9WgXcQ"> <!-- changed by server dQw4w9WgXcQ -->
   <meta name="staticResourcePath" content=""> <!-- changed by server -->
   <meta charset="utf-8">
   <title> UI Revamp </title>
-  <link rel="stylesheet" href="images/mod_style.css">
-  <script src="scripts/all_mighty.js">  </script>
+  <!-- changed by server <link rel="stylesheet" href="images/mod_style.css"> -->
+  <!-- use this after compress & combine
+    <script src="scripts/all_mighty.js">  </script>
+  -->
+  <script src="scripts/module/api.js">  </script>
+  <script src="scripts/module/comment.js">  </script>
+  <script src="scripts/module/page.js">  </script>
+  <script src="scripts/module/helper.js">  </script>
+  <script src="scripts/module/user.js">  </script>
+  <script src="scripts/module/debug.js">  </script>
+  <!-- In addition to bootstrap: loading circle -->
+  <style>
+    .loader_info {
+      border: 4px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 4px solid #50f441;
+      border-bottom: 4px solid #50f441;
+      width: 30px;
+      height: 30px;
+      -webkit-animation: spin 2s linear infinite;
+      animation: spin 2s linear infinite;
+    }
+
+    .loader_comments {
+      border: 4px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 4px solid #42ebf4;
+      border-bottom: 4px solid #42ebf4;
+      width: 30px;
+      height: 30px;
+      -webkit-animation: spin 2s linear infinite;
+      animation: spin 2s linear infinite;
+    }
+
+    @-webkit-keyframes spin {
+      0% { -webkit-transform: rotate(0deg); }
+      100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 
-<body onload="setup();">
+<body onload = "setup();">
 
-<div class="header">
-  <a href="#default" class="logo" id = "logoIcon"><img src="images/logo.png" width=100></a>
-  <div id="header-right">
-    <!-- based on user logged in or not -->
-  </div> <!-- end of header-right -->
-</div> <!-- end of header -->
-<div class = "testButtons">
-  <button type="button" onclick="clear_header()">Clear Header</button>
-  <button type="button" onclick="fill_header_loggedOut()">Logged Out Header</button>
-  <button type="button" onclick="fill_header_loggedIn()">Logged In Header</button>
-  <br>
-  <button type="button" onclick="insert_randomMessage()">Insert Random Message</button>
-  <button type="button" onclick="clear_messages()">Clear All Messages (Local) </button>
-  <button type="button" onclick="delete_messages()">Delete All Messages (API Request) </button>
-  <button type="button" onclick="refresh_messages()">Refresh Messages</button>
-  <br>
-  <button type="button" onclick="show_embedVideo()">Show Embed Video</button>
-  <button type="button" onclick="hide_embedVideo()">Hide Embed Video</button>
-  <button type="button" onclick="show_sidepanel()">Show Sidepanel</button>
-  <button type="button" onclick="hide_sidepanel()">Hide Sidepanel</button>
-  <br>
-  <div id = testSectionVID>Current page = </div>
-</div>
-<div class = "row">
-  <div id="content">
-    <div id="videoEmbed"> </div> <!-- placeholder for embedded video -->
-    <div id="videoInfo"> </div> <!-- placeholder for video info -->
-    <div id="write"> </div> <!-- placeholder for writting comments -->
-    <div id="comments"> </div> <!-- placeholder for other comments -->
-  </div> <!-- end of contents -->
+  <div class = "container-fluid">
+    <div class="row justify-content-between bg-light">
+      <div class = "col-lg-1 m-4">
+        <a href="#home" class="logo" id = "logoIcon">
+        <img src="images/logo.png" width=100></a>
+      </div>
+      <div id="header-right" class = "col-lg-auto m-2">
+        <!-- based on user logged in or not -->
+      </div> <!-- end of header-right -->
+    </div> <!-- end of header row -->
+    <div class = "row bg-danger" id = "debug"><!--debugging buttons & info--></div>
+  </div> <!-- end of head&debug container -->
 
-  <div id="aside"> <!-- placeholder for side panel -->
-  </div> <!-- end of aside -->
-</div> <!-- end of row -->
+  <div class = "container-fluid">
+    <div class = "row justify-content-left">
+      <div id="content" class = "col-lg-12 bg-success">
+        <div id="videoEmbed" > </div> <!-- placeholder for embedded video -->
+        <div id="videoInfo" class = "loader_info"> </div> <!-- placeholder for video info -->
+        <div id="write">
+          <!-- placeholder for writting a root comment -->
+        </div>
+        <div id="comments" class = "loader_comments">
+          <!-- placeholder for other comments -->
+          <ul id = "rootCommentsList" class="list-unstyled">
+          </ul> <!-- end of rootCommentsList -->
+        </div> <!-- end of comments -->
+      </div> <!-- end of contents -->
+      <div id="aside" class = "bg-dark"> <!-- placeholder for side panel -->
+      </div> <!-- end of aside -->
+    </div> <!-- end of row -->
+  </div> <!-- end of container -->
 
 </body>
 </html>

@@ -1,0 +1,44 @@
+This is a documentation for understanding the rendering for each comment.
+
+Each comment fetched from the API will have the following fields:
+	id: the comment's unique id
+	date: timestamp string
+	text: the actual message body
+	user_id: the user who posted the comment
+	username: the user who posted the comment
+	top_comment_id: if this is a reply, this is the thread root id
+		otherwise, this is 0
+	parent_comment_id: the id what this commend is in response to
+		otherwise, this is 0
+	like: number of likes
+	dislike: number of dislikes
+	count: number of replies
+	
+There are two types of comments: a rootComment is a comment that is replying directed to the video, we can tell if a comment is a rootComment by checking the top_comment_id, if the top_comment_id == 0, this must be a rootComment; a replyComment is a comment in response to a rootComment, or a comment in response to such a response (recursively), all such comments will fall under the same "thread", which is identified by the id of the rootComment, i.e. top_comment_id.
+
+The render of each comment is the process of converting the json object to HTML code. The final HTML code of all comments will fall under the div with id = "comments", and it will have a nested list structure as follows
+
+<ul>	//main list for all rootComments
+	<li> first root comment </li>
+	<li> second root comment </li>
+	// and so on
+</ul>
+
+For each root comment (which is a list item), it will have this structure
+<li class="media my-4">
+	<img class="mr-3" src="profile picture link" alt="profile picture alt text">
+	<div class="media-body">
+		<h5 class="mt-0 mb-1"> Comment Header text here </h5>
+		Comment body text here
+		<ul> reserved space for replyComments </ul>
+	</div>
+</li>
+
+And then for each replyComment (which is a second level list item), it will have this structure
+<li class="media mt-3">
+	<img src=".../64x64" alt="R0Pic">
+	<div class="media-body">
+		<h5 class="mt-0">Reply 0 header</h5>
+		Reply text. Reply text. Reply text. Reply text.
+	</div>
+</li>
