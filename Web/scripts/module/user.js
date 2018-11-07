@@ -1,5 +1,3 @@
-var inputArray = [];
-
 function showSidePanel() {
   var left = document.getElementById("content");
   var right = document.getElementById("aside");
@@ -16,7 +14,7 @@ function hideSidePanel() {
   right.innerHTML = "";
 }
 
-function showRegister() {
+function showRegister() { //triggered by pressing the register button on header
   showSidePanel();
   var panel = document.getElementById("aside");
   var userNameInput = document.createElement("input");
@@ -43,11 +41,12 @@ function showRegister() {
   emailInput.setAttribute('name', 'email');
   emailInput.setAttribute("placeholder","enter your email address");
 
-  inputArray[0] = userNameInput;
-  inputArray[1] = passwordInput;
-  inputArray[2] = repeatPasswordInput;
-  inputArray[3] = emailInput;
+  userNameInput.id = "userNameInput";
+  passwordInput.id = "passwordInput";
+  repeatPasswordInput.id = "repeatPasswordInput";
+  emailInput.id = "emailInput";
 
+  //put things into input group to look better
   var inputGroup0 = document.createElement("div");
   inputGroup0.className = "input-group mb-3";
   inputGroup0.appendChild(userNameInput);
@@ -86,27 +85,27 @@ function showRegister() {
 
 function submitRegistration() {
   var statusText = document.getElementById("statusText");
-  var un = inputArray[0].value;
-  var pw1 = inputArray[1].value;
-  var pw2 = inputArray[2].value;
-  var email = inputArray[3].value;
+  var userNameInput = document.getElementById("userNameInput").value;
+  var passwordInput = document.getElementById("passwordInput").value;
+  var repeatPasswordInput = document.getElementById("repeatPasswordInput").value;
+  var emailInput = document.getElementById("emailInput").value;
 
-  if (!validUsername(un)) {
+  if (!validUsername(userNameInput)) {
     statusText.innerHTML = "Not a valid username. Must contain only alpha-numeric.";
     return;
   }
 
-  if (pw1.length < 6) {
+  if (passwordInput.length < 6) {
     statusText.innerHTML = "Password must be at least 6 characters";
     return;
   }
 
-  if (pw1 != pw2) {
+  if (passwordInput != repeatPasswordInput) {
     statusText.innerHTML = "Two passwords must match";
     return;
   }
 
-  if (!validEmail(email)) {
+  if (!validEmail(emailInput)) {
     statusText.innerHTML = "Not a valid email";
     return;
   }
@@ -118,27 +117,51 @@ function submitRegistration() {
 
 function updateRegistrationStatus(status) {
   console.log(status);
-  statusText.innerHTML = status.message;
-}
-
-function login() {
-
-}
-
-function logout() {
-
-}
-
-function validUsername(un) { //guards for username here
-  if (un == null || un.length == 0) {
-    return false;
+  if (status.message == "user registered!") { //in business
+    authToken = status.access_token;
+    sessionStorage.setItem("token", authToken); //update sessionStorage
+    //update UI to logged in UI
+    fillHeaderLoggedIn();
+    hideSidePanel();
+  } else {
+    //the status IS the message
+    statusText.innerHTML = status;
   }
-  return true;
 }
 
-function validEmail(em) { //guards for email here
-  if (em == null || em.length == 0) {
-    return false;
+function logIn() { //this is triggered from header button
+  var userNameInput = document.getElementById("headerUNinput").value;
+  var passwordInput = document.getElementById("headerPWinput").value;
+  if (userNameInput == null || userNameInput.length == 0) {
+    fillHeaderLoggedOut("Enter Username");
+    return;
   }
-  return true;
+  if (passwordInput == null || passwordInput.length == 0) {
+    fillHeaderLoggedOut("Enter Password");
+    return;
+  }
+  logInUser(updateLoginStatus);
+  console.log("Finished user.js login()");
+}
+
+function updateLoginStatus(status) {
+  console.log("user137");
+  console.log(status);
+  if (status.access_token != null) { //a token
+    authToken = status.access_token;
+    sessionStorage.setItem("token", authToken); //update sessionStorage
+    fillHeaderLoggedIn();
+    hideSidePanel();
+  } else { //some error
+    authToken = "";
+    sessionStorage.setItem("token", authToken); //update sessionStorage
+    fillHeaderLoggedOut(status);
+  }
+}
+
+function logOut() {
+  //console.log("Trying to log out");
+  logOutUser(fillHeaderLoggedOut);
+  authToken = "";
+  sessionStorage.setItem("token", authToken); //update sessionStorage
 }

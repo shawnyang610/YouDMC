@@ -50,3 +50,33 @@ function getMeta(name) { //helper function to get any meta info based on tag
    }
    return "";
 }
+
+function validUsername(un) { //guards for username here
+  if (un == null || un.length == 0) {
+    return false;
+  }
+  return true;
+}
+
+function validEmail(email) { //guards for email here
+  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+}
+
+function createButton(buttonText, styleClass, functionName) {
+  var button = document.createElement("button");
+  button.className = styleClass;
+  button.appendChild(document.createTextNode(buttonText));
+  button.setAttribute("onclick", functionName);
+  return button;
+}
+
+function createInput(inputType, placeholderText, styleClass) {
+  var input = document.createElement("input");
+  input.setAttribute("type", inputType);
+  if (placeholderText != "") {
+    input.setAttribute("placeholder", placeholderText);
+  }
+  input.className = styleClass;
+  return input;
+}

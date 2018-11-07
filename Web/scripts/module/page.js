@@ -6,7 +6,6 @@ var rootCommentsArray = [];
 
 function setup() {
   videoID = getMeta("videoID");
-  sessionStorage.setItem("token", ""); //testing
   authToken = sessionStorage.getItem("token");
   fillDebugButtons();
   //choosed logged in header or logged out header
@@ -26,63 +25,33 @@ function setup() {
   }
 }
 
-function fillHeaderLoggedOut() {
+function fillHeaderLoggedOut(statusText) {
   var headerDiv = document.getElementById("header-right");
   headerDiv.innerHTML = "";
 
-  var form = document.createElement("form");
-  var table = document.createElement("table");
+  var inputGroupDiv = document.createElement("div");
+  inputGroupDiv.className = "input-group";
+  var userNameInput = createInput("text", "username", "form-control");
+  userNameInput.id = "headerUNinput";
+  var passwordInput = createInput("password", "password", "form-control");
+  passwordInput.id = "headerPWinput";
+  var loginButton = createButton("Log In", "input-group-append btn", "logIn()");
 
-  var labelRow = document.createElement("tr");
+  inputGroupDiv.appendChild(userNameInput);
+  inputGroupDiv.appendChild(passwordInput);
+  inputGroupDiv.appendChild(loginButton);
 
-  var regCell = document.createElement("td");
-  var regLink = document.createElement("button");
-  regLink.appendChild(document.createTextNode("Register"));
-  regLink.setAttribute("onclick", "showRegister()");
-  regLink.className = "btn btn-info";
-  regCell.appendChild(regLink);
-  regCell.setAttribute('rowspan', '2');
+  var registerButton = createButton("Register", "btn btn-warning ml-2", "showRegister()");
+  inputGroupDiv.appendChild(registerButton);
 
-  var unLabelCell = document.createElement("td");
-  unLabelCell.appendChild(document.createTextNode("Username:"));
-  var pwLabelCell = document.createElement("td");
-  pwLabelCell.appendChild(document.createTextNode("Password:"));
+  headerDiv.appendChild(inputGroupDiv);
 
-  var logCell = document.createElement("td");
-  var logLink = document.createElement("button");
-  logLink.appendChild(document.createTextNode("Login"));
-  logLink.setAttribute("onclick", "login()");
-  //login() should probably pass username and password to the function??
-  logLink.className = "btn btn-info";
-  logCell.appendChild(logLink);
-  logCell.setAttribute('rowspan', '2');
-
-  labelRow.appendChild(regCell);
-  labelRow.appendChild(unLabelCell);
-  labelRow.appendChild(pwLabelCell);
-  labelRow.appendChild(logCell);
-
-  var inputRow = document.createElement("tr");
-  var unInputCell = document.createElement("td");
-  var unInput = document.createElement("input");
-  unInput.id = "headerUNinput";
-  unInput.setAttribute('type', 'text');
-  unInput.setAttribute('name', 'username');
-  unInputCell.appendChild(unInput);
-  var pwInputCell = document.createElement("td");
-  var pwInput = document.createElement("input");
-  pwInput.id = "headerPWinput";
-  pwInput.setAttribute('type', 'password');
-  pwInput.setAttribute('name', 'password');
-  pwInputCell.appendChild(pwInput);
-
-  inputRow.appendChild(unInputCell);
-  inputRow.appendChild(pwInputCell);
-
-  table.appendChild(labelRow);
-  table.appendChild(inputRow);
-  form.appendChild(table);
-  headerDiv.appendChild(form);
+  if (statusText != null) { //show some status at the bottom of the header
+    var statusP = document.createElement("p");
+    statusP.className = "text-danger";
+    statusP.innerHTML = statusText;
+    headerDiv.appendChild(statusP);
+  }
 }
 
 function fillHeaderLoggedIn() {
@@ -94,17 +63,13 @@ function fillHeaderLoggedIn() {
   var labelRow = document.createElement("tr");
 
   var acctCell = document.createElement("td");
-  var acctLink = document.createElement("a");
-  acctLink.appendChild(document.createTextNode("Account"));
-  acctLink.href = "#account";
-  acctCell.appendChild(acctLink);
+  var acctButton = createButton("Account", "btn btn-lg btn-outline-primary", "showAccountPanel()");
+  acctCell.appendChild(acctButton);
   acctCell.setAttribute('rowspan', '2');
 
   var logoCell = document.createElement("td");
-  var logoLink = document.createElement("a");
-  logoLink.appendChild(document.createTextNode("Logout"));
-  logoLink.href = "#logout";
-  logoCell.appendChild(logoLink);
+  var logoButton = createButton("Log out", "btn btn-lg btn-outline-danger", "logOut()");
+  logoCell.appendChild(logoButton);
   logoCell.setAttribute('rowspan', '2');
 
   labelRow.appendChild(acctCell);

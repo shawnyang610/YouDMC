@@ -5,13 +5,9 @@ function fillDebugButtons() {
   refreshButton.appendChild(document.createTextNode("Refresh Messages"));
   refreshButton.setAttribute("onclick","refreshMessages()");
 
-  var showSideButton = document.createElement("button");
-  showSideButton.appendChild(document.createTextNode("Show Side Panel"));
-  showSideButton.setAttribute("onclick","showSidePanel()");
-
-  var hideSideButton = document.createElement("button");
-  hideSideButton.appendChild(document.createTextNode("Hide Side Panel"));
-  hideSideButton.setAttribute("onclick","hideSidePanel()");
+  var logTokenButton = document.createElement("button");
+  logTokenButton.appendChild(document.createTextNode("Log Auth Token"));
+  logTokenButton.setAttribute("onclick","logAuthToken()");
 
   var pageInfo = document.createElement("p");
   pageInfo.innerHTML = "Current Page = " + videoID;
@@ -20,8 +16,16 @@ function fillDebugButtons() {
 
   var debugDiv = document.getElementById(debugDivID);
   debugDiv.appendChild(refreshButton);
-  debugDiv.appendChild(showSideButton);
-  debugDiv.appendChild(hideSideButton);
+  debugDiv.appendChild(logTokenButton);
+
   debugDiv.appendChild(pageInfo);
   debugDiv.appendChild(authInfo);
+}
+
+function logAuthToken() {
+  if (authToken == null || authToken == "") {
+    console.log("No auth token present");
+  } else {
+    console.log(authToken);
+  }  
 }

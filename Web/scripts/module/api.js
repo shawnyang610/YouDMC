@@ -42,7 +42,7 @@ function getRootComments(callback) {
   request.onload = function() {
     if (request.status >= 200 && request.status < 400) {
       var serverResponse = JSON.parse(this.response).comments;
-      console.log("serverResponse.length = " + serverResponse.length);
+      console.log("Loaded " + serverResponse.length + " root comment(s)");
       for (i = 0; i < serverResponse.length; i++) {
         rootCommentsArray[i] = new RootCommentObject(serverResponse[i]);
       }
@@ -66,22 +66,26 @@ function getReplyComments(rootCommentID, callback) {
 
 function registerUser(callback) {
   var url = "https://youcmt.com/api/user/register";
+  var userNameInput = document.getElementById("userNameInput").value;
+  var passwordInput = document.getElementById("passwordInput").value;
+  var emailInput = document.getElementById("emailInput").value;
 
   var data = new FormData(); //body
-  data.append('username', inputArray[0]);
-  data.append('password', inputArray[1]);
-  data.append('email', inputArray[3]);
-
+  data.append('username', userNameInput);
+  data.append('password', passwordInput);
+  data.append('email', emailInput);
+  console.log(data.username);
   var request = new XMLHttpRequest();
   request.open('POST', url, true);
   request.onload = function() {
-    if (request.status >= 200 && request.status < 400) {
+    console.log(JSON.parse(this.response));
+    if (request.status == 201) { //success
       var serverResponse = JSON.parse(this.response);
       callback(serverResponse);
-    } else if (request.status == 400) { //bad request
-      var serverResponse = JSON.parse(this.response);
+    } else if (request.status >= 400) { //bad request
+      var serverResponse = JSON.parse(this.response).message;
       callback(serverResponse);
-    } else if (request.status == 500) { //server crash/error
+    } else { //server crash/error
       var serverResponse = "Unknown Error";
       callback(serverResponse);
     }
@@ -93,6 +97,61 @@ function registerUser(callback) {
       //console.log("request.onreadystatechange called. readyState: " + this.readyState);
   };
   request.send(data);
+}
+
+function logInUser(callback) {
+  var url = "https://youcmt.com/api/user/login";
+  var userNameInput = document.getElementById("headerUNinput").value;
+  var passwordInput = document.getElementById("headerPWinput").value;
+  var data = new FormData(); //body
+  data.append('username', userNameInput);
+  data.append('password', passwordInput);
+  var request = new XMLHttpRequest();
+  request.open('POST', url, true);
+  request.onload = function() {
+    console.log(JSON.parse(this.response));
+    if (request.status == 200) {
+      var serverResponse = JSON.parse(this.response);
+      callback(serverResponse);
+    } else if (request.status == 401) { //bad request
+      var serverResponse = "Invalid Username / Password";
+      callback(serverResponse);
+    } else { //server crash/error
+      var serverResponse = "Unknown Error";
+      callback(serverResponse);
+    }
+  };
+  request.error = function(e) {
+      console.log("request.error called. Error: " + e);
+  };
+  request.onreadystatechange = function(){
+      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
+  };
+  request.send(data);
+}
+
+function logOutUser(callback) {
+  var url = "https://youcmt.com/api/user/logout_access";
+  var request = new XMLHttpRequest();
+  request.open('POST', url, true);
+  request.setRequestHeader("Authorization", "Bearer " + authToken); //append this into header
+  request.onload = function() {
+    console.log(JSON.parse(this.response));
+    if (request.status >= 200 && request.status < 400) {
+      var serverResponse = JSON.parse(this.response); //success 200: "message": "Access Token has been revoked."
+      callback(serverResponse.message);
+    } else if (request.status > 400) { //bad request
+      var serverResponse = JSON.parse(this.response); //fail 422: "msg": "Invalid header string: 'utf-8' codec can't decode byte 0xc3 in position 0: invalid continuation byte"
+      callback();
+    }
+  };
+  request.error = function(e) {
+      console.log("request.error called. Error: " + e);
+  };
+  request.onreadystatechange = function(){
+      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
+  };
+  request.send();
 }
 
 function postGuestComment() {
