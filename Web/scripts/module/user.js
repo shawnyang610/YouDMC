@@ -141,12 +141,9 @@ function logIn() { //this is triggered from header button
     return;
   }
   logInUser(updateLoginStatus);
-  console.log("Finished user.js login()");
 }
 
 function updateLoginStatus(status) {
-  console.log("user137");
-  console.log(status);
   if (status.access_token != null) { //a token
     authToken = status.access_token;
     sessionStorage.setItem("token", authToken); //update sessionStorage

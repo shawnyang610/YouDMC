@@ -80,3 +80,22 @@ function createInput(inputType, placeholderText, styleClass) {
   input.className = styleClass;
   return input;
 }
+
+function createLink(linkText, linkClass, functionName, href) { //a tag
+  var link = document.createElement("a");
+  link.innerHTML = linkText;
+  link.className = linkClass;
+  link.setAttribute("onclick", functionName);
+  if (href != "") {
+    link.setAttribute("href", href);
+  }
+  return link;
+}
+
+function submitComment(parentID) {
+  if (authToken == null || authToken == "") {
+    submitGuestComment();
+  } else {
+    submitUserComment();
+  }
+}

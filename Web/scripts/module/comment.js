@@ -59,48 +59,49 @@ RootCommentObject.prototype.getHeader = function() {
 
 //thumbs up/down and reply link
 RootCommentObject.prototype.getInfo = function() { //not yet interactive
+  //function createLink(linkText, linkClass, functionName, href)
   var info = document.createElement("h6");
   var thumbsUpChar = document.createTextNode('\u{1F44D}');
   var thumbsDownChar = document.createTextNode('\u{1F44E}');
   var space = document.createTextNode(' ');
 
-  info.appendChild(thumbsUpChar);
-  info.appendChild(space);
+  info.appendChild(createLink('\u{1F44D}',"badge badge-pill badge-light", "voteUp()", ""));
   info.appendChild(this.up);
-  info.appendChild(space);
-  info.appendChild(thumbsDownChar);
-  info.appendChild(space);
+  //info.appendChild(space);
+  info.appendChild(createLink('\u{1F44E}',"badge badge-pill badge-light", "voteDown()", ""));
+  //info.appendChild(space);
   info.appendChild(this.dn);
   info.appendChild(space);
 
-  var replyLink = document.createElement("a");
-  replyLink.appendChild(document.createTextNode("REPLY"));
-  replyLink.setAttribute("onclick" ,"showReplyBox(" + this.id + ")");
-
-  info.appendChild(replyLink);
+  info.appendChild(createLink("REPLY","badge badge-secondary", "reply()", ""));
 
   return info;
 }
 
 //the "reply" input box
-RootCommentObject.prototype.getReply = function() { //ui not updated
-  var replyBox = document.createElement("div");
-  var inputField = document.createElement("textarea");
-  //inputField.setAttribute("type", "text");
-  var cancelButton = document.createElement("button");
-  cancelButton.appendChild(document.createTextNode("Cancel"));
-  cancelButton.setAttribute('onclick',"hideReplyBox(" + this.id + ")");
-  cancelButton.style.float = "right";
-  var submitButton = document.createElement("button");
-  submitButton.appendChild(document.createTextNode("Submit"));
-  submitButton.setAttribute('onclick','submitComment()');
-  submitButton.style.float = "right";
-  replyBox.appendChild(inputField);
-  replyBox.appendChild(document.createElement("br"));
-  replyBox.appendChild(submitButton);
-  replyBox.appendChild(cancelButton);
+RootCommentObject.prototype.getReply = function() { //buttons not linked to functions
+  var writingDiv = document.getElementById("write");
+  writingDiv.className = "input-group";
 
-  return replyBox;
+  var commentRowDiv = document.createElement("div");
+  var inputBox = document.createElement("input");
+  inputBox.className = "form-control";
+  inputBox.setAttribute("placeholder","Add your comment here");
+    var buttonGroup = document.createElement("div");
+    buttonGroup.className = "input-group-append";
+      var cancelButton = document.createElement("button");
+      cancelButton.className = "btn btn-sm btn-secondary";
+      cancelButton.appendChild(document.createTextNode("Cancel"));
+      cancelButton.setAttribute("onclick", "cancelRootComment()");
+      var submitButton = document.createElement("button");
+      submitButton.className = "btn btn-sm btn-secondary";
+      submitButton.appendChild(document.createTextNode("Submit"));
+      submitButton.setAttribute("onclick", "submitRootComment()");
+    buttonGroup.appendChild(cancelButton);
+    buttonGroup.appendChild(submitButton);
+  commentRowDiv.appendChild(inputBox);
+  commentRowDiv.appendChild(buttonGroup);
+  return commentRowDiv;
 }
 
 //the "show x replies"
