@@ -1,7 +1,7 @@
 function showSidePanel() {
   var left = document.getElementById("content");
   var right = document.getElementById("aside");
-  left.className = "col-8 bg-success";
+  left.className = "col-8";
   right.className = "col-4 bg-dark p-2";
   right.innerHTML = "";
 }
@@ -9,7 +9,7 @@ function showSidePanel() {
 function hideSidePanel() {
   var left = document.getElementById("content");
   var right = document.getElementById("aside");
-  left.className = "col-12 bg-success";
+  left.className = "col-12";
   right.className = "";
   right.innerHTML = "";
 }
@@ -132,12 +132,12 @@ function updateRegistrationStatus(status) {
 function logIn() { //this is triggered from header button
   var userNameInput = document.getElementById("headerUNinput").value;
   var passwordInput = document.getElementById("headerPWinput").value;
-  if (userNameInput == null || userNameInput.length == 0) {
+  if (userNameInput == null || userNameInput.length == 0) { //local guard for bad username
     fillHeaderLoggedOut("Enter Username");
     return;
   }
-  if (passwordInput == null || passwordInput.length == 0) {
-    fillHeaderLoggedOut("Enter Password");
+  if (passwordInput == null || passwordInput.length < 6) { //local guard for bad password
+    console.log("Enter a valid Password");
     return;
   }
   logInUser(updateLoginStatus);

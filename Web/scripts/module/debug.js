@@ -22,10 +22,17 @@ function fillDebugButtons() {
   debugDiv.appendChild(authInfo);
 }
 
+function refreshMessages() {
+  var commentsDiv = document.getElementById("comments");
+  commentsDiv.innerHTML = ""; //reset page content
+  rootCommentsArray = []; //reset memory
+  getRootComments(displayRootComments);
+}
+
 function logAuthToken() {
   if (authToken == null || authToken == "") {
     console.log("No auth token present");
   } else {
     console.log(authToken);
-  }  
+  }
 }

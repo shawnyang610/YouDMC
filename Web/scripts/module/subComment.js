@@ -66,6 +66,7 @@ SubCommentObject.prototype.getWriteBox = function() { //buttons not linked to fu
   commentRowDiv.class = "input-group input-group-sm";
   commentRowDiv.id = "writeBox_" + this.id;
   var inputBox = createInput("text", "Add your comment here", "form-control");
+  inputBox.id = "focusBox_" + this.id;
   var buttonGroup = document.createElement("div");
   buttonGroup.className = "input-group-append";
     var cancelButton = createButton("Cancel",

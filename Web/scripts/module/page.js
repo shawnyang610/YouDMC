@@ -93,7 +93,7 @@ function loadCommentPage() {
   //no comments will be fetched until the servertime is known
   //this will ensure that the comments timestamp will be displayed properly
   getServerTime(getRootComments, displayRootComments);
-  fillCommentBox();
+  minimizeRootCommentBox();
   getVideoInfo(displayVideoInfo);
 }
 
@@ -204,20 +204,49 @@ function displayRootComments() {
 }
 
 function fillCommentBox() {
-  var writingDiv = document.getElementById("write");
+  var writingDiv = getDOM("write");
+  writingDiv.innerHTML = "";
   writingDiv.className = "input-group";
 
   var inputBox = document.createElement("input");
+  inputBox.id = "rootInputBox";
   inputBox.className = "form-control";
   inputBox.setAttribute("placeholder","Add your comment here");
     var buttonGroup = document.createElement("div");
     buttonGroup.className = "input-group-append";
       var cancelButton = createButton("Cancel",
-      "btn btn-secondary", "cancelRootComment()");
-      var submitButton = createButton("Cancel",
+      "btn btn-secondary", "minimizeRootCommentBox()");
+      var submitButton = createButton("Submit",
       "btn btn-secondary", "submitRootComment()");
     buttonGroup.appendChild(cancelButton);
     buttonGroup.appendChild(submitButton);
   writingDiv.appendChild(inputBox);
   writingDiv.appendChild(buttonGroup);
+  inputBox.focus();
+}
+
+function minimizeRootCommentBox() {
+  var writingDiv = getDOM("write");
+  writingDiv.className = "h3";
+  writingDiv.innerHTML = "";
+  var commentLink = createLink("Add your comment here", "badge badge-light", "fillCommentBox()", "");
+  writingDiv.appendChild(commentLink);
+}
+
+function submitRootComment() {
+  if (authToken == null || authToken == "") { //not logged in, post as guest
+    postGuestComment(videoID, getDOM("rootInputBox").value, fakeAddMyComment);
+  } else { //post as a logged in user
+    postUserComment(videoID, getDOM("rootInputBox").value, fakeAddMyComment);
+  }
+  minimizeRootCommentBox();
+}
+
+function fakeAddMyComment(parentID, text) {
+  if (text == null) {
+    console.log("Unable to submit comment");
+  } else {
+    console.log("Successfully added comment");
+  }
+  refreshMessages(); //this is not good. should add just the recent comment manually
 }

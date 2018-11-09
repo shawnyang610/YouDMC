@@ -64,7 +64,7 @@ RootCommentObject.prototype.getInfo = function() { //not yet implemented voting
   info.appendChild(createLink('\u{1F44E}',"badge badge-pill badge-light", "voteDown()", "#down"));
   info.appendChild(createText(this.dn));
   info.appendChild(createText(" "));
-  info.appendChild(createLink("REPLY","badge badge-secondary", "writeReply(" + this.id + ")", ""));
+  info.appendChild(createLink("REPLY","badge badge-secondary", "writeReply(" + this.id + ")", "#reply"));
   return info;
 }
 
@@ -75,6 +75,7 @@ RootCommentObject.prototype.getWriteBox = function() { //buttons not linked to f
   commentRowDiv.class = "input-group input-group-sm";
   commentRowDiv.id = "writeBox_" + this.id;
   var inputBox = createInput("text", "Add your comment here", "form-control");
+  inputBox.id = "focusBox_" + this.id;
   var buttonGroup = document.createElement("div");
   buttonGroup.className = "input-group-append";
     var cancelButton = createButton("Cancel",
@@ -121,7 +122,9 @@ RootCommentObject.prototype.getListItem = function() {
 }
 
 function writeReply(id) {
+  console.log("Write Reply " + id);
   getDOM("writeBox_" + id).style.display = "inline";
+  getDOM("focusBox_" + id).focus();
 }
 
 function cancelReply(id) {
@@ -129,7 +132,13 @@ function cancelReply(id) {
 }
 
 function submitReply(id) {
-  alert("Submitting comment");
+  if (authToken == null || authToken == "") { //not logged in, post as guest
+    postGuestComment(id, getDOM("focusBox_"+id).value, fakeAddMyComment);
+  } else { //post as a logged in user
+    postUserComment(id, getDOM("focusBox_"+id).value, fakeAddMyComment);
+  }
+  getDOM("focusBox_" + id).value = "";
+  getDOM("writeBox_" + id).style.display = "none";
 }
 
 function toggleReplies(id, showing, count) {

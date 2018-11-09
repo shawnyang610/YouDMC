@@ -176,10 +176,63 @@ function logOutUser(callback) {
   request.send();
 }
 
-function postGuestComment() {
-
+function postGuestComment(parentID, text, callback) {
+  var url = "https://youcmt.com/api/comment/post/guest";
+  var data = new FormData(); //body
+  if (parentID == videoID) {
+    data.append("vid", parentID);
+  } else {
+    data.append("parent_comment_id", parentID);
+  }
+  data.append("text", text);
+  var request = new XMLHttpRequest();
+  request.open('POST', url, true);
+  request.onload = function() {
+    console.log(JSON.parse(this.response));
+    if (request.status == 200) { //comment saved
+      var serverResponse = JSON.parse(this.response);
+      callback(parentID, text); //render the text onto the page
+    } else { //error, unable to submit comment
+      var serverResponse = JSON.parse(this.response);
+      callback(serverResponse); //should display some error message
+    }
+  };
+  request.error = function(e) {
+      console.log("request.error called. Error: " + e);
+  };
+  request.onreadystatechange = function(){
+      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
+  };
+  request.send(data);
 }
 
-function postUserComment() {
-
+function postUserComment(parentID, text, callback) {
+  var url = "https://youcmt.com/api/comment/post/user";
+  var data = new FormData(); //body
+  if (parentID == videoID) {
+    data.append("vid", parentID);
+  } else {
+    data.append("parent_comment_id", parentID);
+  }
+  data.append("text", text);
+  var request = new XMLHttpRequest();
+  request.open('POST', url, true);
+  request.setRequestHeader("Authorization", "Bearer " + authToken); //append this into header
+  request.onload = function() {
+    console.log(JSON.parse(this.response));
+    if (request.status == 200) { //comment saved
+      var serverResponse = JSON.parse(this.response);
+      callback(parentID, text); //render the text onto the page
+    } else { //error, unable to submit comment
+      var serverResponse = JSON.parse(this.response);
+      callback(serverResponse); //should display some error message
+    }
+  };
+  request.error = function(e) {
+      console.log("request.error called. Error: " + e);
+  };
+  request.onreadystatechange = function(){
+      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
+  };
+  request.send(data);
 }
