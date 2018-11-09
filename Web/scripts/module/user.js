@@ -1,6 +1,6 @@
 function showSidePanel() {
-  var left = document.getElementById("content");
-  var right = document.getElementById("aside");
+  var left = getDOM("content");
+  var right = getDOM("aside");
   left.className = "col-8";
   right.className = "col-4 bg-dark p-2";
   right.innerHTML = "";
@@ -17,30 +17,11 @@ function hideSidePanel() {
 function showRegister() { //triggered by pressing the register button on header
   showSidePanel();
   var panel = document.getElementById("aside");
-  var userNameInput = document.createElement("input");
-  userNameInput.className = "form-control";
-  userNameInput.setAttribute('type', 'text');
-  userNameInput.setAttribute('name', 'username');
-  userNameInput.setAttribute("placeholder","choose a username");
-
-  var passwordInput = document.createElement("input");
-  passwordInput.className = "form-control";
-  passwordInput.setAttribute('type', 'password');
-  passwordInput.setAttribute('name', 'password');
-  passwordInput.setAttribute("placeholder","choose a password (6 or more characters)");
-
-  var repeatPasswordInput = document.createElement("input");
-  repeatPasswordInput.className = "form-control";
-  repeatPasswordInput.setAttribute('type', 'password');
-  repeatPasswordInput.setAttribute('name', 'repeatpassword');
-  repeatPasswordInput.setAttribute("placeholder","enter your password again");
-
-  var emailInput = document.createElement("input");
-  emailInput.className = "form-control";
-  emailInput.setAttribute('type', 'text');
-  emailInput.setAttribute('name', 'email');
-  emailInput.setAttribute("placeholder","enter your email address");
-
+  var userNameInput = createInput("text", "choose a username", "form-control");
+  var passwordInput = createInput("password", "choose a password (6 or more characters)", "form-control");
+  var repeatPasswordInput = createInput("password", "enter your password again", "form-control");
+  var emailInput = createInput("text", "enter your email address", "form-control");
+  //set DOM ID so other functions can get its value
   userNameInput.id = "userNameInput";
   passwordInput.id = "passwordInput";
   repeatPasswordInput.id = "repeatPasswordInput";
@@ -133,11 +114,13 @@ function logIn() { //this is triggered from header button
   var userNameInput = document.getElementById("headerUNinput").value;
   var passwordInput = document.getElementById("headerPWinput").value;
   if (userNameInput == null || userNameInput.length == 0) { //local guard for bad username
-    fillHeaderLoggedOut("Enter Username");
+    fillHeaderLoggedOut(); //this will reset the username and password field
+    changeHeaderStatusText("Enter Username");
     return;
   }
   if (passwordInput == null || passwordInput.length < 6) { //local guard for bad password
-    console.log("Enter a valid Password");
+    getDOM("headerPWinput").value = ""; //this will reset the "bad password"
+    changeHeaderStatusText("Enter a valid Password"); //this only change the status text
     return;
   }
   logInUser(updateLoginStatus);
@@ -152,13 +135,140 @@ function updateLoginStatus(status) {
   } else { //some error
     authToken = "";
     sessionStorage.setItem("token", authToken); //update sessionStorage
-    fillHeaderLoggedOut(status);
+    fillHeaderLoggedOut(); //clear username & password
+    showForgotPanel("Forgot your password?");
   }
 }
 
 function logOut() {
-  //console.log("Trying to log out");
   logOutUser(fillHeaderLoggedOut);
   authToken = "";
   sessionStorage.setItem("token", authToken); //update sessionStorage
+}
+
+function showForgotPanel(statusText) {
+  showSidePanel();
+  var panel = document.getElementById("aside");
+
+  var statusP = document.createElement("p");
+  statusP.id = "statusText";
+  statusP.className = "text-danger";
+  statusP.innerHTML = statusText;
+
+  var emailInput = createInput("text", "enter your email address", "form-control");
+  //set DOM ID so other functions can get its value
+  emailInput.id = "emailInput";
+
+  //put things into input group to look better
+  var inputGroup = document.createElement("div");
+  inputGroup.className = "input-group mb-3";
+  inputGroup.appendChild(emailInput);
+
+  var sendButton = createButton("Send Reset Code to my Email", "btn btn-sm btn-outline-success", "sendResetLinkClicked()");
+
+  panel.appendChild(statusP);
+  panel.appendChild(inputGroup);
+  panel.appendChild(sendButton);
+}
+
+function sendResetLinkClicked() { //as soon as the "send reset code" is pressed, trigger this
+  var filledEmail = getDOM("emailInput").value;
+  sendResetLink(filledEmail, updateForgotPanel); //call API with email, and provide the callback function
+}
+
+function updateForgotPanel(status) {
+  var filledEmail = getDOM("emailInput").value;
+  var panel = document.getElementById("aside");
+  if (status == 404) {
+    //bad email, try again (redraw everything)
+    getDOM("statusText").innerHTML = "Invalid Email";
+    getDOM("emailInput").value = "";
+    getDOM("emailInput").focus();
+  } else {
+    showResetPanel(); //link sent
+  }
+}
+
+function showResetPanel() {
+  var filledEmail = getDOM("emailInput").value; //get the filled value before removing it
+  showSidePanel();
+  var panel = document.getElementById("aside");
+
+  var statusP = document.createElement("p");
+  statusP.id = "statusText";
+  statusP.className = "text-danger";
+  statusP.innerHTML = "Code sent. Please allow some time for the code to arrive and check your Spam Folder";
+
+  var emailInput = createInput("text", "enter your email address", "form-control");
+  //set DOM ID so other functions can get its value
+  emailInput.value = filledEmail; //no need to fill this again
+  emailInput.id = "emailInput";
+
+  //put things into input group to look better
+  var inputGroup = document.createElement("div");
+  inputGroup.className = "input-group mb-3";
+  inputGroup.appendChild(emailInput);
+
+  var sendButton = createButton("Not Received? Send again", "btn btn-sm btn-outline-warning mb-5", "sendResetLinkClicked()");
+
+  panel.appendChild(statusP);
+  panel.appendChild(inputGroup);
+  panel.appendChild(sendButton);
+
+  //adding extra input fields for finishing the reset process
+  var resetCodeInput = createInput("text", "enter the reset code", "form-control");
+  var passwordInput = createInput("password", "new password", "form-control");
+  var repasswordInput = createInput("password", "re-enter new password", "form-control");
+  //set DOM ID so other functions can get its value
+  resetCodeInput.id = "resetCodeInput";
+  passwordInput.id = "passwordInput";
+  repasswordInput.id = "repasswordInput";
+
+  //put things into input group to look better
+  var inputGroup1 = document.createElement("div");
+  inputGroup1.className = "input-group mb-3";
+  inputGroup1.appendChild(resetCodeInput);
+  var inputGroup2 = document.createElement("div");
+  inputGroup2.className = "input-group mb-3";
+  inputGroup2.appendChild(passwordInput);
+  var inputGroup3 = document.createElement("div");
+  inputGroup3.className = "input-group mb-3";
+  inputGroup3.appendChild(repasswordInput);
+
+  var sendButton = createButton("Reset Password", "btn btn-sm btn-outline-success", "resetPasswordClicked()");
+
+  panel.appendChild(inputGroup1);
+  panel.appendChild(inputGroup2);
+  panel.appendChild(inputGroup3);
+  panel.appendChild(sendButton);
+
+  resetCodeInput.focus();
+}
+
+function resetPasswordClicked() {
+  var email = getDOM("emailInput").value;
+  var code = getDOM("resetCodeInput").value;
+  var p1 = getDOM("passwordInput").value;
+  var p2 = getDOM("repasswordInput").value;
+  if (!validPassword(p1)) {
+    getDOM("statusText").innerHTML = "Password must be at least 6 characters";
+    getDOM(passwordInput).focus();
+  } else if (getDOM("passwordInput").value != getDOM("repasswordInput").value) {
+    getDOM("statusText").innerHTML = "Re-entered password does not match with first one";
+    getDOM(repasswordInput).focus();
+  } else {
+    resetPassword(email, code, p1, updateResetPanel);
+  }
+}
+
+function updateResetPanel(status) { //callback function for reset password API (with reset code)
+  if (status == 200) { //success
+    hideSidePanel();
+    changeHeaderStatusText("Reset Successful");
+    getDOM("headerUNinput").focus();
+  } else if (status == 401) { //bad reset code
+    getDOM("statusText").innerHTML = "Bad reset code, please try again";
+  } else { //other error
+    getDOM("statusText").innerHTML = "Could not reset your password, please check all information and try again";
+  }
 }

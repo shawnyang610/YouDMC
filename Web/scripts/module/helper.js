@@ -63,6 +63,10 @@ function validEmail(email) { //guards for email here
   return re.test(String(email).toLowerCase());
 }
 
+function validPassword(pw) { //guards for password here
+  return pw.length >= 6;
+}
+
 function getDOM(id) {
   return document.getElementById(id);
 }

@@ -142,12 +142,11 @@ function submitReply(id) {
 }
 
 function toggleReplies(id, showing, count) {
-  this.showingReplies = !this.showingReplies; //flip
   var toggleDiv = getDOM("toggleDiv_" + id);
   toggleDiv.innerHTML = "";
   toggleDiv.appendChild(getToggleButton(id, !showing, count));
 
-  if (!this.showingReplies) { //was showing, now hide
+  if (this.showingReplies) { //was showing, now hide
     getDOM("replyList_" + id).style.display = "none"; //hide the list
   } else { //was hiding, now show
     var list = getDOM("replyList_" + id);
@@ -156,6 +155,7 @@ function toggleReplies(id, showing, count) {
     list.style.display = ""; //show the list
     getReplyComments(id, updateReplies); //call API, and callback when ready
   }
+  this.showingReplies = !this.showingReplies; //flip
 }
 
 function updateReplies(id) { //api called back, ready to render all replies

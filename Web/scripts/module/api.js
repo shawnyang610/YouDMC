@@ -132,14 +132,11 @@ function logInUser(callback) {
   request.open('POST', url, true);
   request.onload = function() {
     console.log(JSON.parse(this.response));
-    if (request.status == 200) {
+    if (request.status == 200) { //login success
       var serverResponse = JSON.parse(this.response);
       callback(serverResponse);
-    } else if (request.status == 401) { //bad request
-      var serverResponse = "Invalid Username / Password";
-      callback(serverResponse);
     } else { //server crash/error
-      var serverResponse = "Unknown Error";
+      var serverResponse = "Invalid Username / Password";
       callback(serverResponse);
     }
   };
@@ -226,6 +223,56 @@ function postUserComment(parentID, text, callback) {
     } else { //error, unable to submit comment
       var serverResponse = JSON.parse(this.response);
       callback(serverResponse); //should display some error message
+    }
+  };
+  request.error = function(e) {
+      console.log("request.error called. Error: " + e);
+  };
+  request.onreadystatechange = function(){
+      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
+  };
+  request.send(data);
+}
+
+function sendResetLink(email, callback) { //send link to the email, and callback with status code
+  var url = "https://youcmt.com/api/user/confirm_email";
+  var data = new FormData(); //body
+  data.append("email", email);
+  var request = new XMLHttpRequest();
+  request.open('POST', url, true);
+  request.onload = function() {
+    console.log(JSON.parse(this.response));
+    if (request.status == 200) { //link sent
+      callback(200);
+    } else { //bad email / not found
+      callback(404);
+    }
+  };
+  request.error = function(e) {
+      console.log("request.error called. Error: " + e);
+  };
+  request.onreadystatechange = function(){
+      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
+  };
+  request.send(data);
+}
+
+function resetPassword(email, code, newPass, callback) {
+  var url = "https://youcmt.com/api/user/reset_password";
+  var data = new FormData(); //body
+  data.append("email", email);
+  data.append("reset_code", code);
+  data.append("new_password", newPass);
+  var request = new XMLHttpRequest();
+  request.open('POST', url, true);
+  request.onload = function() {
+    console.log(JSON.parse(this.response));
+    if (request.status == 200) { //link sent
+      callback(200);
+    } else if (request.status == 401) { //incorrect reset code
+      callback(401);
+    } else { //other error
+      callback(500); //possible email changed
     }
   };
   request.error = function(e) {

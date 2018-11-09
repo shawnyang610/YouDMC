@@ -46,11 +46,21 @@ function fillHeaderLoggedOut(statusText) {
 
   headerDiv.appendChild(inputGroupDiv);
 
-  if (statusText != null) { //show some status at the bottom of the header
-    var statusP = document.createElement("p");
-    statusP.className = "text-danger";
-    statusP.innerHTML = statusText;
-    headerDiv.appendChild(statusP);
+  var statusP = document.createElement("p");
+  statusP.className = "text-danger";
+  statusP.id = "headerStatusText";
+  statusP.style.display = "none"; //hide by default
+  headerDiv.appendChild(statusP);
+}
+
+function changeHeaderStatusText(newText) {
+  var statusP = getDOM("headerStatusText");
+  if (newText != null && newText != "") {
+    statusP.style.display = "inline";
+    statusP.innerHTML = newText;
+  } else {
+    statusP.style.display = "none";
+    statusP.innerHTML = "";
   }
 }
 
