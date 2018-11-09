@@ -191,7 +191,7 @@ function hideDescription() {
 
 function displayRootComments() {
   var commentsDiv = document.getElementById("comments");
-  commentsDiv.className = "bg-warning"; //get rid of spinning circle
+  commentsDiv.className = ""; //get rid of spinning circle
   if (rootCommentsArray == null) {
     commentsDiv.innerHTML = "Unable to fetch comments";
   } else if (rootCommentsArray.length == 0) {
@@ -212,14 +212,10 @@ function fillCommentBox() {
   inputBox.setAttribute("placeholder","Add your comment here");
     var buttonGroup = document.createElement("div");
     buttonGroup.className = "input-group-append";
-      var cancelButton = document.createElement("button");
-      cancelButton.className = "btn btn-secondary";
-      cancelButton.appendChild(document.createTextNode("Cancel"));
-      cancelButton.setAttribute("onclick", "cancelRootComment()");
-      var submitButton = document.createElement("button");
-      submitButton.className = "btn btn-secondary";
-      submitButton.appendChild(document.createTextNode("Submit"));
-      submitButton.setAttribute("onclick", "submitRootComment()");
+      var cancelButton = createButton("Cancel",
+      "btn btn-secondary", "cancelRootComment()");
+      var submitButton = createButton("Cancel",
+      "btn btn-secondary", "submitRootComment()");
     buttonGroup.appendChild(cancelButton);
     buttonGroup.appendChild(submitButton);
   writingDiv.appendChild(inputBox);

@@ -61,7 +61,29 @@ function getRootComments(callback) {
 }
 
 function getReplyComments(rootCommentID, callback) {
-
+  var url = "https://youcmt.com/api/comment/get/comments?top_comment_id=" + rootCommentID;
+  var request = new XMLHttpRequest();
+  request.open('GET', url, true);
+  request.onload = function() {
+    if (request.status >= 200 && request.status < 400) {
+      var serverResponse = JSON.parse(this.response).comments;
+      console.log("Loaded " + serverResponse.length + " reply comment(s) for rootComment " + rootCommentID);
+      var replyArray = findReplyArray(rootCommentID);
+      for (i = 0; i < serverResponse.length; i++) {
+        replyArray[i] = new SubCommentObject(serverResponse[i]);
+      }
+      callback(rootCommentID);
+    } else {
+      console.log('request failed, status = ' + request.status);
+    }
+  };
+  request.error = function(e) {
+      console.log("request.error called. Error: " + e);
+  };
+  request.onreadystatechange = function(){
+      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
+  };
+  request.send();
 }
 
 function registerUser(callback) {

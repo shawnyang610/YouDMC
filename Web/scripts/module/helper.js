@@ -63,6 +63,10 @@ function validEmail(email) { //guards for email here
   return re.test(String(email).toLowerCase());
 }
 
+function getDOM(id) {
+  return document.getElementById(id);
+}
+
 function createButton(buttonText, styleClass, functionName) {
   var button = document.createElement("button");
   button.className = styleClass;
@@ -92,10 +96,24 @@ function createLink(linkText, linkClass, functionName, href) { //a tag
   return link;
 }
 
+function createText(text) {
+  return document.createTextNode(text);
+}
+
 function submitComment(parentID) {
   if (authToken == null || authToken == "") {
     submitGuestComment();
   } else {
     submitUserComment();
   }
+}
+
+function findReplyArray(id) {
+  for (i = 0; i < rootCommentsArray.length; i++) {
+    if (rootCommentsArray[i].id == id) {
+      return rootCommentsArray[i].replies;
+    }
+  }
+  console.log("Trying to find a reply array that does not exist! " + id);
+  return null;
 }
