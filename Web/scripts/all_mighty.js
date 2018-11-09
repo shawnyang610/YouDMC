@@ -1,13 +1,36 @@
-var currentTime;
+var currentServerTime;
+var rootCommentsArray = [];
 
+//main routine
 async function setup() {
-  await serverTime();
-  loadPage();
+  loadTime();
 }
 
+//pre-work
+function loadTime() {
+  var request = new XMLHttpRequest();
+  request.open('GET', 'https://youcmt.com/api/datetime', true);
+  request.onload = function() {
+    if (request.status >= 200 && request.status < 400) {
+      var responseTime = JSON.parse(this.response).datetime;
+      console.log("set current time = " + responseTime);
+      currentTime = responseTime;
+      loadPage(); //guarantees time is loaded
+    } else {
+      console.log('request failed, status = ' + request.status);
+    }
+  };
+  request.error = function(e) {
+      console.log("request.error called. Error: " + e);
+  };
+  request.send();
+}
+
+//loading page modules
 function loadPage() {
   console.log("loadpage started");
-  loadLogo(); //make sure logo path is correct
+  loadHeader();
+  loadDebug();
   var VID = getMeta("videoID");
   if (VID == "") {
     loadHomePage();
@@ -16,20 +39,14 @@ function loadPage() {
   }
 }
 
-function loadHomePage() {
-  fill_header_loggedOut(); //default not logged in
-  document.getElementById("testSectionVID").appendChild(document.createTextNode("Home page")); //for test section only
-  var content = document.getElementById("content");
-  content.innerHTML = "Welcome to YouCMT.com!";
-}
-
-function loadCommentPage() {
-  fill_header_loggedOut(); //default not logged in
-  document.getElementById("testSectionVID").appendChild(document.createTextNode(getMeta("videoID"))); //for test section only
-  showVideoInfo();
-  hideCommentBox(); //initialize "add your comment here"
-  //fetchComments(); //show existing comments
-  refresh_messages(); //in case no-show
+//header
+loadHeader() {
+  loadLogo(); //make sure logo path is correct
+  if (true) {
+    loadLoggedOutHeader();
+  } else {
+    loadLoggedInHeader();
+  }
 }
 
 function loadLogo() {
@@ -37,8 +54,8 @@ function loadLogo() {
   logo.src = getMeta("staticResourcePath") + "images/logo.png";
 }
 
-function fill_header_loggedOut() {
-  clear_header();
+function loadLoggedOutHeader() {
+  document.getElementById("header-right").innerHTML = ""; //clear_header
   var form = document.createElement("form");
   var table = document.createElement("table");
 
@@ -89,8 +106,8 @@ function fill_header_loggedOut() {
   document.getElementById("header-right").appendChild(form);
 }
 
-function fill_header_loggedIn() {
-  clear_header();
+function loadLoggedInHeader() {
+  document.getElementById("header-right").innerHTML = ""; //clear_header
   var form = document.createElement("form");
   var table = document.createElement("table");
 
@@ -119,516 +136,202 @@ function fill_header_loggedIn() {
   document.getElementById("header-right").appendChild(form);
 }
 
-function clear_header() {
-  document.getElementById("header-right").innerHTML = "";
-}
-
-function show_sidepanel() {
-  document.getElementById("content").style.width = "75%";
-  document.getElementById("aside").style.width = "25%";
-  document.getElementById("aside").innerHTML = "Side panel content to be filled";
-}
-
-function hide_sidepanel() {
-  document.getElementById("content").style.width = "100%";
-  document.getElementById("aside").style.width = "0%";
-  document.getElementById("aside").innerHTML = "";
-}
-
-/**
-  Convert the comment object to table UI form,
-  then append the table to the specified location
-  commentObject
-    a commentObject that can have many fields
-      id: the comment's unique id
-      date: timestamp string
-      text: the actual message body
-      user_id: the user who posted the comment
-      username: the user who posted the comment
-      top_comment_id: if this is a reply, this is the thread root id
-        otherwise, this is 0
-      parent_comment_id: the id what this commend is in response to
-        otherwise, this is 0
-      like: number of likes
-      dislike: number of dislikes
-      count: number of replies
-*/
-function insert_fetchedComment(commentObject) {
-  var newP = document.createElement("p");
-  newP.id = commentObject.id; //set proper ID so other guys can find him
-  newP.style.border = "solid #00ffff"; //not needed for production
-
-  var messageTable = document.createElement("TABLE");
-  var tblBody = document.createElement("tbody");
-  var topRow = document.createElement("tr"); //for header info
-  var bodyRow = document.createElement("tr"); //for main text
-  var infoRow = document.createElement("tr"); //for up/down and reply link
-  var moreRow = document.createElement("tr"); //only if there are replies
-  var replyRow = document.createElement("tr"); //reserved space for reply box
-
-  var cell, cellText;
-
-  //---top row: profile picture (spans 2 rows), username, and time
-  cell = document.createElement("td"); //Profile Picture
-  var profilePic = document.createElement("img");
-  profilePic.setAttribute("src", getMeta("staticResourcePath") + "images/profile1.png"); //user profile picture
-  profilePic.setAttribute("width", "75");
-  cell.rowSpan = "2";
-  cell.appendChild(profilePic);
-  topRow.appendChild(cell);
-
-  cell = document.createElement("td"); //Message User
-  var userLink = document.createElement("a");
-  userLink.appendChild(document.createTextNode(commentObject.username));
-  userLink.href = "#user_" + commentObject.username;
-  cell.appendChild(userLink);
-  topRow.appendChild(cell);
-
-  cell = document.createElement("td"); //Message Time
-  cellText = document.createTextNode(translateDateTime(commentObject.date));
-  cell.appendChild(cellText);
-  topRow.appendChild(cell);
-  //---end of top row
-
-  //--- body row: for the actual text
-  cell = document.createElement("td"); //Message Content
-  cellText = document.createTextNode(commentObject.text);
-  cell.colSpan = "2";
-  cell.appendChild(cellText);
-  bodyRow.appendChild(cell);
-  //---end of body row
-
-  //--- info row: for thumbs up, down, and reply link
-  cell = document.createElement("td"); //empty space
-  infoRow.appendChild(cell);
-  var thumbsUpChar = '\u{1F44D}';
-  var thumbsDownChar = '\u{1F44E}';
-  cell = document.createElement("td"); //vote up button/char/icon and count
-  var voteUpButton = document.createElement("a");
-  voteUpButton.appendChild(document.createTextNode(thumbsUpChar));
-  voteUpButton.href = "#votedUP";
-  cell.appendChild(voteUpButton);
-  cellText = document.createTextNode(commentObject.like);
-  cell.appendChild(cellText);
-  infoRow.appendChild(cell);
-
-  cell = document.createElement("td"); //vote down button/char/icon and count
-  var voteDownButton = document.createElement("a");
-  voteDownButton.appendChild(document.createTextNode(thumbsDownChar));
-  voteDownButton.href = "#votedDown";
-  cell.appendChild(voteDownButton);
-  cellText = document.createTextNode(commentObject.dislike);
-  cell.appendChild(cellText);
-  infoRow.appendChild(cell);
-
-  cell = document.createElement("td"); //reply link
-  var replyLink = document.createElement("a");
-  replyLink.appendChild(document.createTextNode("Reply"));
-  replyLink.href = "#reply"; //this should trigger reply box <<<---------------------------------
-  replyLink.setAttribute("onclick", "showReplyBox("+ commentObject.id +")");
-  cell.appendChild(replyLink);
-  infoRow.appendChild(cell);
-  //---end of info row
-
-  //--- more row: only show this if there is replies to this thread
-  cell = document.createElement("td"); //empty space
-  moreRow.appendChild(cell);
-  cell = document.createElement("td"); //show replies link
-  var showRepliesLink = document.createElement("a");
-  if (commentObject.count == 1) {
-    cellText = document.createTextNode("Show 1 reply");
+//debug options
+loadDebug() {
+  var vid = getMeta("videoID");
+  if (vid == "") {
+    document.getElementById("testSectionVID").appendChild(document.createTextNode("Home page"));
   } else {
-    cellText = document.createTextNode("Show " + commentObject.count + " replies");
+    document.getElementById("testSectionVID").appendChild(document.createTextNode(vid));
   }
-  showRepliesLink.appendChild(cellText);
-  showRepliesLink.setAttribute("onclick", "fetchReplies("+ commentObject.id +")");
-  cell.appendChild(showRepliesLink);
-  cell.rowSpan = "2";
-  cell.id = commentObject.id + "fetchRepliesCell";
-  moreRow.appendChild(cell);
-  //---end of more row
-
-  //--- reply row: reserved space for reply reply box
-  cell = document.createElement("td"); //empty space
-  replyRow.appendChild(cell);
-  cell = document.createElement("td"); //empty space
-  cell.id = commentObject.id + "replyCell";
-  cell.rowSpan = "2";
-  replyRow.appendChild(cell);
-  //---end of reply row
-
-  //finishing touches
-  tblBody.appendChild(topRow);
-  tblBody.appendChild(bodyRow);
-  tblBody.appendChild(infoRow);
-  if (commentObject.count > 0) { //toggle t/f for testing
-    tblBody.appendChild(moreRow);
-  }
-  tblBody.appendChild(replyRow);
-  messageTable.appendChild(tblBody);
-  newP.appendChild(messageTable);
-  document.getElementById("comments").appendChild(newP);
 }
 
-function insert_fetchedReply(commentObject, parentObject) {
-  /**
-    This only works for "replies" which are non-root comments
-    The parent object should be the cell reserved for posting replies
-    Structure:cell -> p object -> messageTable -> Table body -> rows
-                   -> next p object
-                   -> next p object
-  */
-  var newP = document.createElement("p");
-  newP.id = commentObject.id; //set proper ID so other guys can find him
-  newP.style.border = "solid #ff00ff"; //not needed for production
+//page ****************************************************************************************
+function loadHomePage() {
+  var content = document.getElementById("content");
+  var homeText = document.createElement("h1");
+  homeText.appendChild(document.createTextNode("Welcome to YouCMT.com!"))
+  content.innerHTML = "";
+  content.appendChild(homeText);
+}
 
-  var messageTable = document.createElement("TABLE");
-  var tblBody = document.createElement("tbody");
-  var topRow = document.createElement("tr"); //for header info
-  var bodyRow = document.createElement("tr"); //for main text
-  var infoRow = document.createElement("tr"); //for up/down and reply link
-  var moreRow = document.createElement("tr"); //only if there are replies
-  var replyRow = document.createElement("tr"); //reserved space for reply box
 
-  var cell, cellText;
+function loadCommentPage() {
+  //for test section only
+  //showVideoInfo();
+  //hideCommentBox(); //initialize "add your comment here"
+  refresh_messages();
+}
 
-  //---top row: profile picture (spans 2 rows), username, and time
-  cell = document.createElement("td"); //Profile Picture
-  var profilePic = document.createElement("img");
-  profilePic.setAttribute("src", getMeta("staticResourcePath") + "images/profile1.png"); //user profile picture
-  profilePic.setAttribute("width", "75");
-  cell.rowSpan = "2";
-  cell.appendChild(profilePic);
-  topRow.appendChild(cell);
 
-  cell = document.createElement("td"); //Message User
-  var userLink = document.createElement("a");
-  userLink.appendChild(document.createTextNode(commentObject.username));
-  userLink.href = "#user_" + commentObject.username;
-  cell.appendChild(userLink);
-  topRow.appendChild(cell);
 
-  cell = document.createElement("td"); //Message Time
-  cellText = document.createTextNode(translateDateTime(commentObject.date));
-  cell.appendChild(cellText);
-  topRow.appendChild(cell);
-  //---end of top row
+//Constructor for a RootCommentObject
+function RootCommentObject(commentAPIObject) {
+  //data fields
+  this.id = commentAPIObject.id;
+  this.profilePictureUrl = getMeta("staticResourcePath") + "images/profile1.png";
+  this.username = commentAPIObject.username;
+  this.timestamp = translateDateTime(commentAPIObject.date);
+  this.bodyText = commentAPIObject.text;
+  this.up = document.createTextNode(commentAPIObject.like);
+  this.dn = document.createTextNode(commentAPIObject.dislike);
+  this.replyCount = commentAPIObject.count;
+  this.replies = []; //an array of reply objects
+  this.showingReplies = false;
 
-  //--- body row: for the actual text
-  cell = document.createElement("td"); //Message Content
-  cellText = document.createTextNode(commentObject.text);
-  cell.colSpan = "2";
-  cell.appendChild(cellText);
-  bodyRow.appendChild(cell);
-  //---end of body row
+  //important variables that requires dynamic change
+  this.listItem = document.createElement("li"); //for return
+  this.replyList = document.createElement("ul"); //for replies to this comment
+  this.showRepliesText = document.createTextNode("");
 
-  //--- info row: for thumbs up, down, and reply link
-  cell = document.createElement("td"); //empty space
-  infoRow.appendChild(cell);
-  var thumbsUpChar = '\u{1F44D}';
-  var thumbsDownChar = '\u{1F44E}';
-  cell = document.createElement("td"); //vote up button/char/icon and count
-  var voteUpButton = document.createElement("a");
-  voteUpButton.appendChild(document.createTextNode(thumbsUpChar));
-  voteUpButton.href = "#votedUP";
-  cell.appendChild(voteUpButton);
-  cellText = document.createTextNode(commentObject.like);
-  cell.appendChild(cellText);
-  infoRow.appendChild(cell);
+  //transforming to listItem form
+  this.render();
+}
 
-  cell = document.createElement("td"); //vote down button/char/icon and count
-  var voteDownButton = document.createElement("a");
-  voteDownButton.appendChild(document.createTextNode(thumbsDownChar));
-  voteDownButton.href = "#votedDown";
-  cell.appendChild(voteDownButton);
-  cellText = document.createTextNode(commentObject.dislike);
-  cell.appendChild(cellText);
-  infoRow.appendChild(cell);
+RootCommentObject.prototype.render = function() {
+  this.listItem.className = "media my-4";
+  var img = document.createElement("img");
+  img.className = "mr-3";
+  img.width = 75;
+  img.src = this.profilePictureUrl;
+  img.alt = "profilePic";
+  var divBody = document.createElement("div");
+  divBody.className = "media-body";
+  var header = this.getHeader();
+  var text = document.createTextNode(this.bodyText);
+  var info = this.getInfo();
+  this.replyBox = this.getReply();
+  var more = this.getMore();
+  divBody.appendChild(header); //commenter name and time
+  divBody.appendChild(text); //comment text
+  divBody.appendChild(info); //thumbs up/down and reply link
+  divBody.appendChild(this.replyBox); //the "reply" input box
+  divBody.appendChild(more); //the "show x comments"
+  divBody.appendChild(this.replyList); //reserved for replyComments to this
 
-  cell = document.createElement("td"); //reply link
+  this.listItem.appendChild(img);
+  this.listItem.appendChild(divBody);
+}
+
+//commenter name and time
+RootCommentObject.prototype.getHeader = function() {
+  var header = document.createElement("h6");
+  var posterLink = document.createElement("a");
+  posterLink.appendChild(document.createTextNode(this.username));
+  posterLink.href = "#posterLink";
+  header.appendChild(posterLink);
+  header.appendChild(document.createTextNode(" "));
+  header.appendChild(document.createTextNode(this.timestamp));
+  return header;
+}
+
+//thumbs up/down and reply link
+RootCommentObject.prototype.getInfo = function() {
+  var info = document.createElement("h6");
+  var thumbsUpChar = document.createTextNode('\u{1F44D}');
+  var thumbsDownChar = document.createTextNode('\u{1F44E}');
+  var space = document.createTextNode(' ');
+
+  info.appendChild(thumbsUpChar);
+  info.appendChild(space);
+  info.appendChild(this.up);
+  info.appendChild(space);
+  info.appendChild(thumbsDownChar);
+  info.appendChild(space);
+  info.appendChild(this.dn);
+  info.appendChild(space);
+
   var replyLink = document.createElement("a");
-  replyLink.appendChild(document.createTextNode("Reply"));
-  replyLink.setAttribute("onclick", "showReplyBox("+ commentObject.id +")");
-  cell.appendChild(replyLink);
-  infoRow.appendChild(cell);
-  //---end of info row
+  replyLink.appendChild(document.createTextNode("REPLY"));
+  replyLink.setAttribute("onclick" ,"showReplyBox(" + this.id + ")");
 
-  //--- reply row: reserved space for reply reply box
-  cell = document.createElement("td"); //empty space
-  replyRow.appendChild(cell);
-  cell = document.createElement("td"); //empty space
-  cell.id = commentObject.id + "replyCell";
-  cell.rowSpan = "2";
-  replyRow.appendChild(cell);
-  //---end of reply row
+  info.appendChild(replyLink);
 
-  //finishing touches
-  tblBody.appendChild(topRow);
-  tblBody.appendChild(bodyRow);
-  tblBody.appendChild(infoRow);
-  tblBody.appendChild(replyRow);
-
-  messageTable.appendChild(tblBody);
-  newP.appendChild(messageTable);
-  parentObject.appendChild(newP);
+  return info;
 }
 
-function clear_messages() {
-  document.getElementById("comments").innerHTML = "";
-}
-
-function delete_messages() {
-  //to be filled for API to delete all messages on this page
-}
-
-function refresh_messages() {
-  clear_messages();
-  fetchComments();
-}
-
-function show_embedVideo(videoID) {
-  hide_embedVideo();
-  var frame = document.createElement('iframe');
-  frame.setAttribute('type', 'text/html');
-  frame.setAttribute('width', '800');
-  frame.setAttribute('height', '450');
-  frame.setAttribute('src', videoID || 'https://www.youtube.com/embed/jNQXAC9IVRw');
-  document.getElementById("video").appendChild(frame);
-}
-
-function hide_embedVideo() {
-  document.getElementById("video").innerHTML = "";
-}
-
-function showVideoInfo() {
-  var parent = document.getElementById("videoInfo");
-  var request = new XMLHttpRequest();
-  var url = 'https://youcmt.com/api/video/info?vid=' + getMeta("videoID");
-  request.open('GET', url, true);
-  request.onload = function() {
-    if (request.status >= 200 && request.status < 400) {
-      var table = document.createElement("table");
-      var cell = document.createElement("td");
-
-      var titleRow = document.createElement("tr");
-      cell = document.createElement("td");
-      cell.appendChild(document.createTextNode("Title"));
-      titleRow.appendChild(cell);
-      cell = document.createElement("td");
-      cell.appendChild(document.createTextNode(JSON.parse(this.response).title));
-      titleRow.appendChild(cell);
-
-      var dateRow = document.createElement("tr");
-      cell = document.createElement("td");
-      cell.appendChild(document.createTextNode("Date"));
-      dateRow.appendChild(cell);
-      cell = document.createElement("td");
-      cell.appendChild(document.createTextNode(JSON.parse(this.response).date));
-      dateRow.appendChild(cell);
-
-      var authorRow = document.createElement("tr");
-      cell = document.createElement("td");
-      cell.appendChild(document.createTextNode("Author"));
-      authorRow.appendChild(cell);
-      cell = document.createElement("td");
-      cell.appendChild(document.createTextNode(JSON.parse(this.response).author));
-      authorRow.appendChild(cell);
-
-      var descriptionRow = document.createElement("tr");
-      descriptionRow.id = "descriptionRow";
-      cell = document.createElement("td");
-      cell.appendChild(document.createTextNode("Description"));
-      descriptionRow.appendChild(cell);
-      cell = document.createElement("td");
-      cell.appendChild(document.createTextNode(JSON.parse(this.response).description));
-      cell.id = "descriptionCell";
-      cell.style.display = "none";
-      descriptionRow.appendChild(cell);
-
-      var showhideRow = document.createElement("tr");
-      showhideRow.setAttribute("onclick", "showhideDescription()");
-      cell = document.createElement("td");
-      showhideRow.appendChild(cell);
-      cell = document.createElement("td");
-      var td = document.createTextNode("Show Description");
-      cell.appendChild(td);
-      cell.id = "SHDCell";
-      showhideRow.appendChild(cell);
-
-      table.appendChild(titleRow);
-      table.appendChild(dateRow);
-      table.appendChild(authorRow);
-      table.appendChild(descriptionRow);
-      table.appendChild(showhideRow);
-
-      parent.appendChild(table);
-    } else {
-      parent.appendChild(document.createTextNode("Unable to fetch video info"));
-    }
-  };
-  request.error = function(e) {
-      console.log("request.error called. Error: " + e);
-  };
-  request.onreadystatechange = function(){
-      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
-  };
-  request.send();
-}
-
-function showhideDescription() {
-  if (document.getElementById("SHDCell").innerHTML == "Show Description") {
-    //currently hiden, show
-    document.getElementById("descriptionCell").style.display = "inline";
-    document.getElementById("SHDCell").innerHTML = "Hide Description";
-  } else {
-    //currently visible, hide
-    document.getElementById("descriptionCell").style.display = "none";
-    document.getElementById("SHDCell").innerHTML = "Show Description";
-  }
-}
-
-function showCommentBox() { //show the page comment box for root comment
-  hideCommentBox();
-  //todo: put all elements into table/grid for better allignment
-  //include profile picture
-  document.getElementById("write").innerHTML = ""; //clear
-  var activeComment = document.createElement("textarea");
-  activeComment.id = "commentTextArea";
-  activeComment.setAttribute('rows','5');
-  activeComment.style.resize = 'none';
-  activeComment.style.width = document.getElementById("content").style.width;
-  document.getElementById("write").appendChild(activeComment);
-
+//the "reply" input box
+RootCommentObject.prototype.getReply = function() {
+  var replyBox = document.createElement("div");
+  var inputField = document.createElement("textarea");
+  //inputField.setAttribute("type", "text");
   var cancelButton = document.createElement("button");
   cancelButton.appendChild(document.createTextNode("Cancel"));
-  cancelButton.setAttribute('onclick','hideCommentBox()');
+  cancelButton.setAttribute('onclick',"hideReplyBox(" + this.id + ")");
   cancelButton.style.float = "right";
   var submitButton = document.createElement("button");
   submitButton.appendChild(document.createTextNode("Submit"));
   submitButton.setAttribute('onclick','submitComment()');
   submitButton.style.float = "right";
+  replyBox.appendChild(inputField);
+  replyBox.appendChild(document.createElement("br"));
+  replyBox.appendChild(submitButton);
+  replyBox.appendChild(cancelButton);
 
-  document.getElementById("write").appendChild(document.createElement("br"));
-  document.getElementById("write").appendChild(submitButton);
-  document.getElementById("write").appendChild(cancelButton);
+  return replyBox;
 }
 
-function showReplyBox(parentCommentID) {
-  hideReplyBox(parentCommentID);
-  var parent = document.getElementById(parentCommentID + "replyCell");
-  if (parent == null) {
-    console.log("Unexpected Error! " + parentCommentID + " does not exist in this page");
-    return;
+//the "show x replies"
+RootCommentObject.prototype.getMore = function() {
+  var toggleLink = document.createElement("a");
+  this.showRepliesText = "";
+  if (this.replyCount == 1) {
+    this.showRepliesText = "Show reply";
+  } else if (this.replyCount > 1) {
+    this.showRepliesText = "Show " + this.replyCount + " replies";
   }
-  var activeComment = document.createElement("textarea");
-  activeComment.id = parentCommentID + "replyInputBox";
-  activeComment.setAttribute('rows','5');
-  activeComment.style.resize = 'none';
-  activeComment.style.width = document.getElementById("content").style.width;
-  parent.appendChild(activeComment);
-
-  var cancelButton = document.createElement("button");
-  cancelButton.appendChild(document.createTextNode("Cancel"));
-  cancelButton.setAttribute('onclick','hideReplyBox(' + parentCommentID + ')');
-  cancelButton.style.float = "right";
-  var submitButton = document.createElement("button");
-  submitButton.appendChild(document.createTextNode("Submit"));
-  submitButton.setAttribute('onclick','submitReply(' + parentCommentID + ')');
-  submitButton.style.float = "right";
-
-  parent.appendChild(document.createElement("br"));
-  parent.appendChild(submitButton);
-  parent.appendChild(cancelButton);
+  toggleLink.appendChild(document.createTextNode(this.showRepliesText));
+  toggleLink.setAttribute("onclick", "toggleReplies(" + this.id + ")");
+  return toggleLink;
 }
 
-function hideCommentBox() {
-  document.getElementById("write").innerHTML = ""; //clear
-  var commentTrigger = document.createElement("a");
-  commentTrigger.appendChild(document.createTextNode("Add your comment here..."));
-  //commentTrigger.href = "#comment";
-  commentTrigger.setAttribute("onclick", "showCommentBox()");
-  document.getElementById("write").appendChild(commentTrigger);
+RootCommentObject.prototype.getListItem = function() {
+  return this.listItem;
 }
 
-function hideReplyBox(parentCommentID) {
-  var parent = document.getElementById(parentCommentID + "replyCell");
-  parent.innerHTML = "";
+RootCommentObject.prototype.appendToPage = function() {
+  var page = document.getElementById("rootCommentsList");
+  this.hideReplyBox();
+  page.appendChild(this.getListItem());
+};
+
+RootCommentObject.prototype.hideReplyBox = function() {
+  this.replyBox.style.display = "none";
 }
 
-function submitComment() {
-  var commentText = document.getElementById("commentTextArea").value;
-  if (!commentText) {
-    alert("Comment cannot be empty");
-    return;
+RootCommentObject.prototype.showReplyBox = function() {
+  this.replyBox.style.display = "inline";
+}
+
+RootCommentObject.prototype.toggleReplies = function() {
+  if (this.showingReplies == true) {
+
+  } else {
+
   }
-  var url = "https://youcmt.com/api/comment";
-  var userID = 2; //or current logged in user
-  var vidID = getMeta("videoID");
-
-  var data = new FormData();
-  data.append('user_id', userID);
-  data.append('text', commentText);
-  data.append('vid', vidID);
-
-  var request = new XMLHttpRequest();
-  request.open('POST', url, true);
-  request.onload = function() {
-    if (request.status >= 200 && request.status < 400) {
-      console.log("Request success");
-    } else {
-      console.log('request failed, status = ' + request.status);
-    }
-  };
-  request.send(data);
-
-  hideCommentBox();
-  refresh_messages();
 }
 
-function submitReply(parentCommentID) {
-  console.log("Posting reply to " + parentCommentID);
-  var commentText = document.getElementById(parentCommentID + "replyInputBox").value;
-
-  if (!commentText) {
-    alert("Comment cannot be empty");
-    return;
+function renderRootComments() { //renders all root comments based on local memory
+  for (i = 0; i < rootCommentsArray.length; i++) {
+    rootCommentsArray[i].appendToPage();
   }
-  var url = "https://youcmt.com/api/comment";
-  var userID = 2; //or current logged in user
-
-  var data = new FormData();
-  data.append('user_id', userID);
-  data.append('text', commentText);
-  data.append('parent_comment_id', parentCommentID);
-
-  var request = new XMLHttpRequest();
-  request.open('POST', url, true);
-  request.onload = function() {
-    if (request.status >= 200 && request.status < 400) {
-      console.log("Request success");
-    } else {
-      console.log('request failed, status = ' + request.status);
-    }
-  };
-  request.send(data);
-
-  hideReplyBox(parentCommentID);
-  refresh_messages();
 }
 
-function fetchComments() { //fethes all root comments for the current page
+function fetchRootComments() { //fethes all root comments for the current page
   var videoID = getMeta("videoID");
   var url = "https://youcmt.com/api/comment?vid=" + videoID;
   var request = new XMLHttpRequest();
   request.open('GET', url, true);
   request.onload = function() {
     if (request.status >= 200 && request.status < 400) {
-      var commentsArray = JSON.parse(this.response).comments;
-      //console.log(JSON.stringify(commentsArray));
-      for (i = commentsArray.length - 1; i >= 0 ; i--) { //in reverse-chrono order
-        //console.log(commentsArray[i]);
-        insert_fetchedComment(commentsArray[i]);
+      var serverResponse = JSON.parse(this.response).comments;
+      console.log("serverResponse.length = " + serverResponse.length);
+      for (i = 0; i < serverResponse.length; i++) {
+        rootCommentsArray[i] = new RootCommentObject(serverResponse[i]);
       }
+      //console.log("root comments array saved locally");
+      //inializeReplyComments();
+      renderRootComments();
     } else {
       console.log('request failed, status = ' + request.status);
     }
@@ -642,31 +345,49 @@ function fetchComments() { //fethes all root comments for the current page
   request.send();
 }
 
-function fetchReplies(topCommentID) { //fetches all replies based on a root comment
-  var repliesCell = document.getElementById(topCommentID + "fetchRepliesCell");
-  repliesCell.innerHTML = "";
-  var url = "https://youcmt.com/api/comment?top_comment_id=" + topCommentID;
-  var request = new XMLHttpRequest();
-  request.open('GET', url, true);
-  request.onload = function() {
-    if (request.status >= 200 && request.status < 400) {
-      var commentsArray = JSON.parse(this.response).comments;
-      console.log(JSON.stringify(commentsArray));
-      for (i = 0; i < commentsArray.length ; i++) { //in chrono order
-        console.log(commentsArray[i]);
-        insert_fetchedReply(commentsArray[i], repliesCell); //comment object, parent object (the cell)
-      }
-    } else {
-      console.log('request failed, status = ' + request.status);
+function clear_messages() {
+  document.getElementById("rootCommentsList").innerHTML = "";
+}
+
+function refresh_messages() {
+  clear_messages();
+  fetchRootComments();
+}
+
+function getCommentObject(commentID) {
+  for (i = 0; i < rootCommentsArray.length; i++) {
+    if (rootCommentsArray[i].id == commentID) {
+      return rootCommentsArray[i];
     }
-  };
-  request.error = function(e) {
-      console.log("request.error called. Error: " + e);
-  };
-  request.onreadystatechange = function(){
-      console.log("request.onreadystatechange called. readyState: " + this.readyState);
-  };
-  request.send();
+  }
+  return 0;
+}
+
+function hideReplyBox(commentID) {
+  var commentObject = getCommentObject(commentID);
+  if (commentObject != 0) {
+    commentObject.hideReplyBox();
+  } else {
+    console.log("Error when looking for " + commendID);
+  }
+}
+
+function showReplyBox(commentID) {
+  var commentObject = getCommentObject(commentID);
+  if (commentObject != 0) {
+    commentObject.showReplyBox();
+  } else {
+    console.log("Error when looking for " + commendID);
+  }
+}
+
+function toggleReplies(commentID) {
+  var commentObject = getCommentObject(commentID);
+  if (commentObject != 0) {
+    commentObject.toggleReplies();
+  } else {
+    console.log("Error when looking for " + commendID);
+  }
 }
 
 function translateDateTime(commentTime) {
@@ -681,7 +402,7 @@ function translateDateTime(commentTime) {
   } else if (diff < 2) {
     return "1 minute ago";
   } else if (diff < 60) {
-    return diff + " minutes ago";
+    return Math.floor(diff) + " minutes ago";
   } else {
     diff /= 60; //diff is now in hours
     if (diff < 2) {
@@ -714,27 +435,7 @@ function translateDateTime(commentTime) {
   return ct;
 }
 
-async function serverTime() {
-  var request = new XMLHttpRequest();
-  request.open('GET', 'https://youcmt.com/api/datetime', true);
-  request.onload = function() {
-    if (request.status >= 200 && request.status < 400) {
-      var responseTime = JSON.parse(this.response).datetime;
-      console.log("set current time = " + responseTime);
-      //callback();
-      currentTime = responseTime;
-      return;
-    } else {
-      console.log('request failed, status = ' + request.status);
-    }
-  };
-  request.error = function(e) {
-      console.log("request.error called. Error: " + e);
-  };
-  request.send();
-}
-
-function getMeta(name) {
+function getMeta(name) { //helper function to get any meta info based on tag
   var metas = document.getElementsByTagName('meta');
   for (var i=0; i < metas.length; i++) {
       if (metas[i].getAttribute("name") == name) {
