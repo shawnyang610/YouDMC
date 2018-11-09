@@ -50,7 +50,7 @@ class CommentModel(db.Model):
             "date":str(self.date),
             "edit_date": str(self.edit_date),
             "is_deleted": self.is_deleted,
-            "text":self.text,
+            "text":self.text if self.is_deleted==0 else "",
             "user_id":self.user_id,
             "username":self.user.username,
             "profile_img": self.user.profile_img,
