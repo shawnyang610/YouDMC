@@ -59,15 +59,19 @@ class UserRegister(Resource):
                 "role":user.role,
                 "id":user.id
             }
+            
+            registration_confirmation(username=user.username, recipient=user.email)
+
+            access_token = create_access_token(identity=identity, fresh=True, expires_delta=self.expires)
+            refresh_token = create_refresh_token(identity=identity)
         except:
             return {
                 "message":"something went wrong during user registration."
             },500
             
-        access_token = create_access_token(identity=identity, fresh=True, expires_delta=self.expires)
-        refresh_token = create_refresh_token(identity=identity)
 
-        registration_confirmation(username=user.username, recipient=user.email)
+
+        
         
         return {
             "message":"user registered!",
