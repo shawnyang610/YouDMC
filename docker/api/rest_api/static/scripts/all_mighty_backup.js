@@ -1,5 +1,29 @@
-function setup() {
+var currentTime;
+
+async function setup() {
+  await serverTime();
+  loadPage();
+}
+
+function loadPage() {
+  console.log("loadpage started");
   loadLogo(); //make sure logo path is correct
+  var VID = getMeta("videoID");
+  if (VID == "") {
+    loadHomePage();
+  } else {
+    loadCommentPage();
+  }
+}
+
+function loadHomePage() {
+  fill_header_loggedOut(); //default not logged in
+  document.getElementById("testSectionVID").appendChild(document.createTextNode("Home page")); //for test section only
+  var content = document.getElementById("content");
+  content.innerHTML = "Welcome to YouCMT.com!";
+}
+
+function loadCommentPage() {
   fill_header_loggedOut(); //default not logged in
   document.getElementById("testSectionVID").appendChild(document.createTextNode(getMeta("videoID"))); //for test section only
   showVideoInfo();
@@ -111,65 +135,25 @@ function hide_sidepanel() {
   document.getElementById("aside").innerHTML = "";
 }
 
-function insert_randomMessage() { //template function, no longer needed
-  var random = Math.floor(Math.random() * 5);
-  var verse = Math.floor(Math.random() * 5);
-  var messages = [
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin imperdiet consequat semper. Ut enim nulla, placerat quis aliquam vitae, aliquam nec arcu. Quisque sit amet urna quis est elementum malesuada eget a urna. Donec imperdiet sapien nibh. Morbi dictum, diam ut porta porttitor, lectus ex pulvinar purus, a viverra nisi magna ut diam.",
-    "Sed in posuere lacus. Donec tristique id augue a aliquet. Ut nec elit bibendum, tristique dolor vitae, egestas neque. Sed efficitur purus at porttitor cursus. Duis posuere ullamcorper erat vel pharetra. Cras eu mi a diam tincidunt tincidunt nec quis odio. Nam turpis nibh, vehicula non vehicula sollicitudin, fringilla sit amet leo. In a iaculis nunc. Donec sollicitudin sagittis magna, id luctus ante efficitur quis. Curabitur cursus aliquam arcu. Nulla risus diam, convallis ac tempor vitae, rutrum ac libero.",
-    "Donec dapibus arcu quis leo condimentum porttitor. Donec eleifend ut sem quis iaculis. Nullam sed dui justo. Sed eget mauris sapien. Nunc iaculis dui dolor, sed feugiat felis bibendum id. Nullam maximus risus mauris, et vestibulum nulla condimentum a. Quisque pulvinar auctor venenatis. Aenean leo sem, euismod et nunc sit amet, venenatis dapibus massa.",
-    "Nullam sollicitudin libero non nulla eleifend, ac iaculis eros porta. Donec sit amet aliquet sem. Integer at luctus sapien. Ut feugiat eu metus in blandit. Phasellus vitae turpis nibh. Integer vitae ligula ut purus blandit posuere et vel felis. Praesent et viverra arcu. Phasellus elit dui, aliquet id elementum ut, bibendum eu nunc. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Curabitur vitae turpis non nisi auctor pretium sit amet sit amet orci. Vivamus egestas ligula sed lacinia rhoncus.",
-    "Donec et felis nec arcu egestas dictum. Fusce pretium mauris ipsum, et elementum leo ornare at. Curabitur vehicula mi orci, eu finibus magna luctus non. Maecenas eu magna vitae turpis tempor viverra. Donec eget mollis ex. Sed lectus nisl, maximus ac ante in, maximus ultricies tellus. Donec eu nisi non quam gravida volutpat. Vivamus volutpat feugiat porttitor. Duis at neque at neque viverra ullamcorper."
-  ];
-
-
-  var newP = document.createElement("p");
-  newP.style.border = "solid #00ffff";
-
-  var messageTable = document.createElement("TABLE");
-  var tblBody = document.createElement("tbody");
-  var topRow = document.createElement("tr");
-  var botRow = document.createElement("tr");
-
-  var cell, cellText;
-  cell = document.createElement("td"); //Profile Picture
-  var profilePic = document.createElement("img");
-  profilePic.setAttribute("src", getMeta("staticResourcePath") + "images/profile" + random + ".png");
-  profilePic.setAttribute("width", "75");
-  cell.rowSpan = "2";
-  cell.appendChild(profilePic);
-  topRow.appendChild(cell);
-
-  cell = document.createElement("td"); //Message User
-  cellText = document.createTextNode("User" + random);
-  cell.appendChild(cellText);
-  topRow.appendChild(cell);
-
-  cell = document.createElement("td"); //Message Time
-  cellText = document.createTextNode(Date());
-  cell.appendChild(cellText);
-  topRow.appendChild(cell);
-
-  cell = document.createElement("td"); //Message Content
-  cellText = document.createTextNode(messages[verse]);
-  cell.colSpan = "2";
-  cell.appendChild(cellText);
-  botRow.appendChild(cell);
-
-  tblBody.appendChild(topRow);
-  tblBody.appendChild(botRow);
-
-  messageTable.appendChild(tblBody);
-  newP.appendChild(messageTable);
-  document.getElementById("comments").appendChild(newP);
-}
-
+/**
+  Convert the comment object to table UI form,
+  then append the table to the specified location
+  commentObject
+    a commentObject that can have many fields
+      id: the comment's unique id
+      date: timestamp string
+      text: the actual message body
+      user_id: the user who posted the comment
+      username: the user who posted the comment
+      top_comment_id: if this is a reply, this is the thread root id
+        otherwise, this is 0
+      parent_comment_id: the id what this commend is in response to
+        otherwise, this is 0
+      like: number of likes
+      dislike: number of dislikes
+      count: number of replies
+*/
 function insert_fetchedComment(commentObject) {
-  /**
-    At this point this only works for root comments
-    For "leaf" comments, I plan on using the term "replies"
-    Structure:Comments -> p object -> messageTable -> Table body -> rows
-  */
   var newP = document.createElement("p");
   newP.id = commentObject.id; //set proper ID so other guys can find him
   newP.style.border = "solid #00ffff"; //not needed for production
@@ -201,7 +185,7 @@ function insert_fetchedComment(commentObject) {
   topRow.appendChild(cell);
 
   cell = document.createElement("td"); //Message Time
-  cellText = document.createTextNode(Date());
+  cellText = document.createTextNode(translateDateTime(commentObject.date));
   cell.appendChild(cellText);
   topRow.appendChild(cell);
   //---end of top row
@@ -259,7 +243,7 @@ function insert_fetchedComment(commentObject) {
   showRepliesLink.appendChild(cellText);
   showRepliesLink.setAttribute("onclick", "fetchReplies("+ commentObject.id +")");
   cell.appendChild(showRepliesLink);
-  cell.rowSpan = "2";
+  cell.rowSpan = "5";
   cell.id = commentObject.id + "fetchRepliesCell";
   moreRow.appendChild(cell);
   //---end of more row
@@ -268,19 +252,20 @@ function insert_fetchedComment(commentObject) {
   cell = document.createElement("td"); //empty space
   replyRow.appendChild(cell);
   cell = document.createElement("td"); //empty space
-  cell.id = commentObject.id + "replyCell";
+  //cell.id = commentObject.id + "replyCell";
   cell.rowSpan = "2";
   replyRow.appendChild(cell);
+  replyRow.id = commentObject.id + "replyCell";
   //---end of reply row
 
   //finishing touches
   tblBody.appendChild(topRow);
   tblBody.appendChild(bodyRow);
   tblBody.appendChild(infoRow);
-  if (commentObject.count > 0 || false) { //toggle t/f for testing
+  tblBody.appendChild(replyRow);
+  if (commentObject.count > 0) { //toggle t/f for testing
     tblBody.appendChild(moreRow);
   }
-  tblBody.appendChild(replyRow);
   messageTable.appendChild(tblBody);
   newP.appendChild(messageTable);
   document.getElementById("comments").appendChild(newP);
@@ -325,7 +310,7 @@ function insert_fetchedReply(commentObject, parentObject) {
   topRow.appendChild(cell);
 
   cell = document.createElement("td"); //Message Time
-  cellText = document.createTextNode(Date());
+  cellText = document.createTextNode(translateDateTime(commentObject.date));
   cell.appendChild(cellText);
   topRow.appendChild(cell);
   //---end of top row
@@ -333,7 +318,7 @@ function insert_fetchedReply(commentObject, parentObject) {
   //--- body row: for the actual text
   cell = document.createElement("td"); //Message Content
   cellText = document.createTextNode(commentObject.text);
-  cell.colSpan = "2";
+  cell.colSpan = "4";
   cell.appendChild(cellText);
   bodyRow.appendChild(cell);
   //---end of body row
@@ -486,9 +471,8 @@ function showVideoInfo() {
       console.log("request.error called. Error: " + e);
   };
   request.onreadystatechange = function(){
-      console.log("request.onreadystatechange called. readyState: " + this.readyState);
+      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
   };
-
   request.send();
 }
 
@@ -504,7 +488,8 @@ function showhideDescription() {
   }
 }
 
-function showCommentBox() {
+function showCommentBox() { //show the page comment box for root comment
+  hideCommentBox();
   //todo: put all elements into table/grid for better allignment
   //include profile picture
   document.getElementById("write").innerHTML = ""; //clear
@@ -530,6 +515,7 @@ function showCommentBox() {
 }
 
 function showReplyBox(parentCommentID) {
+  hideReplyBox(parentCommentID);
   var parent = document.getElementById(parentCommentID + "replyCell");
   if (parent == null) {
     console.log("Unexpected Error! " + parentCommentID + " does not exist in this page");
@@ -631,7 +617,7 @@ function submitReply(parentCommentID) {
   refresh_messages();
 }
 
-function fetchComments() {
+function fetchComments() { //fethes all root comments for the current page
   var videoID = getMeta("videoID");
   var url = "https://youcmt.com/api/comment?vid=" + videoID;
   var request = new XMLHttpRequest();
@@ -639,9 +625,9 @@ function fetchComments() {
   request.onload = function() {
     if (request.status >= 200 && request.status < 400) {
       var commentsArray = JSON.parse(this.response).comments;
-      console.log(JSON.stringify(commentsArray));
+      //console.log(JSON.stringify(commentsArray));
       for (i = commentsArray.length - 1; i >= 0 ; i--) { //in reverse-chrono order
-        console.log(commentsArray[i]);
+        //console.log(commentsArray[i]);
         insert_fetchedComment(commentsArray[i]);
       }
     } else {
@@ -652,12 +638,12 @@ function fetchComments() {
       console.log("request.error called. Error: " + e);
   };
   request.onreadystatechange = function(){
-      console.log("request.onreadystatechange called. readyState: " + this.readyState);
+      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
   };
   request.send();
 }
 
-function fetchReplies(topCommentID) {
+function fetchReplies(topCommentID) { //fetches all replies based on a root comment
   var repliesCell = document.getElementById(topCommentID + "fetchRepliesCell");
   repliesCell.innerHTML = "";
   var url = "https://youcmt.com/api/comment?top_comment_id=" + topCommentID;
@@ -680,6 +666,71 @@ function fetchReplies(topCommentID) {
   };
   request.onreadystatechange = function(){
       console.log("request.onreadystatechange called. readyState: " + this.readyState);
+  };
+  request.send();
+}
+
+function translateDateTime(commentTime) {
+  var ct = new Date(commentTime);
+  var st = new Date(currentTime);
+  console.log("commentTime = " + ct);
+  console.log("serverTime = " + st);
+  var diff = (st-ct)/60000; //1 min = 60 000 ms
+
+  if (diff < 1) {
+    return "Just now";
+  } else if (diff < 2) {
+    return "1 minute ago";
+  } else if (diff < 60) {
+    return diff + " minutes ago";
+  } else {
+    diff /= 60; //diff is now in hours
+    if (diff < 2) {
+      return "1 hour ago";
+    } else if (diff < 24) {
+      return Math.floor(diff) + " hours ago";
+    } else {
+      diff /= 24; //diff is now in days
+      if (diff < 2) {
+        return " 1 day ago";
+      } else if (diff < 30) {
+        return Math.floor(diff) + " days ago";
+      } else {
+        diff /= 30.42; //diff is now in months
+        if (diff < 2) {
+          return "1 month ago";
+        } else if (diff < 12) {
+          return Math.floor(diff) + " months ago";
+        } else {
+          diff /= 12; //diff is now in years
+          if (diff < 2) {
+            return "1 year ago";
+          } else {
+            return Math.floor(diff) + " years ago";
+          }
+        }
+      }
+    }
+  }
+  return ct;
+}
+
+async function serverTime() {
+  var request = new XMLHttpRequest();
+  request.open('GET', 'https://youcmt.com/api/datetime', true);
+  request.onload = function() {
+    if (request.status >= 200 && request.status < 400) {
+      var responseTime = JSON.parse(this.response).datetime;
+      console.log("set current time = " + responseTime);
+      //callback();
+      currentTime = responseTime;
+      return;
+    } else {
+      console.log('request failed, status = ' + request.status);
+    }
+  };
+  request.error = function(e) {
+      console.log("request.error called. Error: " + e);
   };
   request.send();
 }
