@@ -21,3 +21,7 @@ class RatingModel(db.Model):
     def does_exist(cls, user_id, comment_id):
         rating = cls.query.filter_by(user_id=user_id, comment_id=comment_id)
         return rating.count()>0
+    
+    @classmethod
+    def find_by_comment_id_user_id(cls, comment_id, user_id):
+        return cls.query.filter_by(comment_id=comment_id, user_id=user_id).first()
