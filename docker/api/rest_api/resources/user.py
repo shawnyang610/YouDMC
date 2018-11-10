@@ -187,6 +187,10 @@ class ResetPassword(Resource):
 
     def post(self):
         data = self.parser.parse_args()
+        if data['email'] not in email_confirm_table.keys():
+            return {
+                "message":"no reset code associates with email {}".format(data['email'])
+            },404
         if data['reset_code'] == email_confirm_table[data['email']]:
             # del email_confirm_table[data['email']]
             user = UserModel.find_by_email(data['email'])
