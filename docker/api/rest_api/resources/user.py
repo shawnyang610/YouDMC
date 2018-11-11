@@ -7,7 +7,8 @@ from flask_jwt_extended import (
     create_refresh_token,
     jwt_required,
     jwt_refresh_token_required,
-    get_raw_jwt
+    get_raw_jwt,
+    get_jwt_identity
 )
 from rest_api.models.jwt import RevokedTokenModel
 import datetime
@@ -210,3 +211,46 @@ class ResetPassword(Resource):
             return {
                 "message":"Incorrect reset code."
             },401
+
+
+class UpdateProfile(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument(
+        "new_email", type=str, required=False
+    )
+    parser.add_argument(
+        "new_profile_img", type=str, required=False
+    )
+    parser.add_argument(
+        "old_password", type=str, required=False
+    )
+    parser.add_argument(
+        "new_password", type=str, required=False
+    )
+    @jwt_required
+    def post(self):
+        user_id =int(get_jwt_identity()['id'])
+        user = UserModel.find_by_id(id=user_id)
+
+        data = self.parser.parse_args()
+        if data['new_email']:
+            user.email = data['new_email']
+        if data["new_profile_img"]:
+            user.profile_img = data['new_profile_img']
+        if data["old_password"] and data["new_password"]:
+            if check_password_hash(user.password_hash, data['old_password']):
+                user.password_hash = generate_password_hash(data['new_password'])
+            else:
+                return {
+                    "message":"old password doesn't match record."
+                }, 401
+        try:
+            user.save_to_db()
+        except:
+            return{
+                "message":"something wrong happened updating database."
+            },500
+
+        return {
+            "message":"profile updated successfully."
+        }
