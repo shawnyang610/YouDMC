@@ -121,8 +121,9 @@ api.add_resource(TokenRefresh, "/api/refresh_token")
 api.add_resource(AccessTokenCheck, "/api/check_token")
 
 
-from rest_api.resources.video import VideoInfo # noqa
+from rest_api.resources.video import VideoInfo, WhatsHot # noqa
 api.add_resource(VideoInfo, "/api/video/info")
+api.add_resource(WhatsHot, "/api/video/whatshot")
 
 from rest_api.resources.comment import(
     Comment,
