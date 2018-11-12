@@ -28,16 +28,40 @@ class RateComment(Resource):
             return {
                 "message":"rating can only have value of 1 or -1."
             },400
-        if RatingModel.does_exist(user_id=user_id, comment_id=data['comment_id']):
-            return{
-                "message":"each user can only rate a comment once."
-            },400
-        rating = RatingModel(
-            comment_id=data['comment_id'],
-            user_id=user_id,
-            rating=data['rating']
+        # if RatingModel.does_exist(user_id=user_id, comment_id=data['comment_id']):
+        #     return{
+        #         "message":"each user can only rate a comment once."
+        #     },400
+
+        # check if rating exists
+        rating = RatingModel.find_by_comment_id_user_id(
+            comment_id = data['comment_id'],
+            user_id = user_id
         )
+
+        # if exists update existing ratings to 1 or 0 or -1
+        if rating:
+            if data['rating']==1:
+                if rating.rating == 1:
+                    rating.rating = 0
+                else:
+                    rating.rating = 1
+            if data['rating'] == -1:
+                if rating.rating == -1:
+                    rating.rating = 0
+                else:
+                    rating.rating = -1
+            
+        # if not exists, create new rating
+        else:
+            rating = RatingModel(
+                comment_id=data['comment_id'],
+                user_id=user_id,
+                rating=data['rating']
+            )
+
         rating.save_to_db()
         return {
-            "message":"rating saved."
+            "message":"rating saved.",
+            "rating" : rating.rating
         }

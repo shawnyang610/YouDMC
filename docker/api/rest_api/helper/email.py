@@ -8,7 +8,11 @@ def registration_confirmation(username, recipient):
     msg = Message("Welcome to youcmt.com!", sender="info.youcmt@gmail.com", recipients=[recipient])
     msg.body = "Hi {}, Thank you for creating a new account with us!".format(username)
     # msg.html = "<b>HTML</b>"
-    mail.send(msg)
+    try:
+        mail.send(msg)
+    except:
+        # do nothing in case of bad email
+        return
     return
 
 
@@ -23,5 +27,9 @@ def confirm_email_owner(username, recipient):
     mail = Mail(app)
     msg = Message("Password reset code", sender="info.youcmt@gmail.com", recipients=[recipient])
     msg.body = "Hi, {} Your password reset code: {}".format(username, code)
-    mail.send(msg)
+    try:
+        mail.send(msg)
+    except:
+        # do nothing in case of bad email
+        return
     return
