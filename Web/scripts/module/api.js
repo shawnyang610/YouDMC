@@ -1,4 +1,4 @@
-function getServerTime(callback, innerCallBack) {
+function API_getServerTime(callback, innerCallBack) {
   var request = new XMLHttpRequest();
   request.open('GET', 'https://youcmt.com/api/datetime', true);
   request.onload = function() {
@@ -17,7 +17,7 @@ function getServerTime(callback, innerCallBack) {
   request.send();
 }
 
-function getVideoInfo(callback) {
+function API_getVideoInfo(callback) {
   var request = new XMLHttpRequest();
   request.open('GET', 'https://youcmt.com/api/video/info?vid=' + videoID, true);
   request.onload = function() {
@@ -35,18 +35,14 @@ function getVideoInfo(callback) {
   request.send();
 }
 
-function getRootComments(callback) {
+function API_getRootComments(callback) { //when page is first loaded, get all root comments and render them
   var url = "https://youcmt.com/api/comment/get/comments?vid=" + videoID;
   var request = new XMLHttpRequest();
   request.open('GET', url, true);
   request.onload = function() {
     if (request.status >= 200 && request.status < 400) {
       var serverResponse = JSON.parse(this.response).comments;
-      console.log("Loaded " + serverResponse.length + " root comment(s)");
-      for (i = 0; i < serverResponse.length; i++) {
-        rootCommentsArray[i] = new RootCommentObject(serverResponse[i]);
-      }
-      callback();
+      callback(serverResponse);
     } else {
       console.log('request failed, status = ' + request.status);
     }
@@ -60,19 +56,15 @@ function getRootComments(callback) {
   request.send();
 }
 
-function getReplyComments(rootCommentID, callback) {
+function API_getReplyComments(rootCommentID, callback) {
   var url = "https://youcmt.com/api/comment/get/comments?top_comment_id=" + rootCommentID;
   var request = new XMLHttpRequest();
   request.open('GET', url, true);
   request.onload = function() {
     if (request.status >= 200 && request.status < 400) {
       var serverResponse = JSON.parse(this.response).comments;
-      console.log("Loaded " + serverResponse.length + " reply comment(s) for rootComment " + rootCommentID);
-      var replyArray = findReplyArray(rootCommentID);
-      for (i = 0; i < serverResponse.length; i++) {
-        replyArray[i] = new SubCommentObject(serverResponse[i]);
-      }
-      callback(rootCommentID);
+      console.log("Loaded " + serverResponse.length + " reply comment(s) for replyComment " + rootCommentID);
+      callback(rootCommentID, serverResponse);
     } else {
       console.log('request failed, status = ' + request.status);
     }
@@ -86,7 +78,7 @@ function getReplyComments(rootCommentID, callback) {
   request.send();
 }
 
-function registerUser(callback) {
+function API_registerUser(callback) {
   var url = "https://youcmt.com/api/user/register";
   var userNameInput = document.getElementById("userNameInput").value;
   var passwordInput = document.getElementById("passwordInput").value;
@@ -121,7 +113,7 @@ function registerUser(callback) {
   request.send(data);
 }
 
-function logInUser(callback) {
+function API_logInUser(callback) {
   var url = "https://youcmt.com/api/user/login";
   var userNameInput = document.getElementById("headerUNinput").value;
   var passwordInput = document.getElementById("headerPWinput").value;
@@ -149,7 +141,7 @@ function logInUser(callback) {
   request.send(data);
 }
 
-function logOutUser(callback) {
+function API_logOutUser(callback) {
   var url = "https://youcmt.com/api/user/logout_access";
   var request = new XMLHttpRequest();
   request.open('POST', url, true);
@@ -173,7 +165,7 @@ function logOutUser(callback) {
   request.send();
 }
 
-function postGuestComment(parentID, text, callback) {
+function API_postGuestComment(parentID, text, callback) {
   var url = "https://youcmt.com/api/comment/post/guest";
   var data = new FormData(); //body
   if (parentID == videoID) {
@@ -187,8 +179,12 @@ function postGuestComment(parentID, text, callback) {
   request.onload = function() {
     console.log(JSON.parse(this.response));
     if (request.status == 200) { //comment saved
-      var serverResponse = JSON.parse(this.response);
-      callback(parentID, text); //render the text onto the page
+      //fetch fresh data from server
+      if (parentID == videoID) {
+        API_getRootComments(callback);
+      } else {
+        API_getReplyComments(parentID, callback);
+      }
     } else { //error, unable to submit comment
       var serverResponse = JSON.parse(this.response);
       callback(serverResponse); //should display some error message
@@ -203,7 +199,7 @@ function postGuestComment(parentID, text, callback) {
   request.send(data);
 }
 
-function postUserComment(parentID, text, callback) {
+function API_postUserComment(parentID, text, callback) {
   var url = "https://youcmt.com/api/comment/post/user";
   var data = new FormData(); //body
   if (parentID == videoID) {
@@ -219,7 +215,11 @@ function postUserComment(parentID, text, callback) {
     console.log(JSON.parse(this.response));
     if (request.status == 200) { //comment saved
       var serverResponse = JSON.parse(this.response);
-      callback(parentID, text); //render the text onto the page
+      if (parentID == videoID) {
+        API_getRootComments(callback);
+      } else {
+        API_getReplyComments(parentID, callback);
+      }
     } else { //error, unable to submit comment
       var serverResponse = JSON.parse(this.response);
       callback(serverResponse); //should display some error message
@@ -234,7 +234,62 @@ function postUserComment(parentID, text, callback) {
   request.send(data);
 }
 
-function sendResetLink(email, callback) { //send link to the email, and callback with status code
+function API_postGuestReply(parentID, rootID, text, callback) { //exclusively for replying to a non-root comment
+  var url = "https://youcmt.com/api/comment/post/guest";
+  var data = new FormData(); //body
+  data.append("parent_comment_id", parentID);
+  data.append("text", text);
+  var request = new XMLHttpRequest();
+  request.open('POST', url, true);
+  request.onload = function() {
+    console.log(JSON.parse(this.response));
+    if (request.status == 200) { //comment saved
+      //fetch fresh data from server
+      if (rootID == null) rootID = parentID;
+      API_getReplyComments(rootID, callback);
+    } else { //error, unable to submit comment
+      var serverResponse = JSON.parse(this.response);
+      callback(serverResponse); //should display some error message
+    }
+  };
+  request.error = function(e) {
+      console.log("request.error called. Error: " + e);
+  };
+  request.onreadystatechange = function(){
+      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
+  };
+  request.send(data);
+}
+
+function API_postUserReply(parentID, rootID, text, callback) { //exclusively for replying to a non-root comment
+  var url = "https://youcmt.com/api/comment/post/user";
+  var data = new FormData(); //body
+  data.append("parent_comment_id", parentID);
+  data.append("text", text);
+  var request = new XMLHttpRequest();
+  request.open('POST', url, true);
+  request.setRequestHeader("Authorization", "Bearer " + authToken); //append this into header
+  request.onload = function() {
+    console.log(JSON.parse(this.response));
+    if (request.status == 200) { //comment saved
+      var serverResponse = JSON.parse(this.response);
+      if (rootID == null) rootID = parentID;
+      API_getReplyComments(rootID, callback);
+    } else { //error, unable to submit comment
+      var serverResponse = JSON.parse(this.response);
+      callback(serverResponse); //should display some error message
+    }
+  };
+  request.error = function(e) {
+      console.log("request.error called. Error: " + e);
+  };
+  request.onreadystatechange = function(){
+      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
+  };
+  request.send(data);
+}
+
+function API_sendResetLink(email, callback) { //send link to the email, and callback with status code
   var url = "https://youcmt.com/api/user/confirm_email";
   var data = new FormData(); //body
   data.append("email", email);
@@ -257,7 +312,7 @@ function sendResetLink(email, callback) { //send link to the email, and callback
   request.send(data);
 }
 
-function resetPassword(email, code, newPass, callback) {
+function API_resetPassword(email, code, newPass, callback) {
   var url = "https://youcmt.com/api/user/reset_password";
   var data = new FormData(); //body
   data.append("email", email);
@@ -273,6 +328,94 @@ function resetPassword(email, code, newPass, callback) {
       callback(401);
     } else { //other error
       callback(500); //possible email changed
+    }
+  };
+  request.error = function(e) {
+      console.log("request.error called. Error: " + e);
+  };
+  request.onreadystatechange = function(){
+      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
+  };
+  request.send(data);
+}
+
+function API_updateUserAvatar(selection, callback) {
+  var url = "https://youcmt.com/api/user/update_profile";
+  var data = new FormData(); //body
+  data.append("new_profile_img", selection);
+  var request = new XMLHttpRequest();
+  request.open('POST', url, true);
+  request.setRequestHeader("Authorization", "Bearer " + authToken); //append this into header
+  request.onload = function() {
+    console.log(JSON.parse(this.response));
+    if (request.status == 200) { //comment saved
+      var serverResponse = JSON.parse(this.response);
+      console.log(serverResponse);
+      callback(selection);
+    } else { //error, unable to submit comment
+      var serverResponse = JSON.parse(this.response);
+      callback(serverResponse); //should display some error message
+    }
+  };
+  request.error = function(e) {
+      console.log("request.error called. Error: " + e);
+  };
+  request.onreadystatechange = function(){
+      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
+  };
+  request.send(data);
+}
+
+function API_voteUp(cid, callback) {
+  var url = "https://youcmt.com/api/rate_comment";
+  var data = new FormData(); //body
+  data.append("comment_id", cid);
+  data.append("rating", 1);
+  var request = new XMLHttpRequest();
+  request.open('POST', url, true);
+  request.setRequestHeader("Authorization", "Bearer " + authToken); //append this into header
+  request.onload = function() {
+    console.log(JSON.parse(this.response));
+    if (request.status == 200) { //comment saved
+      var serverResponse = JSON.parse(this.response);
+      if (isRootComment(cid)) {
+        API_getRootComments(callback);
+      } else {
+        API_getReplyComments(cid, callback);
+      }
+    } else { //error, unable to submit comment
+      var serverResponse = JSON.parse(this.response);
+      callback(serverResponse); //should display some error message
+    }
+  };
+  request.error = function(e) {
+      console.log("request.error called. Error: " + e);
+  };
+  request.onreadystatechange = function(){
+      //console.log("request.onreadystatechange called. readyState: " + this.readyState);
+  };
+  request.send(data);
+}
+
+function API_voteDown(cid, callback) {
+  var url = "https://youcmt.com/api/rate_comment";
+  var data = new FormData(); //body
+  data.append("rating", -1);
+  var request = new XMLHttpRequest();
+  request.open('POST', url, true);
+  request.setRequestHeader("Authorization", "Bearer " + authToken); //append this into header
+  request.onload = function() {
+    console.log(JSON.parse(this.response));
+    if (request.status == 200) { //comment saved
+      var serverResponse = JSON.parse(this.response);
+      if (cid == videoID) {
+        API_getRootComments(callback);
+      } else {
+        API_getReplyComments(parentID, callback);
+      }
+    } else { //error, unable to submit comment
+      var serverResponse = JSON.parse(this.response);
+      callback(serverResponse); //should display some error message
     }
   };
   request.error = function(e) {

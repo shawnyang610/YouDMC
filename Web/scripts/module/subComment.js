@@ -1,92 +1,90 @@
-function SubCommentObject(commentAPIObject) {
-  //data fields
-  this.id = commentAPIObject.id;
-  this.profilePictureUrl = getMeta("staticResourcePath") + "images/profile2.png";
-  this.username = commentAPIObject.username;
-  this.timestamp = translateDateTime(commentAPIObject.date);
-  this.bodyText = commentAPIObject.text;
-  this.up = commentAPIObject.like;
-  this.dn = commentAPIObject.dislike;
+//subcomment constructor
+var SubComment = function(commentAPIObject) {
+  this.cid = commentAPIObject.id;
+  this.pic = getMeta("staticResourcePath") +
+    "images/profile" + commentAPIObject.profile_img + ".png"; //guest use 0
+  this.data = commentAPIObject;
+};
 
-  //important variables that requires dynamic change
-  this.listItem = document.createElement("li"); //for return
-
-  //transforming to listItem form
-  this.render();
+SubComment.prototype.update = function(newAPIObject) {
+  this.data = newAPIObject;
 }
 
-//this function will create all HTML DOM objects based on this object
-SubCommentObject.prototype.render = function() {
-  this.listItem.className = "media mt-3";
-    var img = document.createElement("img");
-    //img.className = "mr-3";
-    img.width = 75;
-    img.src = this.profilePictureUrl;
+SubComment.prototype.getListItem = function() {
+  var list = document.createElement("li");
+  list.className = "media mb-3";
+  var img = document.createElement("img");
+    img.width = 50;
+    img.src = this.pic;
     img.alt = "profilePic";
   var divBody = document.createElement("div");
-  divBody.className = "media-body";
-
-  divBody.appendChild(this.getHeader()); //commenter name and time
-  divBody.appendChild(createText(this.bodyText)); //comment text
-  divBody.appendChild(this.getInfo()); //thumbs up/down and reply link
-  divBody.appendChild(this.getWriteBox()); //the "reply" input box
-  divBody.appendChild(this.initializeReplyList()); //reserved for replyComments to this
-  this.listItem.appendChild(img);
-  this.listItem.appendChild(divBody);
+    divBody.className = "media-body";
+    divBody.appendChild(this.getHeader()); //commenter name and time
+    divBody.appendChild(this.getText()); //comment body text
+    divBody.appendChild(this.getInfo()); //thumbs up/down and reply link
+    divBody.appendChild(this.getWriteBox()); //the "reply" input box
+  list.appendChild(img);
+  list.appendChild(divBody);
+  return list;
 }
 
-//commenter name and time
-SubCommentObject.prototype.getHeader = function() {
+SubComment.prototype.getHeader = function() {
   var header = document.createElement("h6");
-  var posterLink = document.createElement("a");
-  posterLink.appendChild(document.createTextNode(this.username));
-  posterLink.href = "#posterLink";
+  var posterLink = createLink(this.data.username, "", "", "#posterLink");
+  var timestampText = " ";
+  if (this.data.date == this.data.edit_date) {
+    //original comments
+    timestampText += translateDateTime(this.data.date);
+  } else {
+    timestampText += "edited " + translateDateTime(this.data.edit_date);
+  }
   header.appendChild(posterLink);
-  header.appendChild(document.createTextNode(" "));
-  header.appendChild(document.createTextNode(this.timestamp));
+  header.appendChild(createText(timestampText));
   return header;
 }
 
-//thumbs up/down and reply link
-SubCommentObject.prototype.getInfo = function() { //not yet implemented voting
+SubComment.prototype.getText = function() {
+  if (this.data.is_deleted == 0) { //valid comment
+    return createText(this.data.text);
+  } else {
+    return deletedTemplate();
+  }
+}
+
+SubComment.prototype.getInfo = function() {
   var info = document.createElement("h6");
-  info.appendChild(createLink('\u{1F44D}',"badge badge-pill badge-light", "voteUp()", "#up"));
-  info.appendChild(createText(this.up));
-  info.appendChild(createLink('\u{1F44E}',"badge badge-pill badge-light", "voteDown()", "#down"));
-  info.appendChild(createText(this.dn));
+  info.appendChild(createLink('\u{1F44D}',"badge badge-pill badge-light", "voteUp(" + this.cid + ")", "#up"));
+  info.appendChild(createText(this.data.like));
+  info.appendChild(createLink('\u{1F44E}',"badge badge-pill badge-light", "voteDown(" + this.cid + ")", "#down"));
+  info.appendChild(createText(this.data.dislike));
   info.appendChild(createText(" "));
-  info.appendChild(createLink("REPLY","badge badge-secondary", "writeReply(" + this.id + ")", ""));
+  info.appendChild(createLink("REPLY","badge badge-secondary", "writeReply(" + this.cid + ")", "#reply"));
   return info;
 }
 
-//the "reply" input box
-SubCommentObject.prototype.getWriteBox = function() { //buttons not linked to functions
+SubComment.prototype.getWriteBox = function() {
   var commentRowDiv = document.createElement("div");
   commentRowDiv.style.display = "none";
   commentRowDiv.class = "input-group input-group-sm";
-  commentRowDiv.id = "writeBox_" + this.id;
+  commentRowDiv.id = "writeBox_" + this.cid;
   var inputBox = createInput("text", "Add your comment here", "form-control");
-  inputBox.id = "focusBox_" + this.id;
+  inputBox.id = "focusBox_" + this.cid;
   var buttonGroup = document.createElement("div");
   buttonGroup.className = "input-group-append";
     var cancelButton = createButton("Cancel",
-      "btn btn-sm btn-secondary", "cancelReply(" + this.id + ")");
+      "btn btn-sm btn-secondary", "cancelReply(" + this.cid + ")");
     var submitButton = createButton("Submit",
-      "btn btn-sm btn-secondary", "submitReply(" + this.id + ")");
+      "btn btn-sm btn-secondary", "submitReply(" + this.cid + "," + this.data.top_comment_id + ")");
     buttonGroup.appendChild(cancelButton);
     buttonGroup.appendChild(submitButton);
   commentRowDiv.appendChild(inputBox);
   commentRowDiv.appendChild(buttonGroup);
+  //enter key trigger
+  inputBox.addEventListener("keyup", function(event) {
+    event.preventDefault();
+	  if (event.keyCode === 13) { // Number 13 is the "Enter" key on the keyboard
+		    submitButton.click();
+	  }
+  });
   return commentRowDiv;
-}
-
-//the unordered list - reserved for replies to this root comment
-SubCommentObject.prototype.initializeReplyList = function() {
-  var list = document.createElement("ul");
-  list.id = "replyList_" + this.id;
-  return list;
-}
-
-SubCommentObject.prototype.getListItem = function() {
-  return this.listItem;
 }
