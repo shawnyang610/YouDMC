@@ -10,7 +10,7 @@ function voteUp(cid, tid) { //only works sub comments
   }
 }
 
-function voteDown(cid) {
+function voteDown(cid, tid) {
   if (authToken == null || authToken == "") {
     alert("You must be logged in first before voting");
   } else {
