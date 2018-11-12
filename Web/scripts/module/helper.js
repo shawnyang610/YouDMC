@@ -100,6 +100,13 @@ function createLink(linkText, linkClass, functionName, href) { //a tag
   return link;
 }
 
+function createP(text, style) {
+  var p = document.createElement("p");
+  p.innerHTML = text;
+  p.className = style;
+  return p;
+}
+
 function createText(text) {
   return document.createTextNode(text);
 }
@@ -114,10 +121,101 @@ function submitComment(parentID) {
 
 function findReplyArray(id) {
   for (i = 0; i < rootCommentsArray.length; i++) {
-    if (rootCommentsArray[i].id == id) {
+    if (rootCommentsArray[i].cid == id) {
       return rootCommentsArray[i].replies;
     }
   }
   console.log("Trying to find a reply array that does not exist! " + id);
   return null;
+}
+
+function findComment(id) {
+  for (i = 0; i < rootCommentsArray.length; i++) {
+    if (rootCommentsArray[i].cid == id) {
+      return rootCommentsArray[i];
+    }
+  }
+  console.log("Trying to find a reply array that does not exist! " + id);
+  return null;
+}
+
+function deletedTemplate() {
+  var p = document.createElement("p");
+  p.className = "text-secondary font-italic";
+  p.appendChild(createText("Deleted Comment"));
+  return p;
+}
+
+function autoScroll() {
+  var div = getDOM(scrollDiv);
+  if (div != null) {
+    div.scrollIntoView();
+  }
+  scrollDiv = "";
+}
+
+function mergeRootComments(response) {
+  var temp = [];
+  var newComments = response.length - rootCommentsArray.length;
+  for (i = 0; i < newComments; i++) {
+    temp[i] = new RootComment(response[i]);
+  }
+  for (i = 0; i < rootCommentsArray.length; i++) {
+    rootCommentsArray[i].update(response[newComments + i]);
+    temp[newComments + i] = rootCommentsArray[i];
+  }
+  rootCommentsArray = temp;
+}
+
+function mergeSubComments(oldArray, newArray) {
+  var temp = [];
+  var newComments = newArray.length - oldArray.length;
+  for (i = 0; i < newComments; i++) {
+    temp[i] = new SubComment(newArray[i]);
+  }
+  for (i = 0; i < oldArray.length; i++) {
+    oldArray[i].update(newArray[newComments + i]);
+    temp[newComments + i] = oldArray[i];
+  }
+  return temp;
+}
+
+function isRootComment(cid) {
+  for (i = 0; i < rootCommentsArray; i++) {
+    if (rootCommentsArray[i].cid == cid) {
+      return true;
+    }
+  }
+  return false;
+}
+
+//create a list of current avatars, and highlight one. -1 means no highlight
+function getAvatarList(selection) {
+  var table = document.createElement("table");
+  var row0 = document.createElement("tr");
+  var row1 = document.createElement("tr");
+  var cells = [];
+  for (i = 1; i <= 4; i++) {
+    cells[i-1] = document.createElement("td");
+    var img = document.createElement("img");
+      img.className = "m-2"
+      img.width = 50;
+      img.src = getMeta("staticResourcePath") +
+        "images/profile"+(i)+".png";
+    img.setAttribute("onclick", "updateAccountPanel(" + i + ")");
+    if (i == selection) {
+      img.className = "m-2 border border-primary";
+    }
+    cells[i-1].appendChild(img);
+  }
+
+  row0.appendChild(cells[0]);
+  row0.appendChild(cells[1]);
+  row1.appendChild(cells[2]);
+  row1.appendChild(cells[3]);
+
+  table.appendChild(row0);
+  table.appendChild(row1);
+
+  return table;
 }

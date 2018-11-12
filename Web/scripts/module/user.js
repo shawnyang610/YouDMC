@@ -1,3 +1,5 @@
+//var selection;
+
 function showSidePanel() {
   var left = getDOM("content");
   var right = getDOM("aside");
@@ -93,14 +95,21 @@ function submitRegistration() {
 
   statusText.innerHTML = "";
 
-  registerUser(updateRegistrationStatus);
+  API_registerUser(updateRegistrationStatus);
 }
 
 function updateRegistrationStatus(status) {
   console.log(status);
   if (status.message == "user registered!") { //in business
     authToken = status.access_token;
-    sessionStorage.setItem("token", authToken); //update sessionStorage
+    myUID = status.id;
+    myPIC = status.profile_img;
+    myUsername = status.username;
+    //update sessionStorage
+    sessionStorage.setItem("token", authToken);
+    sessionStorage.setItem("uid", myUID);
+    sessionStorage.setItem("myname", myUsername);
+    sessionStorage.setItem("avatar", myPIC);
     //update UI to logged in UI
     fillHeaderLoggedIn();
     hideSidePanel();
@@ -123,13 +132,20 @@ function logIn() { //this is triggered from header button
     changeHeaderStatusText("Enter a valid Password"); //this only change the status text
     return;
   }
-  logInUser(updateLoginStatus);
+  API_logInUser(updateLoginStatus);
 }
 
 function updateLoginStatus(status) {
   if (status.access_token != null) { //a token
     authToken = status.access_token;
-    sessionStorage.setItem("token", authToken); //update sessionStorage
+    myUID = status.id;
+    myPIC = status.profile_img;
+    myUsername = status.username;
+    //update sessionStorage
+    sessionStorage.setItem("token", authToken);
+    sessionStorage.setItem("uid", myUID);
+    sessionStorage.setItem("myname", myUsername);
+    sessionStorage.setItem("avatar", myPIC);
     fillHeaderLoggedIn();
     hideSidePanel();
   } else { //some error
@@ -141,7 +157,7 @@ function updateLoginStatus(status) {
 }
 
 function logOut() {
-  logOutUser(fillHeaderLoggedOut);
+  API_logOutUser(fillHeaderLoggedOut);
   authToken = "";
   sessionStorage.setItem("token", authToken); //update sessionStorage
 }
@@ -173,7 +189,7 @@ function showForgotPanel(statusText) {
 
 function sendResetLinkClicked() { //as soon as the "send reset code" is pressed, trigger this
   var filledEmail = getDOM("emailInput").value;
-  sendResetLink(filledEmail, updateForgotPanel); //call API with email, and provide the callback function
+  API_sendResetLink(filledEmail, updateForgotPanel); //call API with email, and provide the callback function
 }
 
 function updateForgotPanel(status) {
@@ -245,6 +261,42 @@ function showResetPanel() {
   resetCodeInput.focus();
 }
 
+function showAccountPanel() {
+  showSidePanel();
+  var panel = document.getElementById("aside");
+  var statusP = document.createElement("p");
+  statusP.id = "statusText";
+  statusP.className = "text-danger";
+  statusP.innerHTML = "Choose A New Avatar";
+
+  var pictureGroup = getAvatarList(-1);
+  var noButton = createButton("Cancel", "btn btn-sm btn-outline-danger mt-5", "hideSidePanel()");
+  var yesButton = createButton("Confirm", "btn btn-sm btn-outline-success mt-5", "");
+
+  panel.appendChild(statusP);
+  panel.appendChild(pictureGroup);
+  panel.appendChild(noButton);
+  panel.appendChild(yesButton);
+}
+
+function updateAccountPanel(selection) {
+  showSidePanel();
+  var panel = document.getElementById("aside");
+  var statusP = document.createElement("p");
+  statusP.id = "statusText";
+  statusP.className = "text-danger";
+  statusP.innerHTML = "Press confirm to submit";
+
+  var pictureGroup = getAvatarList(selection);
+  var noButton = createButton("Cancel", "btn btn-sm btn-outline-danger mt-5", "hideSidePanel()");
+  var yesButton = createButton("Confirm", "btn btn-sm btn-outline-success mt-5", "ChangeAvatar(" + selection + ")");
+
+  panel.appendChild(statusP);
+  panel.appendChild(pictureGroup);
+  panel.appendChild(noButton);
+  panel.appendChild(yesButton);
+}
+
 function resetPasswordClicked() {
   var email = getDOM("emailInput").value;
   var code = getDOM("resetCodeInput").value;
@@ -257,7 +309,7 @@ function resetPasswordClicked() {
     getDOM("statusText").innerHTML = "Re-entered password does not match with first one";
     getDOM(repasswordInput).focus();
   } else {
-    resetPassword(email, code, p1, updateResetPanel);
+    API_resetPassword(email, code, p1, updateResetPanel);
   }
 }
 
@@ -271,4 +323,16 @@ function updateResetPanel(status) { //callback function for reset password API (
   } else { //other error
     getDOM("statusText").innerHTML = "Could not reset your password, please check all information and try again";
   }
+}
+
+function ChangeAvatar(selection) {
+  API_updateUserAvatar(selection, ChangeAvatarCallback);
+}
+
+function ChangeAvatarCallback(selection) {
+  //assumes success
+  myPIC = selection;
+  sessionStorage.setItem("avatar", myPIC);
+  fillHeaderLoggedIn();
+  hideSidePanel();
 }
