@@ -103,13 +103,3 @@ function toggleReplies(cid) {
   var rootObjectLi = getDOM(cid);
   rootObjectLi.innerHTML = rootObject.getListItem().innerHTML;
 }
-
-function voteUp(cid) {
-  // API_voteUp(cid, displayRootComments);
-  // votedHistory[cid] = 1;
-  // sessionStorage.setItem("voted", votedHistory); //update sessionStorage
-}
-
-function voteDown(cid) {
-
-}

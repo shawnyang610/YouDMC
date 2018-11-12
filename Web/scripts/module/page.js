@@ -21,7 +21,7 @@ function setup() {
   if (votedHistory == null) {
     votedHistory = {};
   }
-  fillDebugButtons();
+  //fillDebugButtons();
   //choosed logged in header or logged out header
   //assumes user will not tamper with auth token so it's always valid
   if (authToken == null || authToken == "") {
@@ -37,14 +37,6 @@ function setup() {
   } else {
     loadCommentPage();
   }
-}
-
-function loadHomePage() {
-  var content = document.getElementById("content");
-  var homeText = document.createElement("h1");
-  homeText.appendChild(document.createTextNode("Welcome to YouCMT.com!"))
-  content.innerHTML = "";
-  content.appendChild(homeText);
 }
 
 function loadCommentPage() {

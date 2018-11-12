@@ -65,24 +65,10 @@ RootComment.prototype.getText = function() {
 
 RootComment.prototype.getInfo = function() {
   var info = document.createElement("h6");
-  var cid = this.cid;
-  var voteStatus = this.cid;
-  if (voteStatus == 1) {
-    info.appendChild(createLink('\u{1F44D}',"badge badge-pill badge-success", "", ""));
-    info.appendChild(createText(this.data.like));
-    info.appendChild(createLink('\u{1F44E}',"badge badge-pill badge-light", "voteDown(" + this.cid + ")", "#down"));
-    info.appendChild(createText(this.data.dislike));
-  } else if (voteStatus == -1) {
-    info.appendChild(createLink('\u{1F44D}',"badge badge-pill badge-light", "voteUp(" + this.cid + ")", "#up"));
-    info.appendChild(createText(this.data.like));
-    info.appendChild(createLink('\u{1F44E}',"badge badge-pill badge-danger", "", ""));
-    info.appendChild(createText(this.data.dislike));
-  } else {
-    info.appendChild(createLink('\u{1F44D}',"badge badge-pill badge-light", "voteUp(" + this.cid + ")", "#up"));
-    info.appendChild(createText(this.data.like));
-    info.appendChild(createLink('\u{1F44E}',"badge badge-pill badge-light", "voteDown(" + this.cid + ")", "#down"));
-    info.appendChild(createText(this.data.dislike));
-  }
+  info.appendChild(createLink('\u{1F44D}',"badge badge-pill badge-light", "voteUp(" + this.cid + ")", "#up"));
+  info.appendChild(createText(this.data.like));
+  info.appendChild(createLink('\u{1F44E}',"badge badge-pill badge-light", "voteDown(" + this.cid + ")", "#down"));
+  info.appendChild(createText(this.data.dislike));
   info.appendChild(createText(" "));
   info.appendChild(createLink("REPLY","badge badge-secondary", "writeReply(" + this.cid + ")", "#reply"));
   return info;

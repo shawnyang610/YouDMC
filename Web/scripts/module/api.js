@@ -366,7 +366,8 @@ function API_updateUserAvatar(selection, callback) {
   request.send(data);
 }
 
-function API_voteUp(cid, callback) {
+function API_voteUp(cid, callback, tid) {
+  console.log(cid + "," + callback + "," + tid);
   var url = "https://youcmt.com/api/rate_comment";
   var data = new FormData(); //body
   data.append("comment_id", cid);
@@ -378,10 +379,10 @@ function API_voteUp(cid, callback) {
     console.log(JSON.parse(this.response));
     if (request.status == 200) { //comment saved
       var serverResponse = JSON.parse(this.response);
-      if (isRootComment(cid)) {
+      if (tid == null) {
         API_getRootComments(callback);
       } else {
-        API_getReplyComments(cid, callback);
+        API_getReplyComments(tid, callback);
       }
     } else { //error, unable to submit comment
       var serverResponse = JSON.parse(this.response);
@@ -398,8 +399,10 @@ function API_voteUp(cid, callback) {
 }
 
 function API_voteDown(cid, callback) {
+  console.log(cid + "," + callback + "," + tid);
   var url = "https://youcmt.com/api/rate_comment";
   var data = new FormData(); //body
+  data.append("comment_id", cid);
   data.append("rating", -1);
   var request = new XMLHttpRequest();
   request.open('POST', url, true);
@@ -408,10 +411,10 @@ function API_voteDown(cid, callback) {
     console.log(JSON.parse(this.response));
     if (request.status == 200) { //comment saved
       var serverResponse = JSON.parse(this.response);
-      if (cid == videoID) {
+      if (tid == null) {
         API_getRootComments(callback);
       } else {
-        API_getReplyComments(parentID, callback);
+        API_getReplyComments(tid, callback);
       }
     } else { //error, unable to submit comment
       var serverResponse = JSON.parse(this.response);
@@ -425,4 +428,23 @@ function API_voteDown(cid, callback) {
       //console.log("request.onreadystatechange called. readyState: " + this.readyState);
   };
   request.send(data);
+}
+
+function API_getHotVideos(callback) {
+  var request = new XMLHttpRequest();
+  request.open('GET', 'https://youcmt.com/api/video/whatshot', true);
+  request.onload = function() {
+    if (request.status >= 200 && request.status < 400) {
+      console.log("Fetched Hot videos");
+      var resonse = JSON.parse(this.response);
+      console.log(resonse);
+      callback(resonse);
+    } else {
+      console.log('request failed, status = ' + request.status);
+    }
+  };
+  request.error = function(e) {
+      console.log("request.error called. Error: " + e);
+  };
+  request.send();
 }

@@ -53,9 +53,11 @@ SubComment.prototype.getText = function() {
 
 SubComment.prototype.getInfo = function() {
   var info = document.createElement("h6");
-  info.appendChild(createLink('\u{1F44D}',"badge badge-pill badge-light", "voteUp(" + this.cid + ")", "#up"));
+  info.appendChild(createLink('\u{1F44D}',"badge badge-pill badge-light",
+    "voteUp(" + this.cid + "," + this.data.top_comment_id + ")", "#up"));
   info.appendChild(createText(this.data.like));
-  info.appendChild(createLink('\u{1F44E}',"badge badge-pill badge-light", "voteDown(" + this.cid + ")", "#down"));
+  info.appendChild(createLink('\u{1F44E}',"badge badge-pill badge-light",
+    "voteDown(" + this.cid + "," + this.data.top_comment_id + ")", "#down"));
   info.appendChild(createText(this.data.dislike));
   info.appendChild(createText(" "));
   info.appendChild(createLink("REPLY","badge badge-secondary", "writeReply(" + this.cid + ")", "#reply"));
