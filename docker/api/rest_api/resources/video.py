@@ -4,6 +4,8 @@ from rest_api.models.video import VideoModel # noqa
 from rest_api.helper.text_extractor import VideoPageExtorTYDL
 import youtube_dl
 from flask import make_response, json
+from rest_api import db
+import datetime
 
 
 class VideoInfo(Resource):
@@ -64,4 +66,22 @@ class VideoInfo(Resource):
         response = make_response(json.dumps(res))
         response.headers["content-type"]="application/json"
 
+        return response
+
+class WhatsHot (Resource):
+
+    def get(self):
+        sql = "SELECT DISTINCT videos.vid, videos.title, videos.date FROM videos, comments WHERE videos.vid = comments.vid AND comments.date >= now()-INTERVAL '3 DAYS' LIMIT 20"
+        engine = db.engine
+        connection = engine.connect()
+        result = connection.execute(sql)
+        connection.close()
+
+        videos = [{"vid":video.vid, "title":video.title, "date":str(video.date)} for video in result]
+        ret ={
+            "message":videos
+        }
+    
+        response = make_response (json.dumps(ret))
+        response.headers["content-type"] = "application/json"
         return response

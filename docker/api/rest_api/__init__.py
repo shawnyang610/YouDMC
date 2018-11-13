@@ -107,7 +107,8 @@ from rest_api.resources.user import (
     UserLogoutAccess,
     UserLogoutRefresh,
     ConfirmEmail,
-    ResetPassword) # noqa
+    ResetPassword,
+    UpdateProfile) # noqa
 
 api.add_resource(UserRegister, "/api/user/register")
 api.add_resource(UserLogin, "/api/user/login")
@@ -115,14 +116,16 @@ api.add_resource(UserLogoutAccess, "/api/user/logout_access")
 api.add_resource(UserLogoutRefresh, "/api/user/logout_refresh")
 api.add_resource(ConfirmEmail, "/api/user/confirm_email")
 api.add_resource(ResetPassword, "/api/user/reset_password")
+api.add_resource(UpdateProfile, "/api/user/update_profile")
 
 from rest_api.resources.jwt import TokenRefresh, AccessTokenCheck # noqa
 api.add_resource(TokenRefresh, "/api/refresh_token")
 api.add_resource(AccessTokenCheck, "/api/check_token")
 
 
-from rest_api.resources.video import VideoInfo # noqa
+from rest_api.resources.video import VideoInfo, WhatsHot # noqa
 api.add_resource(VideoInfo, "/api/video/info")
+api.add_resource(WhatsHot, "/api/video/whatshot")
 
 from rest_api.resources.comment import(
     Comment,
