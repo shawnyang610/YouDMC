@@ -2,8 +2,11 @@ package com.youcmt.youdmcapp;
 
 import com.youcmt.youdmcapp.model.CommentPostRequest;
 import com.youcmt.youdmcapp.model.CommentResponse;
+import com.youcmt.youdmcapp.model.Email;
 import com.youcmt.youdmcapp.model.LoginRequest;
 import com.youcmt.youdmcapp.model.LoginResponse;
+import com.youcmt.youdmcapp.model.RateRequest;
+import com.youcmt.youdmcapp.model.RatingResponse;
 import com.youcmt.youdmcapp.model.RegisterRequest;
 import com.youcmt.youdmcapp.model.Video;
 
@@ -45,7 +48,7 @@ public interface ApiEndPoint {
     Call<ResponseBody> postComment(@Header("Authorization") String authorization,@Body CommentPostRequest postRequest,
             @HeaderMap HashMap<String,String> headerMap);
 
-    @POST("comment/post/user")
+    @POST("comment/post/guest")
     Call<ResponseBody> postCommentGuest(@Body CommentPostRequest postRequest,
                                    @HeaderMap HashMap<String,String> headerMap);
 
@@ -57,4 +60,13 @@ public interface ApiEndPoint {
 
     @POST("user/logout_access")
     Call<ResponseBody> logoutAccess (@Header("Authorization") String authorization);
+
+    @POST("rate_comment")
+    Call<RatingResponse> postRating (@Header("Authorization") String authorization, @Body RateRequest rateRequest);
+
+    @POST("refresh_token")
+    Call<ResponseBody> refreshToken (@Header("Authorization") String authorization);
+
+    @POST("user/confirm_email")
+    Call<ResponseBody> confirmEmail (@Body Email email, @HeaderMap HashMap<String, String> headerMap);
 }

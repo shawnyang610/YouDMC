@@ -16,8 +16,8 @@ import java.util.List;
  */
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentHolder> {
-    private List<Comment> mComments;
-    private Context mContext;
+    protected List<Comment> mComments;
+    protected Context mContext;
 
     /**
      * @param comments comments list from server.
@@ -32,7 +32,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentHolder> {
     @Override
     public CommentHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View view = inflater.inflate(R.layout.comment_top_level, parent, false);
+        View view = inflater.inflate(R.layout.comment, parent, false);
         return new CommentHolder(view, mContext);
     }
 

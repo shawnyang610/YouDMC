@@ -42,6 +42,8 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.youcmt.youdmcapp.Constants.ACCESS_TOKEN;
 import static com.youcmt.youdmcapp.Constants.EXTRA_VIDEO;
+import static com.youcmt.youdmcapp.Constants.ID_GUEST;
+import static com.youcmt.youdmcapp.Constants.USER_ID;
 
 /**
  * Created by Stanislav Ostrovskii on 10/25/2018.
@@ -179,7 +181,14 @@ public class CommentFragment extends Fragment {
         postRequest.setText(commentText.trim());
         postRequest.setVid(mVideo.getVid());
 
-        Call<ResponseBody> response = client.postComment(getAuthHeader(), postRequest, header());
+        Call<ResponseBody> response;
+        if(mPreferences.getInt(USER_ID, ID_GUEST)==ID_GUEST)
+        {
+            response = client.postCommentGuest(postRequest, header());
+        }
+        else {
+            response = client.postComment(getAuthHeader(), postRequest, header());
+        }
         Log.d(TAG, "URL: " + response.request().url().toString());
         response.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -191,19 +200,26 @@ public class CommentFragment extends Fragment {
                     mRecyclerView.setVisibility(GONE);
                     mFragmentView.findViewById(R.id.comment_pb).setVisibility(VISIBLE);
                     fetchComments(); //reload comment list
-
+                }
+                else if(response.code()==404)
+                {
+                    Toast.makeText(getActivity(), "Error code 404: Not Found", Toast.LENGTH_LONG).show();
                 }
                 else
                 {
                     try {
+                        JSONObject errorMessage = new JSONObject(response.errorBody().string());
+                        String errorString = errorMessage.getString("message");
                         Toast.makeText(getActivity(), "Error code " +
-                        response.code() + ": " + response.errorBody().string(), Toast.LENGTH_LONG).show();
+                        response.code() + ": " + errorString, Toast.LENGTH_LONG).show();
                     } catch (IOException e) {
                         e.printStackTrace();
                         displayUnknownError();
                     } catch (NullPointerException n) {
                         n.printStackTrace();
                         displayUnknownError();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 }
             }

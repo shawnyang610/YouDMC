@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import okhttp3.ResponseBody;
+import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
@@ -41,7 +42,6 @@ import static com.youcmt.youdmcapp.Constants.ACCESS_TOKEN;
 import static com.youcmt.youdmcapp.Constants.ID_GUEST;
 import static com.youcmt.youdmcapp.Constants.USER_ID;
 
-
 /**
  * Created by Stanislav Ostrovskii on 10/25/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
@@ -50,10 +50,9 @@ import static com.youcmt.youdmcapp.Constants.USER_ID;
 public class ReplyFragment extends Fragment {
     private static final String COMMENT_KEY = "comment_key";
     private static final String TAG = "ReplyFragment";
-    private int mUserId;
     private View mFragmentView;
     private RecyclerView mRecyclerView;
-    private CommentAdapter mCommentAdapter;
+    private ReplyAdapter mReplyAdapter;
     private CommentHolder mMainCommentHolder;
     private ImageView mExitButton;
     private Comment mComment;
@@ -74,7 +73,6 @@ public class ReplyFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mComment = (Comment) getArguments().getSerializable(COMMENT_KEY);
-        mUserId = getActivity().getPreferences(MODE_PRIVATE).getInt(USER_ID, ID_GUEST);
         mComments = new ArrayList<>(1);
         mPreferences = getActivity()
                 .getSharedPreferences("com.youcmt.youdmcapp", MODE_PRIVATE);
@@ -143,7 +141,6 @@ public class ReplyFragment extends Fragment {
                 else if(response.code()==404)
                 {
                     try {
-                        Log.d(TAG, String.valueOf(response.code()));
                         JSONObject errorMessage = new JSONObject(response.errorBody().string());
                         Toast.makeText(getActivity(), errorMessage.getString("message"), Toast.LENGTH_SHORT).show();
                     } catch (IOException e) {
@@ -179,9 +176,15 @@ public class ReplyFragment extends Fragment {
         postRequest.setText(commentText.trim());
         //missleading method name, I know, I know...
         postRequest.setVid(String.valueOf(mComment.getId()));
-        postRequest.setUser_id(mUserId);
 
-        retrofit2.Call<ResponseBody> response = client.postComment(getAuthHeader(), postRequest, header());
+        Call<ResponseBody> response;
+        if(mPreferences.getInt(USER_ID, ID_GUEST)==ID_GUEST)
+        {
+            response = client.postCommentGuest(postRequest, header());
+        }
+        else {
+            response = client.postComment(getAuthHeader(), postRequest, header());
+        }
         Log.d(TAG, "URL: " + response.request().url().toString());
         response.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -245,13 +248,13 @@ public class ReplyFragment extends Fragment {
             mRecyclerView.setVisibility(VISIBLE);
 
             mFragmentView.findViewById(R.id.no_replies_tv).setVisibility(View.GONE);
-            if(mCommentAdapter==null)
+            if(mReplyAdapter==null)
             {
-                mCommentAdapter = new CommentAdapter(mComments, getActivity());
-                mRecyclerView.setAdapter(mCommentAdapter);
+                mReplyAdapter = new ReplyAdapter(mComments, getActivity());
+                mRecyclerView.setAdapter(mReplyAdapter);
             }
             else {
-                mCommentAdapter.notifyDataSetChanged();
+                mReplyAdapter.notifyDataSetChanged();
             }
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         }

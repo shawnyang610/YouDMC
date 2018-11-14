@@ -8,7 +8,4 @@
           android:visible="false"
           android:title="@string/sign_in_up"
           app:showAsAction="never"/>
-    <item android:id="@+id/check_token"
-          android:title="check_token"
-          app:showAsAction="never"/>
 </menu>
