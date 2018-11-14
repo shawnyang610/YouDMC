@@ -19,6 +19,16 @@ import android.widget.Toast;
 
 import com.youcmt.youdmcapp.model.Video;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 import static com.youcmt.youdmcapp.Constants.*;
 import static com.youcmt.youdmcapp.FetchVideoService.FAIL;
 import static com.youcmt.youdmcapp.FetchVideoService.SUCCESS;
@@ -35,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText mUrlEditText;
     private Button mSearchButton;
     private ProgressBar mProgressBar;
+    private boolean mTokenValid;
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -42,6 +53,11 @@ public class MainActivity extends AppCompatActivity {
         if (intent.getType()!=null &&
                 intent.getType().equals("text/plain")) {
             setIntent(intent);
+            if(!mPreferences.getBoolean(LOGGED_IN, false))
+            {
+                mPreferences.edit().putBoolean(LOGGED_IN, true)
+                        .putInt(USER_ID, ID_GUEST).apply();
+            }
         }
     }
 
@@ -89,34 +105,183 @@ public class MainActivity extends AppCompatActivity {
                 mUrlEditText.setText(value);
             }
         }
+
+        checkToken();
+        if(!mTokenValid)
+            refreshAccessToken();
+    }
+
+    private void refreshAccessToken() {
+        String token = "Bearer " + mPreferences.getString(REFRESH_TOKEN, "");
+        ApiEndPoint client = RetrofitClient.getApiEndpoint();
+        Call<ResponseBody> call = client.refreshToken(token);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                if(response.code()==200) {
+                    mTokenValid = true;
+                    try {
+                        JSONObject message = new JSONObject(response.body().string());
+                        mPreferences.edit().putString(ACCESS_TOKEN, message.getString("access_token")).apply();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else  {
+                    try {
+                        JSONObject jObjError = new JSONObject(response.errorBody().string());
+                        Toast.makeText(MainActivity.this, jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Log.d(TAG, e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.d(TAG, "Could not reach server");
+                Toast.makeText(MainActivity.this, "Trouble connecting to server!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.main_menu, menu);
+        if(mPreferences.getInt(USER_ID, ID_GUEST)==ID_GUEST) {
+            menu.findItem(R.id.logout).setVisible(false);
+            menu.findItem(R.id.sign_up).setVisible(true);
+        }
         return super.onCreateOptionsMenu(menu);
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId())
         {
-            case R.id.logout:
+            case R.id.logout: {
+                revokeTokens();
                 Boolean success =
-                        mPreferences.edit().putBoolean(LoginActivity.LOGGED_IN, false).commit();
-                if(success) {
+                        mPreferences.edit()
+                                .putBoolean(LOGGED_IN, false)
+                                .putInt(USER_ID, ID_NONE)
+                                .putString(ACCESS_TOKEN, null)
+                                .putString(REFRESH_TOKEN, null)
+                                .commit();
+                if (success) {
                     Intent intent = new Intent(this, LoginActivity.class);
                     startActivity(intent);
                     finish();
-                }
-                else{
-                    Toast.makeText(this,
-                            "Logout unsuccessful. Oops.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Logout unsuccessful. Oops.", Toast.LENGTH_SHORT).show();
                 }
                 return true;
+            }
+            case R.id.sign_up: {
+                mPreferences.edit().putBoolean(LOGGED_IN, false).putInt(USER_ID, ID_NONE).apply();
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+            }
             default: return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void revokeTokens() {
+        ApiEndPoint client = RetrofitClient.getApiEndpoint();
+        Call<ResponseBody> callAccess = client.logoutAccess("Bearer " + mPreferences.getString(ACCESS_TOKEN, ""));
+        Call<ResponseBody> callRefresh = client.logoutRefresh("Bearer " + mPreferences.getString(REFRESH_TOKEN, ""));
+
+        Log.d(TAG, callAccess.request().url().toString()+ " " + callRefresh.request().url().toString());
+        callAccess.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response.code()==200)
+                {
+                    try {
+                        Log.d(TAG, "Body: " + response.body().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else {
+                    try {
+                        Toast.makeText(MainActivity.this, "Error code "
+                                + response.code() + ": " + response.errorBody().string(), Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        Toast.makeText(MainActivity.this, "Critical security error!", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Critical security error occurred!", Toast.LENGTH_LONG).show();
+            }
+        });
+        callRefresh.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Log.d(TAG, "Refresh code: " + response.code());
+                if(response.code()==200)
+                {
+                    try {
+                        Log.d(TAG, "Body: " + response.body().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else {
+                    try {
+                        Toast.makeText(MainActivity.this, "Error code "
+                                + response.code() + ": " + response.errorBody().string(), Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        Toast.makeText(MainActivity.this, "Critical security error!", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Critical security error!", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void checkToken() {
+        String token = "Bearer " + mPreferences.getString(ACCESS_TOKEN, "");
+        //Log.d(TAG, "Token: " + token);
+        ApiEndPoint client = RetrofitClient.getApiEndpoint();
+        Call<ResponseBody> call = client.checkToken(token);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                if(response.code()==200) {
+                    mTokenValid = true;
+                    Log.d(TAG, "Access token is valid");
+                }
+                else  {
+                    mTokenValid = false;
+                    Log.d(TAG, "Access token is invalid");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.d(TAG, "Could not reach server");
+                Toast.makeText(MainActivity.this, "Trouble connecting to server!", Toast.LENGTH_SHORT).show();
+                mTokenValid = false;
+            }
+        });
     }
 
     /**

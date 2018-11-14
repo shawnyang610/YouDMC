@@ -14,8 +14,6 @@ import java.util.HashMap;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.youcmt.youdmcapp.Constants.*;
 
@@ -50,13 +48,10 @@ public class FetchVideoService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         if(intent!=null) {
             String url = intent.getStringExtra(EXTRA_VIDEO_URL);
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_API_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
+
             HashMap header = new HashMap();
             header.put("Content-Type", "application/json");
-            YouCmtClient client = retrofit.create(YouCmtClient.class);
+            ApiEndPoint client = RetrofitClient.getApiEndpoint();
             Call<Video> response = client.videoWithUrl(url, header);
             response.enqueue(new Callback<Video>() {
                 @Override
