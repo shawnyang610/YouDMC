@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group>
+        <item android:title="@string/flag"
+              android:icon="@drawable/ic_flag"
+              android:id="@+id/flag_comment"/>
+        <item android:title="@string/edit"
+              android:icon="@drawable/ic_edit"
+              android:id="@+id/edit_comment"/>
+        <item android:title="@string/delete"
+              android:id="@+id/delete_comment"
+              android:icon="@drawable/ic_delete"/>
+        <item android:title="@string/reply"
+              android:id="@+id/reply_comment"
+              android:icon="@drawable/ic_comment"/>
+    </group>
+    <item android:title="@string/cancel"
+          android:id="@+id/cancel_action"
+          android:icon="@drawable/ic_close"/>
+</menu>

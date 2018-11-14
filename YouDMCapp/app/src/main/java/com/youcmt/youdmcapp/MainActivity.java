@@ -19,13 +19,15 @@ import android.widget.Toast;
 
 import com.youcmt.youdmcapp.model.Video;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 import static com.youcmt.youdmcapp.Constants.*;
 import static com.youcmt.youdmcapp.FetchVideoService.FAIL;
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText mUrlEditText;
     private Button mSearchButton;
     private ProgressBar mProgressBar;
+    private boolean mTokenValid;
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -102,6 +105,49 @@ public class MainActivity extends AppCompatActivity {
                 mUrlEditText.setText(value);
             }
         }
+
+        checkToken();
+        if(!mTokenValid)
+            refreshAccessToken();
+    }
+
+    private void refreshAccessToken() {
+        String token = "Bearer " + mPreferences.getString(REFRESH_TOKEN, "");
+        ApiEndPoint client = RetrofitClient.getApiEndpoint();
+        Call<ResponseBody> call = client.refreshToken(token);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                if(response.code()==200) {
+                    mTokenValid = true;
+                    try {
+                        JSONObject message = new JSONObject(response.body().string());
+                        mPreferences.edit().putString(ACCESS_TOKEN, message.getString("access_token")).apply();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else  {
+                    try {
+                        JSONObject jObjError = new JSONObject(response.errorBody().string());
+                        Toast.makeText(MainActivity.this, jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Log.d(TAG, e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.d(TAG, "Could not reach server");
+                Toast.makeText(MainActivity.this, "Trouble connecting to server!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     @Override
@@ -145,10 +191,6 @@ public class MainActivity extends AppCompatActivity {
                 finish();
                 return true;
             }
-            //Debugging code
-            case R.id.check_token:
-                checkToken();
-                return true;
             default: return super.onOptionsItemSelected(item);
         }
     }
@@ -162,7 +204,6 @@ public class MainActivity extends AppCompatActivity {
         callAccess.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Log.d(TAG, "Access code: " + response.code());
                 if(response.code()==200)
                 {
                     try {
@@ -217,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkToken() {
         String token = "Bearer " + mPreferences.getString(ACCESS_TOKEN, "");
-        Log.d(TAG, "Token: " + token);
+        //Log.d(TAG, "Token: " + token);
         ApiEndPoint client = RetrofitClient.getApiEndpoint();
         Call<ResponseBody> call = client.checkToken(token);
         call.enqueue(new Callback<ResponseBody>() {
@@ -225,29 +266,20 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
                 if(response.code()==200) {
-
-                    try {
-                        Toast.makeText(MainActivity.this, response.body().string(), Toast.LENGTH_LONG).show();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Toast.makeText(MainActivity.this, "IOException " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    }
+                    mTokenValid = true;
+                    Log.d(TAG, "Access token is valid");
                 }
                 else  {
-                    try {
-                        Toast.makeText(MainActivity.this, "Error code " +
-                                response.code()+ ": "
-                                + response.errorBody().string(), Toast.LENGTH_LONG).show();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Toast.makeText(MainActivity.this, "IOException " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    }
+                    mTokenValid = false;
+                    Log.d(TAG, "Access token is invalid");
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Failed to check token!", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Could not reach server");
+                Toast.makeText(MainActivity.this, "Trouble connecting to server!", Toast.LENGTH_SHORT).show();
+                mTokenValid = false;
             }
         });
     }

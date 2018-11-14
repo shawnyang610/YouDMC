@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -79,7 +80,11 @@ public class LoginFragment extends Fragment {
     }
 
     private void forgotPass() {
-        Toast.makeText(getContext(), "Too bad!", Toast.LENGTH_SHORT).show();
+        FragmentTransaction fragmentTransaction =
+                getActivity().getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.replace(R.id.fragment_container, new RecoveryFragment());
+        fragmentTransaction.commit();
     }
 
     private void login() {

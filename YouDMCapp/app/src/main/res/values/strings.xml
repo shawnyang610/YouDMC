@@ -48,4 +48,22 @@
     <string name="no_replies">No replies</string>
     <string name="add_reply">Add a reply</string>
     <string name="sign_in_up">Sign in/Sign up</string>
+    <string name="flag">Flag</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="recovery_email">Enter your e-mail address</string>
+    <string name="send_reset_code">Send reset code</string>
+    <string name="reset">Reset</string>
+    <string name="enter_reset_code">Enter the reset code</string>
+    <string name="new_password">New password</string>
+    <string name="reenter_new_password">Re-enter new password</string>
+    <string name="send_again">Send again?</string>
+    <string name="reset_code_sent_message">Reset code sent</string>
+    <string name="unknown_error">Unknown error, try again later!</string>
+    <string name="invalid_email_error">Invalid e-mail</string>
+    <string name="longer_username_error">Select a longer username.</string>
+    <string name="mismatched_passwords_error">Passwords do not match!</string>
+    <string name="weak_password_error">Choose a stronger password!</string>
+    <string name="invalid_code_error">Invalid code</string>
 </resources>
