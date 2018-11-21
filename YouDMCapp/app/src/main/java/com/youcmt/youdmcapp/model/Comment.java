@@ -11,6 +11,8 @@ import java.io.Serializable;
 public class Comment implements Serializable {
     private int id;
     private String date;
+    private String edit_date;
+    private int is_deleted;
     private String text;
     private int user_id;
     private String username;
@@ -99,4 +101,18 @@ public class Comment implements Serializable {
     public void setCount(int count) {
         this.count = count;
     }
+
+    public int getIs_deleted() {
+        return is_deleted;
+    }
+
+    public String getEdit_date() {
+        return edit_date;
+    }
+
+    public boolean isEdited()
+    {
+        return getEdit_date().equals(getDate());
+    }
+
 }

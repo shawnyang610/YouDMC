@@ -156,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
         menuInflater.inflate(R.menu.main_menu, menu);
         if(mPreferences.getInt(USER_ID, ID_GUEST)==ID_GUEST) {
             menu.findItem(R.id.logout).setVisible(false);
+            menu.findItem(R.id.account_settings).setVisible(false);
             menu.findItem(R.id.sign_up).setVisible(true);
         }
         return super.onCreateOptionsMenu(menu);
@@ -190,6 +191,9 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
                 return true;
+            }
+            case R.id.account_settings: {
+                Toast.makeText(this, "Piss off!", Toast.LENGTH_SHORT).show();
             }
             default: return super.onOptionsItemSelected(item);
         }

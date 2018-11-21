@@ -2,12 +2,15 @@ package com.youcmt.youdmcapp;
 
 import com.youcmt.youdmcapp.model.CommentPostRequest;
 import com.youcmt.youdmcapp.model.CommentResponse;
+import com.youcmt.youdmcapp.model.DeleteCommentRequest;
 import com.youcmt.youdmcapp.model.Email;
 import com.youcmt.youdmcapp.model.LoginRequest;
 import com.youcmt.youdmcapp.model.LoginResponse;
 import com.youcmt.youdmcapp.model.RateRequest;
 import com.youcmt.youdmcapp.model.RatingResponse;
 import com.youcmt.youdmcapp.model.RegisterRequest;
+import com.youcmt.youdmcapp.model.ReplyPostRequest;
+import com.youcmt.youdmcapp.model.ResetPasswordRequest;
 import com.youcmt.youdmcapp.model.Video;
 
 import java.util.HashMap;
@@ -44,13 +47,26 @@ public interface ApiEndPoint {
     Call<CommentResponse> loadComments(@Query("vid") String url,
                                        @HeaderMap HashMap<String, String> headerMap);
 
+    @GET("comment/get/comments")
+    Call<CommentResponse> loadReplies(@Query("parent_comment_id") String url,
+                                       @HeaderMap HashMap<String, String> headerMap);
+
     @POST("comment/post/user")
     Call<ResponseBody> postComment(@Header("Authorization") String authorization,@Body CommentPostRequest postRequest,
             @HeaderMap HashMap<String,String> headerMap);
 
+    @POST("comment/post/user")
+    Call<ResponseBody> postReply(@Header("Authorization") String authorization,@Body ReplyPostRequest postRequest,
+                                   @HeaderMap HashMap<String,String> headerMap);
+
+
     @POST("comment/post/guest")
     Call<ResponseBody> postCommentGuest(@Body CommentPostRequest postRequest,
                                    @HeaderMap HashMap<String,String> headerMap);
+
+    @POST("comment/post/guest")
+    Call<ResponseBody> postReplyGuest(@Body ReplyPostRequest postRequest,
+                                        @HeaderMap HashMap<String,String> headerMap);
 
     @GET("check_token")
     Call<ResponseBody> checkToken (@Header("Authorization") String authorization);
@@ -69,4 +85,12 @@ public interface ApiEndPoint {
 
     @POST("user/confirm_email")
     Call<ResponseBody> confirmEmail (@Body Email email, @HeaderMap HashMap<String, String> headerMap);
+
+    @POST("user/reset_password")
+    Call<ResponseBody> resetPassword (@Body ResetPasswordRequest request, @HeaderMap HashMap<String, String> headerMap);
+
+    @POST("comment/delete")
+    Call<ResponseBody> deleteComment(@Header("Authorization") String authorization,
+                                     @Body DeleteCommentRequest request,
+                                     @HeaderMap HashMap<String, String> headerMap);
 }

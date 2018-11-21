@@ -31,6 +31,6 @@ public class ReplyAdapter extends CommentAdapter {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(R.layout.comment, parent, false);
         view.findViewById(R.id.reply_button).setVisibility(View.GONE);
-        return new CommentHolder(view, mContext);
+        return new CommentHolder(view, mContext, this);
     }
 }

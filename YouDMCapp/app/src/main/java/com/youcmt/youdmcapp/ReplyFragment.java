@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.youcmt.youdmcapp.model.Comment;
 import com.youcmt.youdmcapp.model.CommentPostRequest;
 import com.youcmt.youdmcapp.model.CommentResponse;
+import com.youcmt.youdmcapp.model.ReplyPostRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -94,7 +95,7 @@ public class ReplyFragment extends Fragment {
         });
         //fetching the comment being replied to and placing it on the screen.
         View mainCommentView = mFragmentView.findViewById(R.id.the_comment);
-        mMainCommentHolder = new CommentHolder(mainCommentView, getActivity());
+        mMainCommentHolder = new CommentHolder(mainCommentView, getActivity(), null);
         mMainCommentHolder.bindComment(mComment);
         mMainCommentHolder.hideReplyButton();
         mCommentEditText = mFragmentView.findViewById(R.id.new_reply_et);
@@ -108,7 +109,7 @@ public class ReplyFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if(charSequence.length()>0) mSendButton.setVisibility(VISIBLE);
-                else mSendButton.setVisibility(View.GONE);
+                else mSendButton.setVisibility(View.INVISIBLE);
             }
 
             @Override
@@ -129,7 +130,7 @@ public class ReplyFragment extends Fragment {
     private void fetchComments()
     {
         ApiEndPoint client = RetrofitClient.getApiEndpoint();
-        retrofit2.Call<CommentResponse> call = client.loadComments(String.valueOf(mComment.getId()), header());
+        retrofit2.Call<CommentResponse> call = client.loadReplies(String.valueOf(mComment.getId()), header());
         call.enqueue(new Callback<CommentResponse>() {
             @Override
             public void onResponse(retrofit2.Call<CommentResponse> call, Response<CommentResponse> response) {
@@ -172,18 +173,18 @@ public class ReplyFragment extends Fragment {
     {
         ApiEndPoint client = RetrofitClient.getApiEndpoint();
 
-        CommentPostRequest postRequest = new CommentPostRequest();
+        ReplyPostRequest postRequest = new ReplyPostRequest();
         postRequest.setText(commentText.trim());
         //missleading method name, I know, I know...
-        postRequest.setVid(String.valueOf(mComment.getId()));
+        postRequest.setParent_comment_id(String.valueOf(mComment.getId()));
 
         Call<ResponseBody> response;
         if(mPreferences.getInt(USER_ID, ID_GUEST)==ID_GUEST)
         {
-            response = client.postCommentGuest(postRequest, header());
+            response = client.postReplyGuest(postRequest, header());
         }
         else {
-            response = client.postComment(getAuthHeader(), postRequest, header());
+            response = client.postReply(getAuthHeader(), postRequest, header());
         }
         Log.d(TAG, "URL: " + response.request().url().toString());
         response.enqueue(new Callback<ResponseBody>() {
