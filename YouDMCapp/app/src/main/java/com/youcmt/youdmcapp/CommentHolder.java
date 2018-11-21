@@ -20,15 +20,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.youcmt.youdmcapp.model.Comment;
+import com.youcmt.youdmcapp.model.DeleteCommentRequest;
 import com.youcmt.youdmcapp.model.RateRequest;
 import com.youcmt.youdmcapp.model.RatingResponse;
+import com.youcmt.youdmcapp.model.UpdateCommentRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashMap;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -49,8 +53,10 @@ public class CommentHolder extends RecyclerView.ViewHolder
 {
     private static final String TAG = "CommentHolder";
     private static final String DIALOG_EDIT = "DialogEdit";
-    private View mView;
-    private AdapterCallbacks mCallbacks;
+    //it should have one or the other, not both
+    private AdapterCallbacks mAdapterCallbacks;
+    private FragmentCallbacks mFragmentCallbacks;
+
     private Comment mComment;
     private AppCompatActivity mActivity; //host activity
     private TextView mTimestamp;
@@ -63,15 +69,22 @@ public class CommentHolder extends RecyclerView.ViewHolder
     private ImageView mDownButton;
     private ImageView mReplyButton;
     private ImageView mCommentMenuButton;
-    private RecyclerView.Adapter mAdapter; //the ViewHolders adapter
 
     private SharedPreferences mPreferences;
 
-    public CommentHolder(@NonNull View itemView, Context context, RecyclerView.Adapter adapter) {
+    public CommentHolder(@NonNull View itemView, Context context, AdapterCallbacks adapter) {
+        this(itemView, context);
+        mAdapterCallbacks = adapter;
+    }
+
+    public CommentHolder(@NonNull View itemView, Context context, FragmentCallbacks fragment) {
+        this(itemView, context);
+        mFragmentCallbacks = fragment;
+    }
+
+    private CommentHolder(View itemView, Context context)
+    {
         super(itemView);
-        mView = itemView;
-        mAdapter = adapter;
-        mCallbacks = (AdapterCallbacks) mAdapter;
         mActivity = (AppCompatActivity) context;
         mPreferences = mActivity.getSharedPreferences("com.youcmt.youdmcapp", MODE_PRIVATE);
         mUsername = itemView.findViewById(R.id.username);
@@ -196,7 +209,7 @@ public class CommentHolder extends RecyclerView.ViewHolder
     private void showPopupMenu() {
         PopupMenu popupMenu = new PopupMenu(mActivity, mCommentMenuButton);
         popupMenu.getMenuInflater().inflate(R.menu.comment_menu, popupMenu.getMenu());
-        if(mAdapter==null)
+        if(mAdapterCallbacks==null)
         {
             popupMenu.getMenu().findItem(R.id.reply_comment).setVisible(false);
         }
@@ -216,7 +229,6 @@ public class CommentHolder extends RecyclerView.ViewHolder
                         displayDeleteAlertDialog();
                         return true;
                     case R.id.edit_comment:
-                        Log.d(TAG, "Edit clicked");
                         FragmentManager fragmentManager = mActivity.getSupportFragmentManager();
                         EditCommentFragment fragment = EditCommentFragment.newInstance(mComment.getText(), CommentHolder.this);
 
@@ -241,7 +253,16 @@ public class CommentHolder extends RecyclerView.ViewHolder
                 .setMessage(R.string.delete_comment_prompt)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        mCallbacks.delete(getAdapterPosition());
+                        if (mAdapterCallbacks != null) {
+                            mAdapterCallbacks.delete(getAdapterPosition());
+                        }
+                        else if (mFragmentCallbacks != null)
+                        {
+                            delete();
+                        }
+                        else {
+                            displayUnknownError();
+                        }
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -311,11 +332,15 @@ public class CommentHolder extends RecyclerView.ViewHolder
 
     @Override
     public void updateComment(String text) {
-        Toast.makeText(mActivity, "Updated comment", Toast.LENGTH_SHORT).show();
         mComment.setText(text);
-        if(mCallbacks!=null)
-            mCallbacks.update(getAdapterPosition(), mComment);
-        else  mCommentBody.setText(text);
+        if(mAdapterCallbacks !=null) {
+            mAdapterCallbacks.update(getAdapterPosition(), mComment);
+        }
+        else
+        {
+            //if it is the main comment in a reply fragment
+            update();
+        }
     }
 
     /** adapter holding this CommentHolder should implement this interface
@@ -326,4 +351,97 @@ public class CommentHolder extends RecyclerView.ViewHolder
         void delete(int position);
         void update(int position, Comment comment);
     }
+
+    /**
+     * To communicate with the ReplyFragment if this CommentHolder is not within an Adapter
+     */
+    public interface FragmentCallbacks
+    {
+        void finish();
+    }
+    
+    private void delete()
+    {
+        DeleteCommentRequest request =
+                new DeleteCommentRequest(mComment.getId());
+        ApiEndPoint apiEndPoint = RetrofitClient.getApiEndpoint();
+        HashMap header = new HashMap();
+        header.put("Content-Type", "application/json");
+
+        Call<ResponseBody> response = apiEndPoint.deleteComment("Bearer " + mPreferences.getString(ACCESS_TOKEN, ""), request, header);
+        response.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Log.d(TAG, "Response code: " + response.code());
+                if(response.code()==200) {
+                    Toast.makeText(mActivity, "Comment deleted", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    try {
+                        JSONObject errorMessage = new JSONObject(response.errorBody().string());
+                        Toast.makeText(mActivity, errorMessage.getString("message"), Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
+                        displayUnknownError();
+                        e.printStackTrace();
+                        Log.d(TAG, "IOException");
+                    } catch (JSONException j)
+                    {
+                        displayUnknownError();
+                        j.printStackTrace();
+                        Log.d(TAG, "JSONException");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(mActivity, mActivity.getResources().getString(R.string.server_error),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        mFragmentCallbacks.finish();
+    }
+    
+    private void update()
+    {
+        UpdateCommentRequest request =
+                new UpdateCommentRequest(mComment.getId(), mComment.getText());
+        ApiEndPoint apiEndPoint = RetrofitClient.getApiEndpoint();
+        HashMap header = new HashMap();
+        header.put("Content-Type", "application/json");
+
+        Call<ResponseBody> response = apiEndPoint.updateComment("Bearer " + mPreferences.getString(ACCESS_TOKEN, ""), request, header);
+        response.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Log.d(TAG, "Response code: " + response.code());
+                if(response.code()==200) {
+                    mCommentBody.setText(mComment.getText());
+                    Toast.makeText(mActivity, "Comment updated", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    try {
+                        JSONObject errorMessage = new JSONObject(response.errorBody().string());
+                        Toast.makeText(mActivity, errorMessage.getString("message"), Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
+                        displayUnknownError();
+                        e.printStackTrace();
+                        Log.d(TAG, "IOException");
+                    } catch (JSONException j)
+                    {
+                        displayUnknownError();
+                        j.printStackTrace();
+                        Log.d(TAG, "JSONException");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(mActivity, mActivity.getResources().getString(R.string.server_error),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    
 }

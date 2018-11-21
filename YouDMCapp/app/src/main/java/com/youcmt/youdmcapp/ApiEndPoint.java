@@ -11,6 +11,7 @@ import com.youcmt.youdmcapp.model.RatingResponse;
 import com.youcmt.youdmcapp.model.RegisterRequest;
 import com.youcmt.youdmcapp.model.ReplyPostRequest;
 import com.youcmt.youdmcapp.model.ResetPasswordRequest;
+import com.youcmt.youdmcapp.model.UpdateCommentRequest;
 import com.youcmt.youdmcapp.model.Video;
 
 import java.util.HashMap;
@@ -92,5 +93,10 @@ public interface ApiEndPoint {
     @POST("comment/delete")
     Call<ResponseBody> deleteComment(@Header("Authorization") String authorization,
                                      @Body DeleteCommentRequest request,
+                                     @HeaderMap HashMap<String, String> headerMap);
+
+    @POST("comment/edit")
+    Call<ResponseBody> updateComment(@Header("Authorization") String authorization,
+                                     @Body UpdateCommentRequest request,
                                      @HeaderMap HashMap<String, String> headerMap);
 }

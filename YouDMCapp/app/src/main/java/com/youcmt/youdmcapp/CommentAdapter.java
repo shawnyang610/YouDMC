@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.youcmt.youdmcapp.model.Comment;
 import com.youcmt.youdmcapp.model.DeleteCommentRequest;
 import com.youcmt.youdmcapp.model.LoginResponse;
+import com.youcmt.youdmcapp.model.UpdateCommentRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -73,7 +74,6 @@ implements CommentHolder.AdapterCallbacks {
     @Override
     public void delete(final int position) {
         Comment commentToDelete = mComments.get(position);
-        Log.d(TAG, "CommentToDelete id: " + commentToDelete.getId());
         DeleteCommentRequest request =
                 new DeleteCommentRequest(commentToDelete.getId());
         ApiEndPoint apiEndPoint = RetrofitClient.getApiEndpoint();
@@ -116,9 +116,48 @@ implements CommentHolder.AdapterCallbacks {
     }
 
     @Override
-    public void update(int position, Comment comment) {
-        mComments.set(position, comment);
-        notifyDataSetChanged();
+    public void update(final int position, final Comment comment) {
+        Comment commentToUpdate = mComments.get(position);
+        Log.d(TAG, "CommentToUpdate id: " + commentToUpdate.getId());
+        UpdateCommentRequest request =
+                new UpdateCommentRequest(commentToUpdate.getId(), comment.getText());
+        ApiEndPoint apiEndPoint = RetrofitClient.getApiEndpoint();
+        HashMap header = new HashMap();
+        header.put("Content-Type", "application/json");
+
+        Call<ResponseBody> response = apiEndPoint.updateComment("Bearer " + mPreferences.getString(ACCESS_TOKEN, ""), request, header);
+        response.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Log.d(TAG, "Response code: " + response.code());
+                if(response.code()==200) {
+                    mComments.set(position, comment);
+                    notifyDataSetChanged();
+                    Toast.makeText(mContext, "Comment updated", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    try {
+                        JSONObject errorMessage = new JSONObject(response.errorBody().string());
+                        Toast.makeText(mContext, errorMessage.getString("message"), Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
+                        displayUnknownError();
+                        e.printStackTrace();
+                        Log.d(TAG, "IOException");
+                    } catch (JSONException j)
+                    {
+                        displayUnknownError();
+                        j.printStackTrace();
+                        Log.d(TAG, "JSONException");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(mContext, mContext.getResources().getString(R.string.server_error),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void displayUnknownError() {

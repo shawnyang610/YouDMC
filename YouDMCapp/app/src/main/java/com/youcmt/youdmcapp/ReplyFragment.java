@@ -19,7 +19,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.youcmt.youdmcapp.model.Comment;
-import com.youcmt.youdmcapp.model.CommentPostRequest;
 import com.youcmt.youdmcapp.model.CommentResponse;
 import com.youcmt.youdmcapp.model.ReplyPostRequest;
 
@@ -48,7 +47,7 @@ import static com.youcmt.youdmcapp.Constants.USER_ID;
  * Copyright 2018 youcmt.com team. All rights reserved.
  */
 
-public class ReplyFragment extends Fragment {
+public class ReplyFragment extends Fragment  implements CommentHolder.FragmentCallbacks {
     private static final String COMMENT_KEY = "comment_key";
     private static final String TAG = "ReplyFragment";
     private View mFragmentView;
@@ -88,14 +87,12 @@ public class ReplyFragment extends Fragment {
         mExitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Fragment fragment = new CommentFragment();
-                FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.replace(R.id.fragment_container_comment, fragment).commit();
+                finish();
             }
         });
         //fetching the comment being replied to and placing it on the screen.
         View mainCommentView = mFragmentView.findViewById(R.id.the_comment);
-        mMainCommentHolder = new CommentHolder(mainCommentView, getActivity(), null);
+        mMainCommentHolder = new CommentHolder(mainCommentView, getActivity(), ReplyFragment.this);
         mMainCommentHolder.bindComment(mComment);
         mMainCommentHolder.hideReplyButton();
         mCommentEditText = mFragmentView.findViewById(R.id.new_reply_et);
@@ -122,7 +119,6 @@ public class ReplyFragment extends Fragment {
             public void onClick(View view) {
                 postReply(mCommentEditText.getText().toString());
                 mCommentEditText.setText("");
-
             }
         });
         return mFragmentView;
@@ -156,7 +152,6 @@ public class ReplyFragment extends Fragment {
                     }
                 }
                 else {
-                    Log.d(TAG, "Other Code");
                     displayUnknownError();
                 }
             }
@@ -175,7 +170,6 @@ public class ReplyFragment extends Fragment {
 
         ReplyPostRequest postRequest = new ReplyPostRequest();
         postRequest.setText(commentText.trim());
-        //missleading method name, I know, I know...
         postRequest.setParent_comment_id(String.valueOf(mComment.getId()));
 
         Call<ResponseBody> response;
@@ -272,5 +266,12 @@ public class ReplyFragment extends Fragment {
     public void onResume() {
         super.onResume();
         fetchComments();
+    }
+
+    @Override
+    public void finish() {
+        Fragment fragment = new CommentFragment();
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container_comment, fragment).commit();
     }
 }
