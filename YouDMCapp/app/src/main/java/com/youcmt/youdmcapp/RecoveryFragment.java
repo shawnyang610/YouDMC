@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.youcmt.youdmcapp.model.Email;
+import com.youcmt.youdmcapp.model.LoginResponse;
 import com.youcmt.youdmcapp.model.ResetPasswordRequest;
 
 import org.json.JSONException;
@@ -110,7 +111,7 @@ public class RecoveryFragment extends Fragment {
                 if(mEmail!=null) request.setEmail(mEmail);
                 request.setReset_code(resetCode);
                 request.setNew_password(pass1);
-                attemptPasswordReset();
+                attemptPasswordReset(request);
             }
         });
     }
@@ -160,8 +161,42 @@ public class RecoveryFragment extends Fragment {
         });
     }
 
-    private void attemptPasswordReset() {
+    private void attemptPasswordReset(ResetPasswordRequest request) {
+        ApiEndPoint client = RetrofitClient.getApiEndpoint();
+        HashMap header = new HashMap();
+        header.put("Content-Type", "application/json");
+        Call<ResponseBody> response = client.resetPassword(request, header);
+        response.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response.code()==200 || response.code()==201)
+                {
+                    Toast.makeText(getActivity(), "Response code success = " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    try {
+                        JSONObject errorMessage = new JSONObject(response.errorBody().string());
+                        String errorString = errorMessage.getString("message");
+                        errorString = errorString.substring(0, 1).toUpperCase() + errorString.substring(1);
+                        Toast.makeText(getActivity(), errorString, Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        displayUnknownError();
+                    } catch (NullPointerException n) {
+                        n.printStackTrace();
+                        displayUnknownError();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
 
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                displayUnknownError();
+            }
+        });
     }
 
     private void displayUnknownError() {

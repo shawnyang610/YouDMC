@@ -19,8 +19,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.youcmt.youdmcapp.model.Comment;
-import com.youcmt.youdmcapp.model.CommentPostRequest;
 import com.youcmt.youdmcapp.model.CommentResponse;
+import com.youcmt.youdmcapp.model.ReplyPostRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,7 +47,7 @@ import static com.youcmt.youdmcapp.Constants.USER_ID;
  * Copyright 2018 youcmt.com team. All rights reserved.
  */
 
-public class ReplyFragment extends Fragment {
+public class ReplyFragment extends Fragment  implements CommentHolder.FragmentCallbacks {
     private static final String COMMENT_KEY = "comment_key";
     private static final String TAG = "ReplyFragment";
     private View mFragmentView;
@@ -87,14 +87,12 @@ public class ReplyFragment extends Fragment {
         mExitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Fragment fragment = new CommentFragment();
-                FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.replace(R.id.fragment_container_comment, fragment).commit();
+                finish();
             }
         });
         //fetching the comment being replied to and placing it on the screen.
         View mainCommentView = mFragmentView.findViewById(R.id.the_comment);
-        mMainCommentHolder = new CommentHolder(mainCommentView, getActivity());
+        mMainCommentHolder = new CommentHolder(mainCommentView, getActivity(), ReplyFragment.this);
         mMainCommentHolder.bindComment(mComment);
         mMainCommentHolder.hideReplyButton();
         mCommentEditText = mFragmentView.findViewById(R.id.new_reply_et);
@@ -108,7 +106,7 @@ public class ReplyFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if(charSequence.length()>0) mSendButton.setVisibility(VISIBLE);
-                else mSendButton.setVisibility(View.GONE);
+                else mSendButton.setVisibility(View.INVISIBLE);
             }
 
             @Override
@@ -121,7 +119,6 @@ public class ReplyFragment extends Fragment {
             public void onClick(View view) {
                 postReply(mCommentEditText.getText().toString());
                 mCommentEditText.setText("");
-
             }
         });
         return mFragmentView;
@@ -129,7 +126,7 @@ public class ReplyFragment extends Fragment {
     private void fetchComments()
     {
         ApiEndPoint client = RetrofitClient.getApiEndpoint();
-        retrofit2.Call<CommentResponse> call = client.loadComments(String.valueOf(mComment.getId()), header());
+        retrofit2.Call<CommentResponse> call = client.loadReplies(String.valueOf(mComment.getId()), header());
         call.enqueue(new Callback<CommentResponse>() {
             @Override
             public void onResponse(retrofit2.Call<CommentResponse> call, Response<CommentResponse> response) {
@@ -155,7 +152,6 @@ public class ReplyFragment extends Fragment {
                     }
                 }
                 else {
-                    Log.d(TAG, "Other Code");
                     displayUnknownError();
                 }
             }
@@ -172,18 +168,18 @@ public class ReplyFragment extends Fragment {
     {
         ApiEndPoint client = RetrofitClient.getApiEndpoint();
 
-        CommentPostRequest postRequest = new CommentPostRequest();
+        ReplyPostRequest postRequest = new ReplyPostRequest();
         postRequest.setText(commentText.trim());
-        //missleading method name, I know, I know...
-        postRequest.setVid(String.valueOf(mComment.getId()));
+        postRequest.setParent_comment_id(String.valueOf(mComment.getId()));
 
         Call<ResponseBody> response;
         if(mPreferences.getInt(USER_ID, ID_GUEST)==ID_GUEST)
         {
-            response = client.postCommentGuest(postRequest, header());
+            response = client.postReplyGuest(postRequest, header());
         }
         else {
-            response = client.postComment(getAuthHeader(), postRequest, header());
+            response = client.postReply(getAuthHeader(), postRequest, header());
+
         }
         Log.d(TAG, "URL: " + response.request().url().toString());
         response.enqueue(new Callback<ResponseBody>() {
@@ -271,5 +267,12 @@ public class ReplyFragment extends Fragment {
     public void onResume() {
         super.onResume();
         fetchComments();
+    }
+  
+    @Override
+    public void finish() {
+        Fragment fragment = new CommentFragment();
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container_comment, fragment).commit();
     }
 }

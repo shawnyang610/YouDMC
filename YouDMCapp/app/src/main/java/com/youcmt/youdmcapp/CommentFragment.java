@@ -30,6 +30,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import okhttp3.ResponseBody;
@@ -242,7 +243,12 @@ public class CommentFragment extends Fragment {
         if(response.getCommentList()!=null){
             mComments.clear();
             mComments.addAll(response.getCommentList());
-            Log.d(TAG, "Fetched " + mComments.size() + " comments");
+            for (Iterator<Comment> iterator = mComments.iterator(); iterator.hasNext(); ) {
+                Comment value = iterator.next();
+                if (value.getIs_deleted()==1) {
+                    iterator.remove();
+                }
+            }
         }
         else displayUnknownError();
 
