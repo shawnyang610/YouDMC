@@ -14,6 +14,7 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
+
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,6 +26,7 @@ import com.youcmt.youdmcapp.model.RateRequest;
 import com.youcmt.youdmcapp.model.RatingResponse;
 import com.youcmt.youdmcapp.model.UpdateCommentRequest;
 
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,6 +35,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 import okhttp3.ResponseBody;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -85,6 +88,7 @@ public class CommentHolder extends RecyclerView.ViewHolder
     private CommentHolder(View itemView, Context context)
     {
         super(itemView);
+
         mActivity = (AppCompatActivity) context;
         mPreferences = mActivity.getSharedPreferences("com.youcmt.youdmcapp", MODE_PRIVATE);
         mUsername = itemView.findViewById(R.id.username);
@@ -456,4 +460,5 @@ public class CommentHolder extends RecyclerView.ViewHolder
         FragmentTransaction fragmentTransaction = mActivity.getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container_comment, fragment).commit();
     }
+
 }

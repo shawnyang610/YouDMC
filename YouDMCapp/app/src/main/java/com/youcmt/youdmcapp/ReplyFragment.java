@@ -179,6 +179,7 @@ public class ReplyFragment extends Fragment  implements CommentHolder.FragmentCa
         }
         else {
             response = client.postReply(getAuthHeader(), postRequest, header());
+
         }
         Log.d(TAG, "URL: " + response.request().url().toString());
         response.enqueue(new Callback<ResponseBody>() {
@@ -267,7 +268,7 @@ public class ReplyFragment extends Fragment  implements CommentHolder.FragmentCa
         super.onResume();
         fetchComments();
     }
-
+  
     @Override
     public void finish() {
         Fragment fragment = new CommentFragment();

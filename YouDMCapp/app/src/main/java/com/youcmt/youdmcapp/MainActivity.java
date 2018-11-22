@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
             case R.id.account_settings: {
-                Toast.makeText(this, "Piss off!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Not yet available!", Toast.LENGTH_SHORT).show();
             }
             default: return super.onOptionsItemSelected(item);
         }
