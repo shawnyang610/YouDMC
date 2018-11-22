@@ -2,19 +2,21 @@ package com.youcmt.youdmcapp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
-import com.youcmt.youdmcapp.model.Comment;
 import com.youcmt.youdmcapp.model.Video;
 
+import static android.view.View.GONE;
 import static com.youcmt.youdmcapp.Constants.*;
 
 /**
@@ -53,12 +55,12 @@ public class VideoActivity extends AppCompatActivity
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.add(R.id.fragment_container_comment, fragment).commit();
         }
-
         mVideo = getIntent().getParcelableExtra(EXTRA_VIDEO);
         YouTubePlayerSupportFragment youTubePlayerFragment =
                 (YouTubePlayerSupportFragment) getSupportFragmentManager().findFragmentById(R.id.youtube_fragment);
         if(youTubePlayerFragment!=null) youTubePlayerFragment.initialize(Constants.YOUTUBE_API_KEY, this);
     }
+
 
     @Override
     public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer player, boolean wasRestored) {
@@ -69,7 +71,18 @@ public class VideoActivity extends AppCompatActivity
 
     @Override
     public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
-        Toast.makeText(this, "Error: Do you have the Youtube app installed?", Toast.LENGTH_SHORT).show();
+        findViewById(R.id.youtube_fragment).setVisibility(GONE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            youTubeInitializationResult.getErrorDialog(VideoActivity.this, 0).show();
+        }
+        else displayAnnoyingError();
+    }
+
+    void displayAnnoyingError()
+    {
+        Toast.makeText(VideoActivity.this,
+                "Error. Do you have the YouTube app installed?",
+                Toast.LENGTH_SHORT).show();
     }
 
     @Override

@@ -5,7 +5,7 @@
           android:title="@string/sign_out"
           app:showAsAction="never"/>
     <item android:id="@+id/account_settings"
-          android:title="@string/sign_in_up"
+          android:title="@string/account_settings"
           app:showAsAction="never"/>
     <item android:id="@+id/sign_up"
           android:visible="false"
