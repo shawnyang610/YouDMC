@@ -10,9 +10,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginEnd="42dp"
-        android:layout_marginRight="42dp"
-        android:src="@mipmap/you_cmt_logo"/>
+        android:layout_marginTop="16dp"
+        android:src="@mipmap/you_cmt_logo"
+        android:contentDescription="@string/logo"/>
     <LinearLayout
         android:id="@+id/button_layout"
         android:layout_width="match_parent"
