@@ -118,9 +118,7 @@ public class CommentHolder extends RecyclerView.ViewHolder
         mReplyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Fragment fragment = ReplyFragment.newInstance(mComment);
-                FragmentTransaction fragmentTransaction = ((AppCompatActivity) mActivity).getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.replace(R.id.fragment_container_comment, fragment).commit();
+                createReplyFragment();
             }
         });
         mCommentMenuButton.setOnClickListener(new View.OnClickListener() {
@@ -237,6 +235,14 @@ public class CommentHolder extends RecyclerView.ViewHolder
                         EditCommentFragment fragment = EditCommentFragment.newInstance(mComment.getText(), CommentHolder.this);
 
                         fragment.show(fragmentManager, DIALOG_EDIT);
+                        return true;
+                    case R.id.flag_comment:
+                        Toast.makeText(mActivity, "Reporting comments is against free speech", Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.reply_comment:
+                        createReplyFragment();
+                        return true;
+                    case  R.id.cancel_action:
                         return true;
                     default: return false;
                 }
@@ -447,4 +453,12 @@ public class CommentHolder extends RecyclerView.ViewHolder
             }
         });
     }
+
+    private void createReplyFragment()
+    {
+        Fragment fragment = ReplyFragment.newInstance(mComment);
+        FragmentTransaction fragmentTransaction = mActivity.getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container_comment, fragment).commit();
+    }
+
 }
