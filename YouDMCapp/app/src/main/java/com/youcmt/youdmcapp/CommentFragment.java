@@ -249,8 +249,6 @@ public class CommentFragment extends Fragment {
                     iterator.remove();
                 }
             }
-            Log.d(TAG, "Fetched " + mComments.size() + " comments");
-
         }
         else displayUnknownError();
 

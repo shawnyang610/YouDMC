@@ -38,6 +38,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentHolder>
 implements CommentHolder.AdapterCallbacks {
     private static final String TAG = "CommentAdapter";
     private SharedPreferences mPreferences;
+
     protected List<Comment> mComments;
     protected Context mContext;
 

@@ -2,6 +2,7 @@ package com.youcmt.youdmcapp;
 
 import com.youcmt.youdmcapp.model.CommentPostRequest;
 import com.youcmt.youdmcapp.model.CommentResponse;
+
 import com.youcmt.youdmcapp.model.DeleteCommentRequest;
 import com.youcmt.youdmcapp.model.Email;
 import com.youcmt.youdmcapp.model.LoginRequest;
@@ -48,18 +49,19 @@ public interface ApiEndPoint {
     Call<CommentResponse> loadComments(@Query("vid") String url,
                                        @HeaderMap HashMap<String, String> headerMap);
 
+
     @GET("comment/get/comments")
     Call<CommentResponse> loadReplies(@Query("parent_comment_id") String url,
                                        @HeaderMap HashMap<String, String> headerMap);
-
+  
     @POST("comment/post/user")
     Call<ResponseBody> postComment(@Header("Authorization") String authorization,@Body CommentPostRequest postRequest,
             @HeaderMap HashMap<String,String> headerMap);
 
+
     @POST("comment/post/user")
     Call<ResponseBody> postReply(@Header("Authorization") String authorization,@Body ReplyPostRequest postRequest,
                                    @HeaderMap HashMap<String,String> headerMap);
-
 
     @POST("comment/post/guest")
     Call<ResponseBody> postCommentGuest(@Body CommentPostRequest postRequest,

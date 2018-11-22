@@ -137,6 +137,7 @@ public class RegisterFragment extends Fragment {
                         String errorString = errorMessage.getString("message");
                         errorString = errorString.substring(0, 1).toUpperCase() + errorString.substring(1);
                         Toast.makeText(getActivity(), errorString, Toast.LENGTH_LONG).show();
+
                     } catch (IOException e) {
                         e.printStackTrace();
                         displayUnknownError();
