@@ -4,6 +4,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +14,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.youcmt.youdmcapp.model.Email;
-import com.youcmt.youdmcapp.model.LoginResponse;
 import com.youcmt.youdmcapp.model.ResetPasswordRequest;
 
 import org.json.JSONException;
@@ -21,9 +21,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
-
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -96,7 +93,7 @@ public class RecoveryFragment extends Fragment {
                 if(!ValidationUtils.doPasswordsMatch(pass1, pass2))
                 {
                     Toast.makeText(getActivity(),
-                            mResources.getString(R.string.mismatched_passwords_error),
+                            R.string.mismatched_passwords_error,
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -126,7 +123,6 @@ public class RecoveryFragment extends Fragment {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 int code = response.code();
-                Log.d(TAG, "Confirm email response code " + code);
                 if(code==200)
                 {
                     Toast.makeText(getActivity(), mResources.getString(R.string.reset_code_sent_message), Toast.LENGTH_SHORT).show();
@@ -169,9 +165,13 @@ public class RecoveryFragment extends Fragment {
         response.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if(response.code()==200 || response.code()==201)
+                if(response.code()==200)
                 {
-                    Toast.makeText(getActivity(), "Response code success = " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.password_reset_toast, Toast.LENGTH_SHORT).show();
+                    FragmentTransaction fragmentTransaction =
+                            getActivity().getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.replace(R.id.fragment_container, new LoginFragment());
+                    fragmentTransaction.commit();
                 }
                 else
                 {
@@ -200,6 +200,6 @@ public class RecoveryFragment extends Fragment {
     }
 
     private void displayUnknownError() {
-        Toast.makeText(getActivity(), mResources.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), R.string.unknown_error, Toast.LENGTH_SHORT).show();
     }
 }

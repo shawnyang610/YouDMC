@@ -337,7 +337,7 @@ public class CommentHolder extends RecyclerView.ViewHolder
     }
 
     private void displayUnknownError() {
-        Toast.makeText(mActivity, "Unknown error occurred! Oops!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(mActivity, R.string.unknown_error, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -382,9 +382,8 @@ public class CommentHolder extends RecyclerView.ViewHolder
         response.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Log.d(TAG, "Response code: " + response.code());
                 if(response.code()==200) {
-                    Toast.makeText(mActivity, "Comment deleted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mActivity, R.string.comment_deleted_toast, Toast.LENGTH_SHORT).show();
                 }
                 else {
                     try {

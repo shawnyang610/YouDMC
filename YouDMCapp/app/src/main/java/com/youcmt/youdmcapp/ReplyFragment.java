@@ -46,15 +46,12 @@ import static com.youcmt.youdmcapp.Constants.USER_ID;
  * Created by Stanislav Ostrovskii on 10/25/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
  */
-
 public class ReplyFragment extends Fragment  implements CommentHolder.FragmentCallbacks {
     private static final String COMMENT_KEY = "comment_key";
     private static final String TAG = "ReplyFragment";
     private View mFragmentView;
     private RecyclerView mRecyclerView;
     private ReplyAdapter mReplyAdapter;
-    private CommentHolder mMainCommentHolder;
-    private ImageView mExitButton;
     private Comment mComment;
     private EditText mCommentEditText;
     private List<Comment> mComments;
@@ -83,8 +80,8 @@ public class ReplyFragment extends Fragment  implements CommentHolder.FragmentCa
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mFragmentView = inflater.inflate(R.layout.fragment_comment_reply, container, false);
 
-        mExitButton = mFragmentView.findViewById(R.id.close_button);
-        mExitButton.setOnClickListener(new View.OnClickListener() {
+        ImageView exitButton = mFragmentView.findViewById(R.id.close_button);
+        exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();
@@ -92,9 +89,9 @@ public class ReplyFragment extends Fragment  implements CommentHolder.FragmentCa
         });
         //fetching the comment being replied to and placing it on the screen.
         View mainCommentView = mFragmentView.findViewById(R.id.the_comment);
-        mMainCommentHolder = new CommentHolder(mainCommentView, getActivity(), ReplyFragment.this);
-        mMainCommentHolder.bindComment(mComment);
-        mMainCommentHolder.hideReplyButton();
+        CommentHolder mainCommentHolder = new CommentHolder(mainCommentView, getActivity(), ReplyFragment.this);
+        mainCommentHolder.bindComment(mComment);
+        mainCommentHolder.hideReplyButton();
         mCommentEditText = mFragmentView.findViewById(R.id.new_reply_et);
         mSendButton = mFragmentView.findViewById(R.id.send_button);
         mCommentEditText.addTextChangedListener(new TextWatcher() {
@@ -194,13 +191,23 @@ public class ReplyFragment extends Fragment  implements CommentHolder.FragmentCa
                     fetchComments(); //reload comment list
 
                 }
-                else if(response.code()==400)
-                {
-                    Toast.makeText(getActivity(), "Unable to process request!", Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
-                    Toast.makeText(getActivity(), "Unknown error occurred!", Toast.LENGTH_SHORT).show();
+                else {
+                    try {
+                        JSONObject errorMessage = new JSONObject(response.errorBody().string());
+                        String errorString = errorMessage.getString("message");
+                        errorString = errorString.substring(0, 1).toUpperCase() + errorString.substring(1);
+                        Toast.makeText(getActivity(), errorString, Toast.LENGTH_LONG).show();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        displayUnknownError();
+                    } catch (NullPointerException n) {
+                        n.printStackTrace();
+                        displayUnknownError();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        displayUnknownError();
+                    }
                 }
             }
 
@@ -217,7 +224,7 @@ public class ReplyFragment extends Fragment  implements CommentHolder.FragmentCa
     }
 
     private void displayUnknownError() {
-        Toast.makeText(getActivity(), "Unknown error occurred! Oops!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), R.string.unknown_error, Toast.LENGTH_SHORT).show();
     }
 
     private void processComments(CommentResponse response)

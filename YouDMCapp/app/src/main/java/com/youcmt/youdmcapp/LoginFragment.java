@@ -140,6 +140,6 @@ public class LoginFragment extends Fragment {
     }
 
     private void displayUnknownError() {
-        Toast.makeText(getActivity(), "Unknown error occurred!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), R.string.unknown_error, Toast.LENGTH_SHORT).show();
     }
 }

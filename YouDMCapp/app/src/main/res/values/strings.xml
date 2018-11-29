@@ -73,4 +73,19 @@
     <string name="account_settings">Account</string>
     <string name="thumbnail_image_view_desc">Youtube Video thumbnail image view</string>
     <string name="logo">App logo.</string>
+    <string name="change_password">Change password</string>
+    <string name="change_avatar">Change avatar</string>
+    <string name="change_email">Change e-mail</string>
+    <string name="current_password">Your current password</string>
+    <string name="password_reset_toast">Password reset</string>
+    <string name="comment_deleted_toast">Comment deleted</string>
+    <string name="feature_unavailable">Not yet available!</string>
+    <string name="new_email">Enter new e-mail</string>
+    <string name="reenter_new_email">Re-enter e-mail</string>
+    <string name="mismatched_emails_error">E-mail entries do not match!</string>
+    <string name="account_label">Account: %1$s</string>
+    <string name="error">ERROR</string>
+    <string name="password_incorrect">Incorrect current password</string>
+    <string name="same_passwords_error">Current password and new password are the same!</string>
+    <string name="update_success">Profile updated successfully.</string>
 </resources>

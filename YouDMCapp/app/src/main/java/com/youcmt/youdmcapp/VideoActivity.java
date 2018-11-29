@@ -22,6 +22,8 @@ import static com.youcmt.youdmcapp.Constants.*;
 /**
  * Created by Stanislav Ostrovskii on 9/30/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
+ * An activity to hold the embedded YouTube video, description,
+ * as well as a fragment hosting user comments/replies.
  */
 
 public class VideoActivity extends AppCompatActivity

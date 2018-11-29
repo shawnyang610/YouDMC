@@ -6,13 +6,14 @@ import javax.mail.internet.InternetAddress;
 /**
  * Created by Stanislav Ostrovskii on 11/13/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
+ * Utilities to check check password and e-mail parameters locally.
  */
 
 public final class ValidationUtils {
     /**
      * @param email
-     * @return false if e-mail address entered is not well-formed
-     * True does not guarantee a valid e-mail address
+     * @return false if e-mail address entered is not well-formed.
+     * True does not guarantee a valid e-mail address.
      */
     public static boolean isEmailAddressValid(String email) {
         boolean result = true;
