@@ -6,6 +6,7 @@ import javax.mail.internet.InternetAddress;
 /**
  * Created by Stanislav Ostrovskii on 11/13/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
+ * Utilities to check check password and e-mail parameters locally.
  */
 
 public final class ValidationUtils {

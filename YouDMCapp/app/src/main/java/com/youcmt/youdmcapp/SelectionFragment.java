@@ -12,6 +12,8 @@ import android.widget.Button;
 /**
  * Created by Stanislav Ostrovskii on 9/18/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
+ * This fragment presents user with an option to login,
+ * register, or skip, to enter as guest.
  */
 
 public class SelectionFragment extends Fragment {

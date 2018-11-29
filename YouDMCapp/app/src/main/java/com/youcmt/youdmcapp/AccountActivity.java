@@ -36,6 +36,8 @@ import static com.youcmt.youdmcapp.Constants.USERNAME;
 /**
  * Created by Stanislav Ostrovskii on 11/21/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
+ * An activity where the user can change their e-mail, password,
+ * and avatar.
  */
 public class AccountActivity extends AppCompatActivity {
     private static final String TAG = "AccountActivity";
