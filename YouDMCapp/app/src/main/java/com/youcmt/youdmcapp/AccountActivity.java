@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -187,6 +188,8 @@ public class AccountActivity extends AppCompatActivity {
 
                 if(response.code()==200) {
                     Toast.makeText(AccountActivity.this,  R.string.update_success, Toast.LENGTH_SHORT).show();
+                    clearForm((ViewGroup) findViewById(R.id.password_layout));
+                    clearForm((ViewGroup) findViewById(R.id.email_layout));
                 }
                 else {
                     displayErrorMessage(response);
@@ -243,5 +246,17 @@ public class AccountActivity extends AppCompatActivity {
         if(label.equals(getString(R.string.error))
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             topTextView.setTextColor(getColor(R.color.error_color));
+    }
+
+    private void clearForm(ViewGroup group) {
+        for (int i = 0, count = group.getChildCount(); i < count; ++i) {
+            View view = group.getChildAt(i);
+            if (view instanceof EditText) {
+                ((EditText)view).setText("");
+            }
+
+            if(view instanceof ViewGroup && (((ViewGroup)view).getChildCount() > 0))
+                clearForm((ViewGroup)view);
+        }
     }
 }
