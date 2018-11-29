@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 } else {
-                    Toast.makeText(this, "Logout unsuccessful. Oops.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.unknown_error, Toast.LENGTH_SHORT).show();
                 }
                 return true;
             }
@@ -193,7 +193,9 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
             case R.id.account_settings: {
-                Toast.makeText(this, "Not yet available!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, AccountActivity.class);
+                startActivity(intent);
+                return true;
             }
             default: return super.onOptionsItemSelected(item);
         }

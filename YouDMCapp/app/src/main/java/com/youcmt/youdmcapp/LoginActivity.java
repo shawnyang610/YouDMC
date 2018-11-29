@@ -13,7 +13,9 @@ import com.youcmt.youdmcapp.model.LoginResponse;
 import static com.youcmt.youdmcapp.Constants.ACCESS_TOKEN;
 import static com.youcmt.youdmcapp.Constants.ID_GUEST;
 import static com.youcmt.youdmcapp.Constants.LOGGED_IN;
+import static com.youcmt.youdmcapp.Constants.PROFILE_IMG;
 import static com.youcmt.youdmcapp.Constants.REFRESH_TOKEN;
+import static com.youcmt.youdmcapp.Constants.USERNAME;
 import static com.youcmt.youdmcapp.Constants.USER_ID;
 
 
@@ -72,18 +74,22 @@ public class LoginActivity extends AppCompatActivity implements LoginCallbacks {
     @Override
     public void onSuccessfulLogin(LoginResponse response) {
         mEditor.putInt(USER_ID, response.getId()).apply();
+        mEditor.putString(USERNAME, response.getUsername());
         mEditor.putBoolean(LOGGED_IN, true).apply();
         mEditor.putString(ACCESS_TOKEN, response.getAccess_token()).apply();
         mEditor.putString(REFRESH_TOKEN, response.getRefresh_token()).apply();
+        mEditor.putString(PROFILE_IMG, response.getProfile_img());
         startMainActivity();
         finish();
     }
 
     public void onSuccessfulRegistration(LoginResponse response) {
         mEditor.putInt(USER_ID, response.getId()).apply();
+        mEditor.putString(USERNAME, response.getUsername());
         mEditor.putBoolean(LOGGED_IN, true).apply();
         mEditor.putString(ACCESS_TOKEN, response.getAccess_token()).apply();
         mEditor.putString(REFRESH_TOKEN, response.getRefresh_token()).apply();
+        mEditor.putString(PROFILE_IMG, response.getProfile_img());
         startMainActivity();
         finish();
     }

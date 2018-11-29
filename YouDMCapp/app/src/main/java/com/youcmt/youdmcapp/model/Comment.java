@@ -16,6 +16,7 @@ public class Comment implements Serializable {
     private String text;
     private int user_id;
     private String username;
+    private String profile_img;
     private int top_comment_id;
     private int parent_comment_id;
     private int like;
@@ -115,4 +116,11 @@ public class Comment implements Serializable {
         return getEdit_date().equals(getDate());
     }
 
+    public String getProfile_img() {
+        return profile_img;
+    }
+
+    public void setProfile_img(String profile_img) {
+        this.profile_img = profile_img;
+    }
 }

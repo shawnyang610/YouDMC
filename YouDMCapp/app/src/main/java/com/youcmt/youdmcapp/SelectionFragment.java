@@ -16,9 +16,6 @@ import android.widget.Button;
 
 public class SelectionFragment extends Fragment {
     private SharedPreferences mPreferences;
-    private Button mLoginButton;
-    private Button mRegisterButton;
-    private Button mSkipButton;
     private LoginCallbacks mHostingActivity;
 
     @Override
@@ -26,8 +23,8 @@ public class SelectionFragment extends Fragment {
     {
         mHostingActivity =(LoginCallbacks) getActivity();
         View view = inflater.inflate(R.layout.fragment_selection, container, false);
-        mLoginButton = view.findViewById(R.id.login_button);
-        mLoginButton.setOnClickListener(new View.OnClickListener() {
+        Button loginButton = view.findViewById(R.id.login_button);
+        loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 FragmentTransaction fragmentTransaction =
@@ -37,8 +34,8 @@ public class SelectionFragment extends Fragment {
                 fragmentTransaction.commit();
             }
         });
-        mRegisterButton = view.findViewById(R.id.register_button);
-        mRegisterButton.setOnClickListener(new View.OnClickListener() {
+        Button registerButton = view.findViewById(R.id.register_button);
+        registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 FragmentTransaction fragmentTransaction =
@@ -48,8 +45,8 @@ public class SelectionFragment extends Fragment {
                 fragmentTransaction.commit();
             }
         });
-        mSkipButton = view.findViewById(R.id.skip_button);
-        mSkipButton.setOnClickListener(new View.OnClickListener() {
+        Button skipButton = view.findViewById(R.id.skip_button);
+        skipButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mHostingActivity.onGuestLogin();

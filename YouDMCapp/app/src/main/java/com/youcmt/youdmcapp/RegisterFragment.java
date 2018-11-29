@@ -120,8 +120,6 @@ public class RegisterFragment extends Fragment {
         header.put("Content-Type", "application/json");
 
         Call<LoginResponse> response = apiEndPoint.registerUser(user, header);
-        Log.d(TAG, "URL: " + response.request().url().toString());
-
         response.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, retrofit2.Response<LoginResponse> response) {
@@ -146,6 +144,7 @@ public class RegisterFragment extends Fragment {
                         displayUnknownError();
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        displayUnknownError();
                     }
                 }
             }
@@ -158,6 +157,6 @@ public class RegisterFragment extends Fragment {
     }
 
     private void displayUnknownError() {
-        Toast.makeText(getActivity(), mResources.getString(R.string.unknown_error), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), R.string.unknown_error, Toast.LENGTH_SHORT).show();
     }
 }

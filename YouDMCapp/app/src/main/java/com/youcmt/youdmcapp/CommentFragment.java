@@ -143,26 +143,9 @@ public class CommentFragment extends Fragment {
                     CommentResponse commentResponse = response.body();
                     processComments(commentResponse);
                 }
-                else if(response.code()==404)
+                else
                 {
-                    try {
-                        Log.d(TAG, String.valueOf(response.code()));
-                        JSONObject errorMessage = new JSONObject(response.errorBody().string());
-                        Toast.makeText(getActivity(), errorMessage.getString("message"), Toast.LENGTH_SHORT).show();
-                    } catch (IOException e) {
-                        displayUnknownError();
-                        e.printStackTrace();
-                        Log.d(TAG, "IOException");
-                    } catch (JSONException j)
-                    {
-                        displayUnknownError();
-                        j.printStackTrace();
-                        Log.d(TAG, "JSONException");
-                    }
-                }
-                else {
-                    Log.d(TAG, "Other Code");
-                    displayUnknownError();
+                    displayErrorMessage(response);
                 }
             }
 
@@ -202,26 +185,8 @@ public class CommentFragment extends Fragment {
                     mFragmentView.findViewById(R.id.comment_pb).setVisibility(VISIBLE);
                     fetchComments(); //reload comment list
                 }
-                else if(response.code()==404)
-                {
-                    Toast.makeText(getActivity(), "Error code 404: Not Found", Toast.LENGTH_LONG).show();
-                }
-                else
-                {
-                    try {
-                        JSONObject errorMessage = new JSONObject(response.errorBody().string());
-                        String errorString = errorMessage.getString("message");
-                        Toast.makeText(getActivity(), "Error code " +
-                        response.code() + ": " + errorString, Toast.LENGTH_LONG).show();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        displayUnknownError();
-                    } catch (NullPointerException n) {
-                        n.printStackTrace();
-                        displayUnknownError();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                else {
+                    displayErrorMessage(response);
                 }
             }
 
@@ -234,6 +199,26 @@ public class CommentFragment extends Fragment {
 
     private void displayUnknownError() {
         Toast.makeText(getActivity(), "Unknown error occurred! Oops!", Toast.LENGTH_SHORT).show();
+    }
+
+    private void displayErrorMessage(Response response)
+    {
+        try {
+            Log.d(TAG, String.valueOf(response.code()));
+            JSONObject errorMessage = new JSONObject(response.errorBody().string());
+            String errorString = errorMessage.getString("message");
+            errorString = errorString.substring(0, 1).toUpperCase() + errorString.substring(1);
+            Toast.makeText(getActivity(), errorString, Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            displayUnknownError();
+            e.printStackTrace();
+            Log.d(TAG, "IOException");
+        } catch (JSONException j)
+        {
+            displayUnknownError();
+            j.printStackTrace();
+            Log.d(TAG, "JSONException");
+        }
     }
 
     private void processComments(CommentResponse response)

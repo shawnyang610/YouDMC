@@ -22,7 +22,7 @@ public class ReplyAdapter extends CommentAdapter {
      * @param comments comments list from server.
      * @param context  pass Activity context.
      */
-    public ReplyAdapter(List<Comment> comments, Context context) {
+    ReplyAdapter(List<Comment> comments, Context context) {
         super(comments, context);
     }
 

@@ -11,8 +11,8 @@ import javax.mail.internet.InternetAddress;
 public final class ValidationUtils {
     /**
      * @param email
-     * @return false if e-mail address entered is not well-formed
-     * True does not guarantee a valid e-mail address
+     * @return false if e-mail address entered is not well-formed.
+     * True does not guarantee a valid e-mail address.
      */
     public static boolean isEmailAddressValid(String email) {
         boolean result = true;
