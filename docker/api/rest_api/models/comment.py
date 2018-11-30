@@ -43,8 +43,9 @@ class CommentModel(db.Model):
             self.vid = 0
 
     
-    def to_json(self):
+    def to_json(self, user_id):
         ratings_count = [rating.rating for rating in self.ratings]
+        user_ids = [rating.user_id for rating in self.ratings if rating.rating != 0]
         return {
             "id":self.id,
             "date":str(self.date),
@@ -58,7 +59,8 @@ class CommentModel(db.Model):
             "parent_comment_id": self.parent_comment_id,
             "like":ratings_count.count(1),
             "dislike":ratings_count.count(-1),
-            "count": CommentModel.query.filter_by(top_comment_id=self.id, is_deleted=0).count()
+            "count": CommentModel.query.filter_by(top_comment_id=self.id, is_deleted=0).count(),
+            "rated": user_id in user_ids
         }
 
     @classmethod
