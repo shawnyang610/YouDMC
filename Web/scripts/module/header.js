@@ -69,6 +69,10 @@ function fillHeaderLoggedOut(statusText) {
   headerDiv.appendChild(statusP);
 }
 
+function fillNavBarLoggedOut() {
+
+}
+
 function changeHeaderStatusText(newText) {
   var statusP = getDOM("headerStatusText");
   if (newText != null && newText != "") {
