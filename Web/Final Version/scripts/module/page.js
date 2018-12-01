@@ -1,6 +1,5 @@
 var videoID;    //the video id of current page
 //var videoInfo;  //???
-
 var currentServerTime;        //loaded when page is refreshed
 var rootCommentsArray = [];   //saves all root comments into local memory
 //var scrollDiv; //to ensure screen scroll to a certain position
@@ -33,6 +32,7 @@ function loadCommentPage() {
   API_getServerTime(API_getRootComments, displayRootComments);
   minimizeRootCommentBox();
   API_getVideoInfo(displayVideoInfo);
+  //showEmbedVideo(); //in videoInfo.js
 }
 
 function displayRootComments(response) { //this is a callback function from API_getRootComments

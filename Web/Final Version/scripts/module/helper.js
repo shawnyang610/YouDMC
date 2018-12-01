@@ -66,3 +66,27 @@ function validEmail(email) { //guards for email here
 function validPassword(pw) { //guards for password here
   return pw.length >= 6;
 }
+
+//==============================================================================
+//DOM finding related to comments/replies=======================================
+//==============================================================================
+
+function findReplyArray(id) {
+  for (i = 0; i < rootCommentsArray.length; i++) {
+    if (rootCommentsArray[i].cid == id) {
+      return rootCommentsArray[i].replies;
+    }
+  }
+  console.log("Trying to find a reply array that does not exist! " + id);
+  return null;
+}
+
+function findComment(id) {
+  for (i = 0; i < rootCommentsArray.length; i++) {
+    if (rootCommentsArray[i].cid == id) {
+      return rootCommentsArray[i];
+    }
+  }
+  console.log("Trying to find a reply array that does not exist! " + id);
+  return null;
+}
