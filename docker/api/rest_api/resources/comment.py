@@ -3,7 +3,8 @@ from flask import request
 from rest_api.models.comment import CommentModel
 from flask_jwt_extended import(
     jwt_required,
-    get_jwt_identity
+    get_jwt_identity,
+    jwt_optional
 )
 from datetime import datetime
 
@@ -82,7 +83,10 @@ class Comment(Resource):
     #     return {"comments":comment_list},200
 
 class GetComments(Resource):
+
+    @jwt_optional
     def get (self):
+        identity = get_jwt_identity()
         args = request.args
         if ('vid' not in args.keys() and 'parent_comment_id' not in args.keys() and 'top_comment_id' not in args.keys()):
             return {
@@ -97,7 +101,10 @@ class GetComments(Resource):
         else:
             comments = CommentModel.find_all_by_top_comment_id(int(args['top_comment_id']))
 
-        comment_list = [comment.to_json() for comment in comments]
+        if identity:
+            comment_list = [comment.to_json(user_id=identity['id']) for comment in comments]
+        else:
+            comment_list = [comment.to_json(user_id=-1) for comment in comments]
         return {"comments":comment_list},200   
 
 
@@ -164,14 +171,17 @@ class Comment_Loggedin(Resource):
 
 class UserComment(Resource):
 
-    # @jwt_required
+    @jwt_optional
     def get(self):
         # user_id =int(get_jwt_identity()["id"])
+        identity=get_jwt_identity()
         args = request.args
         if "user_id" in args:
             comments = CommentModel.find_all_by_user_id(user_id=args['user_id'])
-            comment_list = [comment.to_json() for comment in comments]
-
+            if identity:
+                comment_list = [comment.to_json(user_id = identity['id']) for comment in comments]
+            else:
+                comment_list = [comment.to_json(user_id = -1) for comment in comments]
             return{
                 "comments":comment_list
             },200
