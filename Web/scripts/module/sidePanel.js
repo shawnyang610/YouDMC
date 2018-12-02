@@ -187,18 +187,18 @@ function showResetPanel() {
   panel.appendChild(sendButton);
 
   //adding extra input fields for finishing the reset process
-  var resetCodeInput = createInput("text", "enter the reset code", "form-control");
+  var oldPassInput = createInput("text", "enter the reset code", "form-control");
   var passwordInput = createInput("password", "new password", "form-control");
   var repasswordInput = createInput("password", "re-enter new password", "form-control");
   //set DOM ID so other functions can get its value
-  resetCodeInput.id = "resetCodeInput";
+  oldPassInput.id = "oldPassInput";
   passwordInput.id = "passwordInput";
   repasswordInput.id = "repasswordInput";
 
   //put things into input group to look better
   var inputGroup1 = document.createElement("div");
   inputGroup1.className = "input-group mb-3";
-  inputGroup1.appendChild(resetCodeInput);
+  inputGroup1.appendChild(oldPassInput);
   var inputGroup2 = document.createElement("div");
   inputGroup2.className = "input-group mb-3";
   inputGroup2.appendChild(passwordInput);
@@ -206,14 +206,16 @@ function showResetPanel() {
   inputGroup3.className = "input-group mb-3";
   inputGroup3.appendChild(repasswordInput);
 
+  var cancelButton = createButton("Cancel", "btn btn-sm btn-outline-danger", "hideSidePanel()");
   var sendButton = createButton("Reset Password", "btn btn-sm btn-outline-success", "resetPasswordClicked()");
 
   panel.appendChild(inputGroup1);
   panel.appendChild(inputGroup2);
   panel.appendChild(inputGroup3);
+  panel.appendChild(cancelButton);
   panel.appendChild(sendButton);
 
-  resetCodeInput.focus();
+  oldPassInput.focus();
 }
 
 function resetPasswordClicked() {
@@ -355,11 +357,13 @@ function sidePanelChangePassword() {
   inputGroup3.className = "input-group mb-3";
   inputGroup3.appendChild(repasswordInput);
 
+  var cancelButton = createButton("Cancel", "btn btn-sm btn-outline-danger", "hideSidePanel()");
   var sendButton = createButton("Change Password", "btn btn-sm btn-outline-success", "changePasswordClicked()");
 
   panel.appendChild(inputGroup1);
   panel.appendChild(inputGroup2);
   panel.appendChild(inputGroup3);
+  panel.appendChild(cancelButton);
   panel.appendChild(sendButton);
 
   resetCodeInput.focus();

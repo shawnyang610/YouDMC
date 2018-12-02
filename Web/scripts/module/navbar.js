@@ -109,6 +109,7 @@ function navBarLoginClicked() {
   }
   API_logInUser(username, password, navBarLoginUpdate);
   setup();
+  hideSidePanel();
 }
 
 function navBarRegisterClicked() {
