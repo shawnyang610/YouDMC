@@ -27,7 +27,7 @@ def home():
         v = args['v']
     else:
         v = ''
-    return render_template("index.html", v=v)
+    return render_template("deploy.html", v=v)
 
 ################################
 #### for password reset ########
