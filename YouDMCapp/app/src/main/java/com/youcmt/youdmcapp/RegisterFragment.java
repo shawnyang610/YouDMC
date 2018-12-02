@@ -1,6 +1,7 @@
 package com.youcmt.youdmcapp;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,18 +14,24 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.youcmt.youdmcapp.model.User;
+import com.youcmt.youdmcapp.model.LoginResponse;
+import com.youcmt.youdmcapp.model.RegisterRequest;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.HashMap;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+
+import static com.youcmt.youdmcapp.ValidationUtils.doPasswordsMatch;
+import static com.youcmt.youdmcapp.ValidationUtils.isEmailAddressValid;
+import static com.youcmt.youdmcapp.ValidationUtils.isPasswordValid;
 
 /**
  * Created by Stanislav Ostrovskii on 9/19/2018.
@@ -39,11 +46,18 @@ public class RegisterFragment extends Fragment {
     private EditText mReenterEditText;
     private Button mRegisterButton;
     private LoginCallbacks mHostingActivity;
+    private Resources mResources;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         mHostingActivity = (LoginCallbacks) context;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        mResources = getActivity().getResources();
+        super.onCreate(savedInstanceState);
     }
 
     @Nullable
@@ -75,72 +89,20 @@ public class RegisterFragment extends Fragment {
         String password2 = mReenterEditText.getText().toString();
         if(username.length()<3)
         {
-            Toast.makeText(getActivity(), "Select a longer username.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), mResources.getString(R.string.longer_username_error), Toast.LENGTH_SHORT).show();
         }
         else if(!isEmailAddressValid(email)) {
-            Toast.makeText(getActivity(), "Not a valid e-mail address", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), mResources.getString(R.string.invalid_email_error), Toast.LENGTH_SHORT).show();
         }
         else if(!doPasswordsMatch(password1, password2))
         {
-            Toast.makeText(getActivity(), "Passwords do not match!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), mResources.getString(R.string.mismatched_passwords_error), Toast.LENGTH_SHORT).show();
         }
         else if(!isPasswordValid(password1))
         {
-            Toast.makeText(getActivity(), "Choose a stronger password!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), mResources.getString(R.string.weak_password_error), Toast.LENGTH_SHORT).show();
         }
         else registerProcess(username, email, password1);
-    }
-
-    /**
-     * @param email
-     * @return false if e-mail address entered is not well-formed
-     * True does not guarantee a valid e-mail address
-     */
-    private static boolean isEmailAddressValid(String email) {
-        boolean result = true;
-        try {
-            InternetAddress emailAddr = new InternetAddress(email);
-            emailAddr.validate();
-        } catch (AddressException ex) {
-            result = false;
-        }
-        return result;
-    }
-
-    /**
-     * @param password
-     * @return returns false is password is too short or does not contain one
-     * lowercase or uppercase letter and one number. Otherwise returns true.
-     */
-    private static boolean isPasswordValid(String password)
-    {
-        if(password.length()<6) return false;
-
-        //check to make sure password has one letter and one number
-        boolean hasNum = false;
-        boolean hasLetter = false;
-        for(char c: password.toCharArray())
-        {
-            if((c>64 && c<91)||(c>96 && c<123))
-                hasLetter = true;
-            if(c>47 && c<58)
-                hasNum = true;
-        }
-        if(!hasLetter||!hasNum) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * checks to see if two strings are equal.
-     * @param one first string
-     * @param two second string
-     * @return true if they are equal, false otherwise.
-     */
-    private static boolean doPasswordsMatch(String one, String two)
-    {
-        return (one.equals(two));
     }
 
     /**
@@ -151,44 +113,50 @@ public class RegisterFragment extends Fragment {
      */
     private void registerProcess(String username, String email, String password)
     {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://youcmt.com/api/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        YouCmtClient youCmtClient = retrofit.create(YouCmtClient.class);
-
-        User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPassword(password);
+        ApiEndPoint apiEndPoint = RetrofitClient.getApiEndpoint();
+        RegisterRequest user = new RegisterRequest(username, password, email);
 
         HashMap header = new HashMap();
         header.put("Content-Type", "application/json");
 
-        Call<ResponseBody> response = youCmtClient.registerUser(user, header);
-        Log.d(TAG, "URL: " + response.request().url().toString());
-        response.enqueue(new Callback<ResponseBody>() {
+        Call<LoginResponse> response = apiEndPoint.registerUser(user, header);
+        response.enqueue(new Callback<LoginResponse>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+            public void onResponse(Call<LoginResponse> call, retrofit2.Response<LoginResponse> response) {
                 if(response.code()==201)
                 {
-                    mHostingActivity.onSuccessfulRegistration();
-                }
-                else if(response.code()==400)
-                {
-                    Log.d(TAG, "Message: " + response.message());
-                    Toast.makeText(getActivity(), response.message(), Toast.LENGTH_SHORT).show();
+                    LoginResponse loginResponse = response.body();
+                    mHostingActivity.onSuccessfulRegistration(loginResponse);
                 }
                 else
                 {
-                    Toast.makeText(getActivity(), "Unknown error occurred!", Toast.LENGTH_SHORT).show();
+                    try {
+                        JSONObject errorMessage = new JSONObject(response.errorBody().string());
+                        String errorString = errorMessage.getString("message");
+                        errorString = errorString.substring(0, 1).toUpperCase() + errorString.substring(1);
+                        Toast.makeText(getActivity(), errorString, Toast.LENGTH_LONG).show();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        displayUnknownError();
+                    } catch (NullPointerException n) {
+                        n.printStackTrace();
+                        displayUnknownError();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        displayUnknownError();
+                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
                 Toast.makeText(getActivity(), t.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void displayUnknownError() {
+        Toast.makeText(getActivity(), R.string.unknown_error, Toast.LENGTH_SHORT).show();
     }
 }

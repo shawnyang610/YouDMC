@@ -6,23 +6,30 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
+
+import com.youcmt.youdmcapp.model.LoginResponse;
+
+import static com.youcmt.youdmcapp.Constants.ACCESS_TOKEN;
+import static com.youcmt.youdmcapp.Constants.ID_GUEST;
+import static com.youcmt.youdmcapp.Constants.LOGGED_IN;
+import static com.youcmt.youdmcapp.Constants.PROFILE_IMG;
+import static com.youcmt.youdmcapp.Constants.REFRESH_TOKEN;
+import static com.youcmt.youdmcapp.Constants.USERNAME;
+import static com.youcmt.youdmcapp.Constants.USER_ID;
 
 
 public class LoginActivity extends AppCompatActivity implements LoginCallbacks {
-    public static final String LOGGED_IN = "LoggedIn";
     private static final String TAG = "LoginActivity";
-    private SharedPreferences mPreferences;
     private SharedPreferences.Editor mEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        mPreferences = getSharedPreferences("com.youcmt.youdmcapp", MODE_PRIVATE);
-        mEditor = mPreferences.edit();
-        if(mPreferences.getBoolean(LOGGED_IN, false))
+        SharedPreferences preferences = getSharedPreferences("com.youcmt.youdmcapp", MODE_PRIVATE);
+        mEditor = preferences.edit();
+        if(preferences.getBoolean(LOGGED_IN, false))
         {
             startMainActivity();
         }
@@ -63,16 +70,36 @@ public class LoginActivity extends AppCompatActivity implements LoginCallbacks {
         return super.onOptionsItemSelected(item);
     }
 
+    //TODO these methods seem the same for all intents and purposes. Merge?
     @Override
-    public void onSuccessfulLogin() {
-
+    public void onSuccessfulLogin(LoginResponse response) {
+        mEditor.putInt(USER_ID, response.getId()).apply();
+        mEditor.putString(USERNAME, response.getUsername());
         mEditor.putBoolean(LOGGED_IN, true).apply();
+        mEditor.putString(ACCESS_TOKEN, response.getAccess_token()).apply();
+        mEditor.putString(REFRESH_TOKEN, response.getRefresh_token()).apply();
+        mEditor.putString(PROFILE_IMG, response.getProfile_img());
         startMainActivity();
+        finish();
     }
 
-    public void onSuccessfulRegistration() {
-
+    public void onSuccessfulRegistration(LoginResponse response) {
+        mEditor.putInt(USER_ID, response.getId()).apply();
+        mEditor.putString(USERNAME, response.getUsername());
         mEditor.putBoolean(LOGGED_IN, true).apply();
+        mEditor.putString(ACCESS_TOKEN, response.getAccess_token()).apply();
+        mEditor.putString(REFRESH_TOKEN, response.getRefresh_token()).apply();
+        mEditor.putString(PROFILE_IMG, response.getProfile_img());
+        startMainActivity();
+        finish();
+    }
+
+    @Override
+    public void onGuestLogin() {
+        mEditor.putInt(USER_ID, ID_GUEST).apply();
+        mEditor.putBoolean(LOGGED_IN, true).apply();
+        mEditor.putString(ACCESS_TOKEN, null);
+        mEditor.putString(REFRESH_TOKEN, null);
         startMainActivity();
         finish();
     }

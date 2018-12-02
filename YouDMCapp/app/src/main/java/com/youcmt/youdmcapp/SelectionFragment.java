@@ -1,5 +1,6 @@
 package com.youcmt.youdmcapp;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -9,22 +10,23 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 /**
- * Created by stan_ on 9/18/2018.
+ * Created by Stanislav Ostrovskii on 9/18/2018.
+ * Copyright 2018 youcmt.com team. All rights reserved.
+ * This fragment presents user with an option to login,
+ * register, or skip, to enter as guest.
  */
 
 public class SelectionFragment extends Fragment {
-
-    //I realize the naming conventions are obsolete but I will maintain them for this project
-    private Button mLoginButton;
-    private Button mRegisterButton;
-    private Button mSkipButton;
+    private SharedPreferences mPreferences;
+    private LoginCallbacks mHostingActivity;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance)
     {
+        mHostingActivity =(LoginCallbacks) getActivity();
         View view = inflater.inflate(R.layout.fragment_selection, container, false);
-        mLoginButton = view.findViewById(R.id.login_button);
-        mLoginButton.setOnClickListener(new View.OnClickListener() {
+        Button loginButton = view.findViewById(R.id.login_button);
+        loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 FragmentTransaction fragmentTransaction =
@@ -34,8 +36,8 @@ public class SelectionFragment extends Fragment {
                 fragmentTransaction.commit();
             }
         });
-        mRegisterButton = view.findViewById(R.id.register_button);
-        mRegisterButton.setOnClickListener(new View.OnClickListener() {
+        Button registerButton = view.findViewById(R.id.register_button);
+        registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 FragmentTransaction fragmentTransaction =
@@ -45,7 +47,13 @@ public class SelectionFragment extends Fragment {
                 fragmentTransaction.commit();
             }
         });
-        mSkipButton = view.findViewById(R.id.skip_button);
+        Button skipButton = view.findViewById(R.id.skip_button);
+        skipButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mHostingActivity.onGuestLogin();
+            }
+        });
         return view;
     }
 

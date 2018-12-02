@@ -1,19 +1,22 @@
 package com.youcmt.youdmcapp.model;
 
+import java.io.Serializable;
+
 /**
  * Created by Stanislav Ostrovskii on 10/17/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
  * A POJO to represent a comment retrieved from the web server.
- * In order to function, must keep the same field names as the JSON response,
- * which do not adhere to Java/Android naming convention.
  */
 
-public class Comment {
+public class Comment implements Serializable {
     private int id;
     private String date;
+    private String edit_date;
+    private int is_deleted;
     private String text;
     private int user_id;
     private String username;
+    private String profile_img;
     private int top_comment_id;
     private int parent_comment_id;
     private int like;
@@ -98,5 +101,26 @@ public class Comment {
 
     public void setCount(int count) {
         this.count = count;
+    }
+
+    public int getIs_deleted() {
+        return is_deleted;
+    }
+
+    public String getEdit_date() {
+        return edit_date;
+    }
+
+    public boolean isEdited()
+    {
+        return getEdit_date().equals(getDate());
+    }
+
+    public String getProfile_img() {
+        return profile_img;
+    }
+
+    public void setProfile_img(String profile_img) {
+        this.profile_img = profile_img;
     }
 }

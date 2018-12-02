@@ -13,57 +13,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </RelativeLayout>
+
     <android.support.v4.widget.NestedScrollView
-        android:id="@+id/main_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingBottom="4dp">
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
-                tools:text="Video Title"
-                android:id="@+id/title_tv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                android:textSize="24sp"
-                android:drawableEnd="@drawable/ic_arrow_drop_down"
-                android:drawableRight="@drawable/ic_arrow_drop_down"/>
-            <TextView
-                tools:text="Video Description"
-                android:id="@+id/video_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:visibility="gone"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:text="@string/comments"
-                android:textAppearance="@style/TextAppearance.AppCompat"/>
-
-            <EditText
-                android:id="@+id/new_comment_et"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/add_comment"
-                android:inputType="textAutoCorrect"/>
-            <TextView
-                android:id="@+id/no_comments_tv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:text="@string/no_comments"
-                android:visibility="gone"
-                android:padding="4dp"/>
-            <android.support.v7.widget.RecyclerView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/comment_rv"/>
-        </LinearLayout>
+            android:layout_height="match_parent"
+            android:id="@+id/fragment_container_comment"/>
     </android.support.v4.widget.NestedScrollView>
 </LinearLayout>
