@@ -88,4 +88,6 @@
     <string name="password_incorrect">Incorrect current password</string>
     <string name="same_passwords_error">Current password and new password are the same!</string>
     <string name="update_success">Profile updated successfully.</string>
+    <string name="network_error">Network error! Check your internet connection.</string>
+    <string name="comment_posted_toast">Comment posted!</string>
 </resources>

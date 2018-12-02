@@ -107,4 +107,15 @@ public interface ApiEndPoint {
     Call<ResponseBody> updateProfile(@Header("Authorization") String authorization,
                                      @Body UpdateProfileRequest request,
                                      @HeaderMap HashMap<String, String> headerMap);
+
+    @GET("comment/get/comments")
+    Call<CommentResponse> loadRepliesLoggedIn(@Header("Authorization") String authorization,
+                                              @Query("parent_comment_id") String url,
+                                              @HeaderMap HashMap<String, String> headerMap);
+
+    @GET("comment/get/comments")
+    Call<CommentResponse> loadCommentsLoggedIn(@Header("Authorization") String authorization,
+                                              @Query("vid") String url,
+                                              @HeaderMap HashMap<String, String> headerMap);
+
 }

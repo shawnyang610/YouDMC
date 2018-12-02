@@ -300,6 +300,14 @@ public class CommentHolder extends RecyclerView.ViewHolder
         {
             mReplyCountTextView.setText(String.valueOf(mComment.getCount()));
         }
+        if(mComment.getVoted()==1)
+        {
+            toggleThumbs(1);
+        }
+        else if(mComment.getVoted()==-1)
+        {
+            toggleThumbs(-1);
+        }
         setListeners();
     }
     private String getTimeAgoString(String date)
