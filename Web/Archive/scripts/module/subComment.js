@@ -2,7 +2,7 @@
 var SubComment = function(commentAPIObject) {
   this.cid = commentAPIObject.id;
   this.pic = getMeta("staticResourcePath") +
-    "images/avatars/" + commentAPIObject.profile_img + ".png"; //guest use 0
+    "images/profile" + commentAPIObject.profile_img + ".png"; //guest use 0
   this.data = commentAPIObject;
 };
 

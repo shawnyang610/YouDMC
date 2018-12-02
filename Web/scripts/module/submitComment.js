@@ -6,16 +6,16 @@
 
 function minimizeRootCommentBox() {
   var writingDiv = getDOM("write");
-  writingDiv.className = "h3";
+  writingDiv.className = "h5 bg-white";
   writingDiv.innerHTML = "";
-  var commentLink = createLink("Add your comment here", "badge badge-light", "maximizeRootCommentBox()", "");
+  var commentLink = createLink("Add your comment here", "badge badge-white", "maximizeRootCommentBox()", "");
   writingDiv.appendChild(commentLink);
 }
 
 function maximizeRootCommentBox() {
   var writingDiv = getDOM("write");
   writingDiv.innerHTML = "";
-  writingDiv.className = "input-group";
+  writingDiv.className = "input-group mt-3 mb-3";
 
   var inputBox = document.createElement("input");
   inputBox.id = "rootInputBox";

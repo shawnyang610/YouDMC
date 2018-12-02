@@ -9,7 +9,7 @@ function showSidePanel() {
 function hideSidePanel() {
   var left = document.getElementById("content");
   var right = document.getElementById("aside");
-  left.className = "col-12";
+  left.className = "col-10";
   right.className = "";
   right.innerHTML = "";
 }
@@ -276,6 +276,10 @@ function sidePanelChangeAvatar(choice) {
   sidePanel.appendChild(getAvatarChoicesDiv());
   sidePanel.appendChild(createButton("Cancel", "btn btn-sm btn-outline-danger mt-3", "hideSidePanel()"));
   sidePanel.appendChild(createButton("OK", "btn btn-sm btn-outline-success mt-3", "changeAvatar(" + choice + ")"));
+
+  var credits = document.createElement("div");
+  credits.innerHTML = "Icons made by <a href=\"https://creativemarket.com/eucalyp\" title=\"Eucalyp\">Eucalyp</a> from <a href=\"https://www.flaticon.com/\" 		    title=\"Flaticon\">www.flaticon.com</a> is licensed by <a href=\"http://creativecommons.org/licenses/by/3.0/\" 		    title=\"Creative Commons BY 3.0\" target=\"_blank\">CC 3.0 BY</a>";
+  sidePanel.appendChild(credits);
 }
 
 function getAvatarChoicesDiv() {
@@ -304,6 +308,7 @@ function changeAvatar(selection) {
 function ChangeAvatarCallback(selection) {
   //assumes success
   if (selection > 0) {
+    setup();
     showSidePanel();
     getDOM("aside").appendChild(createP("Change successful!", "text-success"));
     getDOM("aside").appendChild(createButton("OK", "btn btn-success", "hideSidePanel()"));

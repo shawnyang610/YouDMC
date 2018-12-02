@@ -2,7 +2,7 @@
 var RootComment = function(commentAPIObject) {
   this.cid = commentAPIObject.id;
   this.pic = getMeta("staticResourcePath") +
-    "images/avatars/" + commentAPIObject.profile_img + ".png"; //guest use 0
+    "images/profile" + commentAPIObject.profile_img + ".png"; //guest use 0
   this.data = commentAPIObject;
   this.replies = []; //for storing replies
   this.showingReplies = false;
@@ -142,45 +142,4 @@ RootComment.prototype.getToggleButton = function() {
 
 RootComment.prototype.fetchReplies = function() {
   API_getReplyComments(this.cid, displaySubComments);
-}
-
-function toggleReplies(cid) { //when show/hide reply is clicked
-  var rootObject = findComment(cid);
-  if (rootObject == null) {
-    console.log("error - clicked on toggle reply of a ghost comment");
-  }
-
-  rootObject.showingReplies = !rootObject.showingReplies;
-  if (rootObject.showingReplies) {
-    rootObject.fetchReplies();
-  }
-  //update rootObject's node code: show/hide and all that
-  var rootObjectLi = getDOM(cid);
-  rootObjectLi.innerHTML = rootObject.getListItem().innerHTML;
-}
-
-function displaySubComments(cid, response) { //forced to show reply, after getting fresh data
-  if (response == null || response.length == 0) {
-    console.log("This shouldn't happen, trying to display replies that doesn't exist");
-  } else { //get to work
-    //first find the rootObject
-    var rootObject = findComment(cid);
-    rootObject.showingReplies = true;
-    rootObject.replies = mergeSubComments(rootObject.replies, response);
-
-    //update rootObject's node code: show/hide and all that
-    var rootObjectLi = getDOM(cid);
-    rootObjectLi.innerHTML = rootObject.getListItem().innerHTML;
-
-    // //this is the DOM to insert stuff into
-    // var repliesList = getDOM("replyList_" + cid);
-    // repliesList.className = ""; //get rid of spinning circle
-    // repliesList.innerHTML = "";
-    //
-    // //console.log(rootObject.replies);
-    // for (i = 0; i < rootObject.replies.length; i++) {
-    //   repliesList.appendChild(rootObject.replies[i].getListItem());
-    // }
-    //autoScroll();
-  }
 }

@@ -24,7 +24,7 @@ function createLogo() {
   logo.href = "https://www.YouCMT.com";
   var logo_img = document.createElement("img");
   logo_img.src = getMeta("staticResourcePath") + "images/logo.png";
-  logo_img.height = 30;
+  logo_img.height = 40;
   logo.appendChild(logo_img);
   return logo;
 }
@@ -108,6 +108,7 @@ function navBarLoginClicked() {
     return;
   }
   API_logInUser(username, password, navBarLoginUpdate);
+  setup();
 }
 
 function navBarRegisterClicked() {
@@ -116,7 +117,8 @@ function navBarRegisterClicked() {
 
 function navBarLogoutClicked() {
   resetSession();
-  fillNavBarLoggedOut();
+  setup();
+  //fillNavBarLoggedOut();
 }
 
 //==============================================================================

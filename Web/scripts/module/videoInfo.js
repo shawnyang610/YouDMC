@@ -103,33 +103,3 @@ function hideDescription() {
   //hide the hide row
   hideRow.style.display = "none";
 }
-
-function minimizeRootCommentBox() {
-  var writingDiv = getDOM("write");
-  writingDiv.className = "h3";
-  writingDiv.innerHTML = "";
-  var commentLink = createLink("Add your comment here", "badge badge-light", "maximizeRootCommentBox()", "");
-  writingDiv.appendChild(commentLink);
-}
-
-function maximizeRootCommentBox() {
-  var writingDiv = getDOM("write");
-  writingDiv.innerHTML = "";
-  writingDiv.className = "input-group";
-
-  var inputBox = document.createElement("input");
-  inputBox.id = "rootInputBox";
-  inputBox.className = "form-control";
-  inputBox.setAttribute("placeholder","Add your comment here");
-    var buttonGroup = document.createElement("div");
-    buttonGroup.className = "input-group-append";
-      var cancelButton = createButton("Cancel",
-      "btn btn-secondary", "minimizeRootCommentBox()");
-      var submitButton = createButton("Submit",
-      "btn btn-secondary", "submitRootComment()");
-    buttonGroup.appendChild(cancelButton);
-    buttonGroup.appendChild(submitButton);
-  writingDiv.appendChild(inputBox);
-  writingDiv.appendChild(buttonGroup);
-  inputBox.focus();
-}

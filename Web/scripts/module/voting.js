@@ -1,6 +1,7 @@
 function voteUp(cid, tid) { //only works sub comments
-  if (authToken == null || authToken == "") {
-    alert("You must be logged in first before voting");
+  if (userCookie.authToken == null || userCookie.authToken == "") {
+    showRegister();
+    getDOM("statusText").innerHTML = "You must be logged in first before voting, register now?"
   } else {
     if (tid == null) {
       API_voteUp(cid, displayRootComments);
@@ -11,8 +12,9 @@ function voteUp(cid, tid) { //only works sub comments
 }
 
 function voteDown(cid, tid) {
-  if (authToken == null || authToken == "") {
-    alert("You must be logged in first before voting");
+  if (userCookie.authToken == null || userCookie.authToken == "") {
+    showRegister();
+    getDOM("statusText").innerHTML = "You must be logged in first before voting, register now?"
   } else {
     if (tid == null) {
       API_voteDown(cid, displayRootComments);

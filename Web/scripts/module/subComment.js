@@ -2,7 +2,7 @@
 var SubComment = function(commentAPIObject) {
   this.cid = commentAPIObject.id;
   this.pic = getMeta("staticResourcePath") +
-    "images/profile" + commentAPIObject.profile_img + ".png"; //guest use 0
+    "images/avatars/" + commentAPIObject.profile_img + ".png"; //guest use 0
   this.data = commentAPIObject;
 };
 
@@ -12,7 +12,7 @@ SubComment.prototype.update = function(newAPIObject) {
 
 SubComment.prototype.getListItem = function() {
   var list = document.createElement("li");
-  list.className = "media mb-3";
+  list.className = "media";
   var img = document.createElement("img");
     img.width = 50;
     img.src = this.pic;
@@ -40,12 +40,18 @@ SubComment.prototype.getHeader = function() {
   }
   header.appendChild(posterLink);
   header.appendChild(createText(timestampText));
+  if (this.data.user_id == userCookie.uid  && this.data.is_deleted == 0) { //this is "my comment"
+    header.appendChild(this.getDropdown());
+  }
   return header;
 }
 
 SubComment.prototype.getText = function() {
   if (this.data.is_deleted == 0) { //valid comment
-    return createText(this.data.text);
+    var textDiv = document.createElement("div");
+    textDiv.id = this.cid + "_textDiv";
+    textDiv.appendChild(createText(this.data.text));
+    return textDiv;
   } else {
     return deletedTemplate();
   }
@@ -53,14 +59,34 @@ SubComment.prototype.getText = function() {
 
 SubComment.prototype.getInfo = function() {
   var info = document.createElement("h6");
-  info.appendChild(createLink('\u{1F44D}',"badge badge-pill badge-light",
-    "voteUp(" + this.cid + "," + this.data.top_comment_id + ")", "#up"));
-  info.appendChild(createText(this.data.like));
-  info.appendChild(createLink('\u{1F44E}',"badge badge-pill badge-light",
-    "voteDown(" + this.cid + "," + this.data.top_comment_id + ")", "#down"));
-  info.appendChild(createText(this.data.dislike));
-  info.appendChild(createText(" "));
-  info.appendChild(createLink("REPLY","badge badge-secondary", "writeReply(" + this.cid + ")", "#reply"));
+  if (this.data.voted != null && this.data.voted == 1) { //voted up
+    info.appendChild(createLink('\u{1F44D}',"badge badge-pill badge-success",
+      "voteUp(" + this.cid + "," + this.data.top_comment_id + ")", "#up"));
+    info.appendChild(createText(this.data.like));
+    info.appendChild(createLink('\u{1F44E}',"badge badge-pill badge-light",
+      "voteDown(" + this.cid + "," + this.data.top_comment_id + ")", "#down"));
+    info.appendChild(createText(this.data.dislike));
+    info.appendChild(createText(" "));
+    info.appendChild(createLink("REPLY","badge badge-secondary", "writeReply(" + this.cid + ")", "#reply"));
+  } else if (this.data.voted != null && this.data.voted == -1) { //voted down
+    info.appendChild(createLink('\u{1F44D}',"badge badge-pill badge-light",
+      "voteUp(" + this.cid + "," + this.data.top_comment_id + ")", "#up"));
+    info.appendChild(createText(this.data.like));
+    info.appendChild(createLink('\u{1F44E}',"badge badge-pill badge-danger",
+      "voteDown(" + this.cid + "," + this.data.top_comment_id + ")", "#down"));
+    info.appendChild(createText(this.data.dislike));
+    info.appendChild(createText(" "));
+    info.appendChild(createLink("REPLY","badge badge-secondary", "writeReply(" + this.cid + ")", "#reply"));
+  } else {
+    info.appendChild(createLink('\u{1F44D}',"badge badge-pill badge-light",
+      "voteUp(" + this.cid + "," + this.data.top_comment_id + ")", "#up"));
+    info.appendChild(createText(this.data.like));
+    info.appendChild(createLink('\u{1F44E}',"badge badge-pill badge-light",
+      "voteDown(" + this.cid + "," + this.data.top_comment_id + ")", "#down"));
+    info.appendChild(createText(this.data.dislike));
+    info.appendChild(createText(" "));
+    info.appendChild(createLink("REPLY","badge badge-secondary", "writeReply(" + this.cid + ")", "#reply"));
+  }
   return info;
 }
 
@@ -89,4 +115,24 @@ SubComment.prototype.getWriteBox = function() {
 	  }
   });
   return commentRowDiv;
+}
+
+SubComment.prototype.getDropdown = function() {
+  var btnGrp = createDiv("dropdown");
+  btnGrp.style.display = "inline";
+  btnGrp.id = this.cid + "_dropDown";
+  var dropButton = document.createElement("a");
+  dropButton.setAttribute("class", "float-right badge badge-pill badge-light dropdown-toggle");
+  dropButton.setAttribute("data-toggle", "dropdown");
+  dropButton.innerHTML = " ";
+  var options = createDiv("dropdown-menu");
+    var link0 = createLink("Edit", "dropdown-item", "editComment(" + this.cid
+                            + "," + this.data.top_comment_id + ")", "");
+    var link1 = createLink("Delete", "dropdown-item", "deleteComment("+ this.cid
+                            + "," + this.data.top_comment_id + ")", "");
+    options.appendChild(link0);
+    options.appendChild(link1);
+  btnGrp.appendChild(dropButton);
+  btnGrp.appendChild(options);
+  return btnGrp;
 }

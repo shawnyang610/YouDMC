@@ -1,42 +1,31 @@
-var videoID;
-var videoInfo;
-var authToken;
-var myUID;
-var myUsername;
-var myPIC;
-var votedHistory;
-var currentServerTime;
-var rootCommentsArray = [];
-var scrollDiv; //to ensure screen scroll to a certain position
+var videoID;    //the video id of current page
+//var videoInfo;  //???
+var currentServerTime;        //loaded when page is refreshed
+var rootCommentsArray = [];   //saves all root comments into local memory
+//var scrollDiv; //to ensure screen scroll to a certain position
 
 function setup() {
-  videoID = getMeta("videoID");
-  authToken = sessionStorage.getItem("token");
-  if (authToken != null && authToken != "") {
-    myUID = sessionStorage.getItem("uid");
-    myUsername = sessionStorage.getItem("myname");
-    myPIC = sessionStorage.getItem("avatar");
-  }
-  votedHistory = sessionStorage.getItem("voted");
-  if (votedHistory == null) {
-    votedHistory = {};
-  }
-  //fillDebugButtons();
+  initializeGlobalVars();
   //choosed logged in header or logged out header
   //assumes user will not tamper with auth token so it's always valid
-  if (authToken == null || authToken == "") {
-    //logged out / not logged in
-    fillHeaderLoggedOut();
+  if (userCookie.authToken == "") {
+    fillNavBarLoggedOut();
   } else {
-    //logged in
-    fillHeaderLoggedIn();
+    fillNavBarLoggedIn();
   }
   //choose home page or comment page
-  if (videoID == "" || videoID == "home") {
+  if (videoID == null || videoID == "" || videoID == "home") {
     loadHomePage();
   } else {
     loadCommentPage();
   }
+}
+
+function initializeGlobalVars() {
+  videoID = getMeta("videoID");
+  getDOM("videoInfo").innerHTML = "";
+  rootCommentsArray = [];  
+  getSessionStorage();
 }
 
 function loadCommentPage() {
@@ -45,6 +34,7 @@ function loadCommentPage() {
   API_getServerTime(API_getRootComments, displayRootComments);
   minimizeRootCommentBox();
   API_getVideoInfo(displayVideoInfo);
+  //showEmbedVideo(); //in videoInfo.js
 }
 
 function displayRootComments(response) { //this is a callback function from API_getRootComments
@@ -60,6 +50,6 @@ function displayRootComments(response) { //this is a callback function from API_
     for (i = 0; i < rootCommentsArray.length; i++) {
       commentsDiv.appendChild(rootCommentsArray[i].getListItem());
     }
-    autoScroll();
+    //autoScroll();
   }
 }
