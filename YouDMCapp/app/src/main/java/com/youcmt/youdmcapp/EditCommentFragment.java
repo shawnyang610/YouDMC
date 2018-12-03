@@ -15,6 +15,8 @@ import android.widget.EditText;
 /**
  * Created by Stanislav Ostrovskii on 11/21/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
+ * This fragment is the view where the registered user is able to edit
+ * their comment.
  */
 
 public class EditCommentFragment extends DialogFragment {
