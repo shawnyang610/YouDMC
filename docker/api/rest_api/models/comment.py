@@ -42,7 +42,7 @@ class CommentModel(db.Model):
         else:
             self.vid = 0
 
-    
+    # jason representation of each comment
     def to_json(self, user_id):
         ratings_count = [rating.rating for rating in self.ratings]
         user_ids_ratings = dict((rating.user_id, rating.rating )for rating in self.ratings)

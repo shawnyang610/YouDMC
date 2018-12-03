@@ -1,3 +1,6 @@
+#### This file needs to be run the first time system is initialized
+#### Caution: this file will drop all existing tables in the database
+#### make sure to migrate properly before running
 import sys
 import os
 from werkzeug.security import generate_password_hash

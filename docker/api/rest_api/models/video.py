@@ -1,6 +1,6 @@
 from rest_api import db
 from datetime import datetime
-
+#### saves each video title (with an unique vid)
 class VideoModel(db.Model):
     __tablename__ = "videos"
 

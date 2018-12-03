@@ -8,7 +8,7 @@ from flask_jwt_extended import (
 
 
 
-
+#### used to get a new access_token with an existing refresh_token
 class TokenRefresh(Resource):
     
     @jwt_refresh_token_required
@@ -17,7 +17,8 @@ class TokenRefresh(Resource):
         access_token = create_access_token(identity=identity)
         return {"access_token":access_token}
 
-
+#### checks wether or not an access_token is valid
+#### for debug use only
 class AccessTokenCheck(Resource):
 
     @jwt_required

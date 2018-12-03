@@ -1,6 +1,8 @@
 from rest_api import db
 from datetime import datetime
 
+#### used to store the revoked tokens
+#### a token is revoked when user logs out
 class RevokedTokenModel(db.Model):
     __tablename__ = "revoked_tokens"
 
