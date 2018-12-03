@@ -123,7 +123,12 @@ public class ReplyFragment extends Fragment  implements CommentHolder.FragmentCa
     private void fetchComments()
     {
         ApiEndPoint client = RetrofitClient.getApiEndpoint();
-        retrofit2.Call<CommentResponse> call = client.loadReplies(String.valueOf(mComment.getId()), header());
+        retrofit2.Call<CommentResponse> call;
+        if(mPreferences.getInt(USER_ID, ID_GUEST)==ID_GUEST) {
+            call = client.loadReplies(String.valueOf(mComment.getId()), header());
+        } else {
+            call = client.loadRepliesLoggedIn(getAuthHeader(), String.valueOf(mComment.getId()), header());
+        }
         call.enqueue(new Callback<CommentResponse>() {
             @Override
             public void onResponse(retrofit2.Call<CommentResponse> call, Response<CommentResponse> response) {

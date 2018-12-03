@@ -20,6 +20,8 @@ import static com.youcmt.youdmcapp.Constants.*;
 /**
  * Created by Stanislav Ostrovskii on 9/27/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
+ * This service fetches all the information associated with a video from the Server.
+ * If no video exists, the server creates a new file for the video.
  */
 
 public class FetchVideoService extends IntentService {

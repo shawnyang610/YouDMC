@@ -98,7 +98,10 @@
             android:text="@string/change_email"
             style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"/>
     </LinearLayout>
+
+    <!-- TODO FIX THIS -->
     <Button
+        android:visibility="invisible"
         android:id="@+id/expand_image_change"
         android:text="@string/change_avatar"
         android:textAlignment="textStart"
