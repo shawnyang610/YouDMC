@@ -96,7 +96,7 @@ class UserLogin(Resource):
         'password', type=str, required=True, help='password cannot be blank.'
     )
 
-    expires = datetime.timedelta(days=365)
+    expires = datetime.timedelta(minutes=15)
 
     def post(self):
         data = self.user_parser.parse_args()
