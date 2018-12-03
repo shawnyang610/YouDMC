@@ -134,25 +134,26 @@ public class CommentFragment extends Fragment {
     private void fetchComments()
     {
         ApiEndPoint endPoint = RetrofitClient.getApiEndpoint();
-        Call<CommentResponse> call = endPoint.loadComments(mVideo.getVid(), header());
+        Call<CommentResponse> call;
+        if(mPreferences.getInt(USER_ID, ID_GUEST)==ID_GUEST) {
+            call = endPoint.loadComments(mVideo.getVid(), header());
+        } else {
+            call = endPoint.loadCommentsLoggedIn(getAuthHeader(), mVideo.getVid(), header());
+        }
         call.enqueue(new Callback<CommentResponse>() {
             @Override
             public void onResponse(Call<CommentResponse> call, Response<CommentResponse> response) {
-
-                if(response.code()==200) {
+                if (response.code() == 200) {
                     CommentResponse commentResponse = response.body();
                     processComments(commentResponse);
-                }
-                else
-                {
+                } else {
                     displayErrorMessage(response);
                 }
             }
 
             @Override
             public void onFailure(Call<CommentResponse> call, Throwable t) {
-                Log.d(TAG, "onFailureCalled "  + t.getMessage());
-                displayUnknownError();
+                Toast.makeText(getActivity(), R.string.network_error, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -173,14 +174,12 @@ public class CommentFragment extends Fragment {
         else {
             response = client.postComment(getAuthHeader(), postRequest, header());
         }
-        Log.d(TAG, "URL: " + response.request().url().toString());
         response.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
-                Log.d(TAG, "Response code: " + response.code());
                 if(response.code()==200)
                 {
-                    Toast.makeText(getActivity(), "Comment posted!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.comment_posted_toast, Toast.LENGTH_SHORT).show();
                     mRecyclerView.setVisibility(GONE);
                     mFragmentView.findViewById(R.id.comment_pb).setVisibility(VISIBLE);
                     fetchComments(); //reload comment list
@@ -192,13 +191,13 @@ public class CommentFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(getActivity(), t.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), R.string.network_error, Toast.LENGTH_LONG).show();
             }
         });
     }
 
     private void displayUnknownError() {
-        Toast.makeText(getActivity(), "Unknown error occurred! Oops!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), R.string.unknown_error, Toast.LENGTH_SHORT).show();
     }
 
     private void displayErrorMessage(Response response)
@@ -212,12 +211,10 @@ public class CommentFragment extends Fragment {
         } catch (IOException e) {
             displayUnknownError();
             e.printStackTrace();
-            Log.d(TAG, "IOException");
         } catch (JSONException j)
         {
             displayUnknownError();
             j.printStackTrace();
-            Log.d(TAG, "JSONException");
         }
     }
 
