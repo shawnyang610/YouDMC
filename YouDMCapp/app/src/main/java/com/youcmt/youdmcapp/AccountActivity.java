@@ -198,7 +198,7 @@ public class AccountActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(AccountActivity.this, "Network error! Check your internet connection.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AccountActivity.this, R.string.network_error, Toast.LENGTH_SHORT).show();
             }
         });
     }

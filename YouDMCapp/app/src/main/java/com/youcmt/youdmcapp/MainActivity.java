@@ -143,8 +143,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.d(TAG, "Could not reach server");
-                Toast.makeText(MainActivity.this, "Trouble connecting to server!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, R.string.network_error, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -210,54 +209,39 @@ public class MainActivity extends AppCompatActivity {
         callAccess.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if(response.code()==200)
-                {
-                    try {
-                        Log.d(TAG, "Body: " + response.body().string());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                else {
+
+                if(response.code()!=200) {
                     try {
                         Toast.makeText(MainActivity.this, "Error code "
                                 + response.code() + ": " + response.errorBody().string(), Toast.LENGTH_LONG).show();
                     } catch (IOException e) {
-                        Toast.makeText(MainActivity.this, "Critical security error!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, R.string.unknown_error, Toast.LENGTH_LONG).show();
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Critical security error occurred!", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, R.string.security_error, Toast.LENGTH_LONG).show();
             }
         });
         callRefresh.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 Log.d(TAG, "Refresh code: " + response.code());
-                if(response.code()==200)
-                {
-                    try {
-                        Log.d(TAG, "Body: " + response.body().string());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                else {
+                if(response.code()!=200) {
                     try {
                         Toast.makeText(MainActivity.this, "Error code "
                                 + response.code() + ": " + response.errorBody().string(), Toast.LENGTH_LONG).show();
                     } catch (IOException e) {
-                        Toast.makeText(MainActivity.this, "Critical security error!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, R.string.security_error, Toast.LENGTH_LONG).show();
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Critical security error!", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, R.string.network_error, Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -273,18 +257,15 @@ public class MainActivity extends AppCompatActivity {
 
                 if(response.code()==200) {
                     mTokenValid = true;
-                    Log.d(TAG, "Access token is valid");
                 }
                 else  {
                     mTokenValid = false;
-                    Log.d(TAG, "Access token is invalid");
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.d(TAG, "Could not reach server");
-                Toast.makeText(MainActivity.this, "Trouble connecting to server!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, R.string.network_error, Toast.LENGTH_SHORT).show();
                 mTokenValid = false;
             }
         });

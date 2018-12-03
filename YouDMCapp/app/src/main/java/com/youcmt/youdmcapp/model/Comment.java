@@ -22,6 +22,7 @@ public class Comment implements Serializable {
     private int like;
     private int dislike;
     private int count;
+    private int voted;
 
     public int getId() {
         return id;
@@ -122,5 +123,9 @@ public class Comment implements Serializable {
 
     public void setProfile_img(String profile_img) {
         this.profile_img = profile_img;
+    }
+
+    public int getVoted() {
+        return voted;
     }
 }
