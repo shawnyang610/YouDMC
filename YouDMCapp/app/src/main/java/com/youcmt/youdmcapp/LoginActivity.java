@@ -18,7 +18,10 @@ import static com.youcmt.youdmcapp.Constants.REFRESH_TOKEN;
 import static com.youcmt.youdmcapp.Constants.USERNAME;
 import static com.youcmt.youdmcapp.Constants.USER_ID;
 
-
+/**
+ * The launcher activity of the application.
+ * This activity contains the fragments for login and registration.
+ */
 public class LoginActivity extends AppCompatActivity implements LoginCallbacks {
     private static final String TAG = "LoginActivity";
     private SharedPreferences.Editor mEditor;
