@@ -6,6 +6,7 @@ from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
     jwt_required,
+    fresh_jwt_required,
     jwt_refresh_token_required,
     get_raw_jwt,
     get_jwt_identity
@@ -227,7 +228,7 @@ class UpdateProfile(Resource):
     parser.add_argument(
         "new_password", type=str, required=False
     )
-    @jwt_required
+    @fresh_jwt_required
     def post(self):
         user_id =int(get_jwt_identity()['id'])
         user = UserModel.find_by_id(id=user_id)
