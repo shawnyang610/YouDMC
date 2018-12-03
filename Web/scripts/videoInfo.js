@@ -13,6 +13,7 @@ function showEmbedVideo() {
 
 function displayVideoInfo() {
   var videoInfoDiv = document.getElementById("videoInfo");
+  videoInfoDiv.innerHTML = "";
   videoInfoDiv.className = "mt-3"; //get rid of spinning circle
   if (videoInfo == null || videoInfo.message != null) {
     //videoInfoDiv.className = "bg-info"
