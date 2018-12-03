@@ -431,10 +431,9 @@ public class CommentHolder extends RecyclerView.ViewHolder
         response.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Log.d(TAG, "Response code: " + response.code());
                 if(response.code()==200) {
                     mCommentBody.setText(mComment.getText());
-                    Toast.makeText(mActivity, "Comment updated", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mActivity, R.string.comment_updated, Toast.LENGTH_SHORT).show();
                 }
                 else {
                     try {
@@ -443,13 +442,11 @@ public class CommentHolder extends RecyclerView.ViewHolder
                     } catch (IOException e) {
                         displayUnknownError();
                         e.printStackTrace();
-                        Log.d(TAG, "IOException");
                     } catch (JSONException j)
                     {
                         displayUnknownError();
                         j.printStackTrace();
-                        Log.d(TAG, "JSONException");
-                    }
+                      }
                 }
             }
 

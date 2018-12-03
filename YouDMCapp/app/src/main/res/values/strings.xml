@@ -90,4 +90,6 @@
     <string name="update_success">Profile updated successfully.</string>
     <string name="network_error">Network error! Check your internet connection.</string>
     <string name="comment_posted_toast">Comment posted!</string>
+    <string name="security_error">Critical security error!</string>
+    <string name="comment_updated">Comment updated</string>
 </resources>
