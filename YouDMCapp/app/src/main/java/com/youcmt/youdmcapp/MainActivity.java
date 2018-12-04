@@ -105,10 +105,11 @@ public class MainActivity extends AppCompatActivity {
                 mUrlEditText.setText(value);
             }
         }
+        else {
+            Log.d(TAG, "MainActivity was reached through app");
+        }
 
         checkToken();
-        if(!mTokenValid)
-            refreshAccessToken();
     }
 
     private void refreshAccessToken() {
@@ -134,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
                 else  {
                     try {
                         JSONObject jObjError = new JSONObject(response.errorBody().string());
-                        Toast.makeText(MainActivity.this, jObjError.getString("message"), Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, jObjError.getString("msg"), Toast.LENGTH_LONG).show();
                     } catch (Exception e) {
                         Log.d(TAG, e.getMessage());
                     }
@@ -205,7 +206,6 @@ public class MainActivity extends AppCompatActivity {
         Call<ResponseBody> callAccess = client.logoutAccess("Bearer " + mPreferences.getString(ACCESS_TOKEN, ""));
         Call<ResponseBody> callRefresh = client.logoutRefresh("Bearer " + mPreferences.getString(REFRESH_TOKEN, ""));
 
-        Log.d(TAG, callAccess.request().url().toString()+ " " + callRefresh.request().url().toString());
         callAccess.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -228,7 +228,6 @@ public class MainActivity extends AppCompatActivity {
         callRefresh.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Log.d(TAG, "Refresh code: " + response.code());
                 if(response.code()!=200) {
                     try {
                         Toast.makeText(MainActivity.this, "Error code "
@@ -248,7 +247,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkToken() {
         String token = "Bearer " + mPreferences.getString(ACCESS_TOKEN, "");
-        //Log.d(TAG, "Token: " + token);
         ApiEndPoint client = RetrofitClient.getApiEndpoint();
         Call<ResponseBody> call = client.checkToken(token);
         call.enqueue(new Callback<ResponseBody>() {
@@ -260,6 +258,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else  {
                     mTokenValid = false;
+                    refreshAccessToken();
                 }
             }
 
@@ -267,6 +266,7 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Toast.makeText(MainActivity.this, R.string.network_error, Toast.LENGTH_SHORT).show();
                 mTokenValid = false;
+                refreshAccessToken();
             }
         });
     }

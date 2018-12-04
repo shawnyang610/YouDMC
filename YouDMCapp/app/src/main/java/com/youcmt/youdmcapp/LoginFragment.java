@@ -98,7 +98,6 @@ public class LoginFragment extends Fragment {
         header.put("Content-Type", "application/json");
 
         Call<LoginResponse> response = client.login(request, header);
-        Log.d(TAG, "URL: " + response.request().url().toString());
 
         response.enqueue(new Callback<LoginResponse>() {
             @Override

@@ -92,4 +92,6 @@
     <string name="comment_posted_toast">Comment posted!</string>
     <string name="security_error">Critical security error!</string>
     <string name="comment_updated">Comment updated</string>
+    <string name="no_youtube_app_error">Error. Do you have the YouTube app installed?</string>
+    <string name="login_again">Please log in again</string>
 </resources>

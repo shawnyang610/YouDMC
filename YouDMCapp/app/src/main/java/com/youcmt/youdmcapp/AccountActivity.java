@@ -1,5 +1,6 @@
 package com.youcmt.youdmcapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,12 +33,16 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static com.youcmt.youdmcapp.Constants.ACCESS_TOKEN;
+import static com.youcmt.youdmcapp.Constants.ID_NONE;
+import static com.youcmt.youdmcapp.Constants.LOGGED_IN;
+import static com.youcmt.youdmcapp.Constants.REFRESH_TOKEN;
 import static com.youcmt.youdmcapp.Constants.USERNAME;
+import static com.youcmt.youdmcapp.Constants.USER_ID;
 
 /**
  * Created by Stanislav Ostrovskii on 11/21/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
- * An activity where the user can change their e-mail, password,
+ * An activity that allows the user to change their e-mail, password,
  * and avatar.
  */
 public class AccountActivity extends AppCompatActivity {
@@ -131,7 +136,6 @@ public class AccountActivity extends AppCompatActivity {
                 }
                 else if(!ValidationUtils.isPasswordValid(currPassEntry))
                 {
-                    Toast.makeText(AccountActivity.this, "" + currPassEntry, Toast.LENGTH_SHORT).show();
                     Toast.makeText(AccountActivity.this, R.string.password_incorrect, Toast.LENGTH_SHORT).show();
                 }
                 else
@@ -180,7 +184,6 @@ public class AccountActivity extends AppCompatActivity {
     private void tryUpdatingProfile(UpdateProfileRequest request) {
         ApiEndPoint client = RetrofitClient.getApiEndpoint();
         Call<ResponseBody> response = client.updateProfile(getAuthHeader(), request, header());
-        Log.d(TAG, "URL: " + response.request().url().toString());
 
         response.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -192,7 +195,25 @@ public class AccountActivity extends AppCompatActivity {
                     clearForm((ViewGroup) findViewById(R.id.email_layout));
                 }
                 else {
-                    displayErrorMessage(response);
+                    try {
+                        JSONObject errorMessage = new JSONObject(response.errorBody().string());
+                        String errorString = errorMessage.getString("msg");
+                        errorString = errorString.substring(0, 1).toUpperCase() + errorString.substring(1);
+                        if(errorString.equalsIgnoreCase("Fresh token required"))
+                        {
+                            Toast.makeText(AccountActivity.this, R.string.login_again, Toast.LENGTH_SHORT).show();
+                            logoutUser();
+                        }
+                        else Toast.makeText(AccountActivity.this, errorString, Toast.LENGTH_SHORT).show();
+
+                    } catch (IOException e) {
+                        displayUnknownError();
+                        e.printStackTrace();
+                    } catch (JSONException j)
+                    {
+                        displayUnknownError();
+                        j.printStackTrace();
+                    }
                 }
             }
 
@@ -201,6 +222,24 @@ public class AccountActivity extends AppCompatActivity {
                 Toast.makeText(AccountActivity.this, R.string.network_error, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void logoutUser() {
+        revokeTokens();
+        Boolean success =
+                mPreferences.edit()
+                        .putBoolean(LOGGED_IN, false)
+                        .putInt(USER_ID, ID_NONE)
+                        .putString(ACCESS_TOKEN, null)
+                        .putString(REFRESH_TOKEN, null)
+                        .commit();
+        if (success) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        } else {
+            Toast.makeText(this, R.string.unknown_error, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private HashMap<String,String> header() {
@@ -212,25 +251,6 @@ public class AccountActivity extends AppCompatActivity {
     @NonNull
     private String getAuthHeader() {
         return "Bearer " + mPreferences.getString(ACCESS_TOKEN, "");
-    }
-
-
-    private void displayErrorMessage(Response<ResponseBody> response) {
-        try {
-            Log.d(TAG, String.valueOf(response.code()));
-            JSONObject errorMessage = new JSONObject(response.errorBody().string());
-            String errorString = errorMessage.getString("message");
-            errorString = errorString.substring(0, 1).toUpperCase() + errorString.substring(1);
-            Toast.makeText(this, errorString, Toast.LENGTH_SHORT).show();
-
-        } catch (IOException e) {
-            displayUnknownError();
-            e.printStackTrace();
-        } catch (JSONException j)
-        {
-            displayUnknownError();
-            j.printStackTrace();
-        }
     }
 
     private void displayUnknownError() {
@@ -252,11 +272,56 @@ public class AccountActivity extends AppCompatActivity {
         for (int i = 0, count = group.getChildCount(); i < count; ++i) {
             View view = group.getChildAt(i);
             if (view instanceof EditText) {
-                ((EditText)view).setText("");
+                ((EditText) view).setText("");
             }
 
-            if(view instanceof ViewGroup && (((ViewGroup)view).getChildCount() > 0))
-                clearForm((ViewGroup)view);
+            if (view instanceof ViewGroup && (((ViewGroup) view).getChildCount() > 0))
+                clearForm((ViewGroup) view);
         }
     }
+
+    private void revokeTokens() {
+        ApiEndPoint client = RetrofitClient.getApiEndpoint();
+        Call<ResponseBody> callAccess = client.logoutAccess("Bearer " + mPreferences.getString(ACCESS_TOKEN, ""));
+        Call<ResponseBody> callRefresh = client.logoutRefresh("Bearer " + mPreferences.getString(REFRESH_TOKEN, ""));
+
+        callAccess.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                if(response.code()!=200) {
+                    try {
+                        Toast.makeText(AccountActivity.this, "Error code "
+                                + response.code() + ": " + response.errorBody().string(), Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        Toast.makeText(AccountActivity.this, R.string.unknown_error, Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(AccountActivity.this, R.string.security_error, Toast.LENGTH_LONG).show();
+            }
+        });
+        callRefresh.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response.code()!=200) {
+                    try {
+                        Toast.makeText(AccountActivity.this, "Error code "
+                                + response.code() + ": " + response.errorBody().string(), Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        Toast.makeText(AccountActivity.this, R.string.security_error, Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(AccountActivity.this, R.string.network_error, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
 }

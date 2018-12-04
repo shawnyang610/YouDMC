@@ -35,7 +35,8 @@
         android:id="@+id/search_button"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/url_search_et"
-        android:text="@string/search_video"/>
+        android:text="@string/search_video"
+        style="@style/Widget.AppCompat.Button.Borderless"/>
     <ProgressBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
