@@ -25,6 +25,7 @@ import static com.youcmt.youdmcapp.Constants.USER_ID;
  */
 public class LoginActivity extends AppCompatActivity implements LoginCallbacks {
     private static final String TAG = "LoginActivity";
+    private static final String TEST = "Branchtest";
     private SharedPreferences.Editor mEditor;
 
     @Override
