@@ -53,6 +53,7 @@ public class AccountActivity extends AppCompatActivity {
     private LinearLayout mPassLayout;
     private LinearLayout mEmailLayout;
     private FrameLayout mAvatarLayout;
+    private boolean mTokenValid;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -182,6 +183,7 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void tryUpdatingProfile(UpdateProfileRequest request) {
+        checkToken();
         ApiEndPoint client = RetrofitClient.getApiEndpoint();
         Call<ResponseBody> response = client.updateProfile(getAuthHeader(), request, header());
 
@@ -197,7 +199,13 @@ public class AccountActivity extends AppCompatActivity {
                 else {
                     try {
                         JSONObject errorMessage = new JSONObject(response.errorBody().string());
+
+                        //the API seems to be inconsistent with error messages.
+                        //so we try to extract both "msg" and "message"
+                        //and give up only if both are null
                         String errorString = errorMessage.getString("msg");
+                        if(errorString==null) errorString = errorMessage.getString("message");
+
                         errorString = errorString.substring(0, 1).toUpperCase() + errorString.substring(1);
                         if(errorString.equalsIgnoreCase("Fresh token required"))
                         {
@@ -323,5 +331,70 @@ public class AccountActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void checkToken() {
+        String token = "Bearer " + mPreferences.getString(ACCESS_TOKEN, "");
+        ApiEndPoint client = RetrofitClient.getApiEndpoint();
+        Call<ResponseBody> call = client.checkToken(token);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                if(response.code()==200) {
+                    mTokenValid = true;
+                }
+                else  {
+                    mTokenValid = false;
+                    refreshAccessToken();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(AccountActivity.this, R.string.network_error, Toast.LENGTH_SHORT).show();
+                mTokenValid = false;
+                refreshAccessToken();
+            }
+        });
+    }
+
+    private void refreshAccessToken() {
+        String token = "Bearer " + mPreferences.getString(REFRESH_TOKEN, "");
+        ApiEndPoint client = RetrofitClient.getApiEndpoint();
+        Call<ResponseBody> call = client.refreshToken(token);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                if(response.code()==200) {
+                    mTokenValid = true;
+                    try {
+                        JSONObject message = new JSONObject(response.body().string());
+                        mPreferences.edit().putString(ACCESS_TOKEN, message.getString("access_token")).apply();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else  {
+                    try {
+                        JSONObject jObjError = new JSONObject(response.errorBody().string());
+                        Toast.makeText(AccountActivity.this, jObjError.getString("msg"), Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Log.d(TAG, e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(AccountActivity.this, R.string.network_error, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
 
 }

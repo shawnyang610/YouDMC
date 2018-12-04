@@ -30,6 +30,8 @@ import retrofit2.http.Query;
 /**
  * Created by Stanislav Ostrovskii on 9/18/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
+ * These are the all of the API endpoints for use with the Retrofit Library
+ * for communication with the web server.
  */
 
 public interface ApiEndPoint {
@@ -37,6 +39,9 @@ public interface ApiEndPoint {
     @GET("video/info")
     Call<Video> videoWithUrl(@Query("vid") String url,
                              @HeaderMap HashMap<String, String> headerMap);
+
+    @GET("video/whatshot")
+    Call<ResponseBody> getWhatsHot(@HeaderMap HashMap<String, String> headerMap);
 
     @POST("user/register")
     Call<LoginResponse> registerUser(@Body RegisterRequest registerRequest,
@@ -117,5 +122,4 @@ public interface ApiEndPoint {
     Call<CommentResponse> loadCommentsLoggedIn(@Header("Authorization") String authorization,
                                               @Query("vid") String url,
                                               @HeaderMap HashMap<String, String> headerMap);
-
 }

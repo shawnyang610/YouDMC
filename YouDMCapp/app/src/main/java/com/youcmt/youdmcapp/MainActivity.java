@@ -107,9 +107,36 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             Log.d(TAG, "MainActivity was reached through app");
+            //TODO add whats hot
         }
 
         checkToken();
+    }
+
+    private void checkToken() {
+        String token = "Bearer " + mPreferences.getString(ACCESS_TOKEN, "");
+        ApiEndPoint client = RetrofitClient.getApiEndpoint();
+        Call<ResponseBody> call = client.checkToken(token);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                if(response.code()==200) {
+                    mTokenValid = true;
+                }
+                else  {
+                    mTokenValid = false;
+                    refreshAccessToken();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(MainActivity.this, R.string.network_error, Toast.LENGTH_SHORT).show();
+                mTokenValid = false;
+                refreshAccessToken();
+            }
+        });
     }
 
     private void refreshAccessToken() {
@@ -241,32 +268,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Toast.makeText(MainActivity.this, R.string.network_error, Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    private void checkToken() {
-        String token = "Bearer " + mPreferences.getString(ACCESS_TOKEN, "");
-        ApiEndPoint client = RetrofitClient.getApiEndpoint();
-        Call<ResponseBody> call = client.checkToken(token);
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-
-                if(response.code()==200) {
-                    mTokenValid = true;
-                }
-                else  {
-                    mTokenValid = false;
-                    refreshAccessToken();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(MainActivity.this, R.string.network_error, Toast.LENGTH_SHORT).show();
-                mTokenValid = false;
-                refreshAccessToken();
             }
         });
     }
