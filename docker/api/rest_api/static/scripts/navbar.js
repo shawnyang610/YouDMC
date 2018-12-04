@@ -62,7 +62,7 @@ function createAccountForm() {
 
 function createGreetingText() {
   var greetingTextNode = document.createElement("span");
-  greetingTextNode.className = "navbar-text mr-2";
+  greetingTextNode.className = "navbar-text text-white mr-2";
   greetingTextNode.innerHTML = "Greetings, " + userCookie.uname;
   return greetingTextNode;
 }

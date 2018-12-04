@@ -1,7 +1,7 @@
 function loadHomePage() {
   var content = getDOM("content");
   content.className = "allign-center";
-  var homeTitle = document.createElement("h1");
+  var homeTitle = document.createElement("h3");
     homeTitle.appendChild(createText("Welcome to YouCMT.com!"))
   content.innerHTML = "";
   content.appendChild(homeTitle);
@@ -15,6 +15,9 @@ function fillHotVideos(response) {
     return;
   }
   var array = response.message;
+  if (array == null || array.length == 0) { //in case unable to get
+    return;
+  }
   var content = getDOM("content");
   content.appendChild(createP("Currently Discussed", "h4 font-italic"));
   for (i = 0; i < array.length; i++) {

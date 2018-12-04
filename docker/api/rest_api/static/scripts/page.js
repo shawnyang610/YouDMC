@@ -22,9 +22,8 @@ function setup() {
 }
 
 function initializeGlobalVars() {
-  videoID = getMeta("videoID");
-  getDOM("videoInfo").innerHTML = "";
-  rootCommentsArray = [];  
+  videoID = getMeta("videoID");  
+  rootCommentsArray = [];
   getSessionStorage();
 }
 
