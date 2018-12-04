@@ -40,6 +40,9 @@ public interface ApiEndPoint {
     Call<Video> videoWithUrl(@Query("vid") String url,
                              @HeaderMap HashMap<String, String> headerMap);
 
+    @GET("video/whatshot")
+    Call<ResponseBody> getWhatsHot(@HeaderMap HashMap<String, String> headerMap);
+
     @POST("user/register")
     Call<LoginResponse> registerUser(@Body RegisterRequest registerRequest,
                                      @HeaderMap HashMap<String, String> headerMap);
