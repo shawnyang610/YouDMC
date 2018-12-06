@@ -35,7 +35,19 @@
         android:id="@+id/search_button"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/url_search_et"
-        android:text="@string/search_video"/>
+        android:text="@string/search_video"
+        style="@style/Widget.AppCompat.Button.Borderless"/>
+    <TextView
+        android:id="@+id/whats_hot_tv"
+        android:paddingTop="30dp"
+        android:textColor="@color/colorLink"
+        android:textStyle="italic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/search_button"
+        android:text="@string/whats_hot_button_label"
+        android:textSize="18sp"/>
     <ProgressBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
