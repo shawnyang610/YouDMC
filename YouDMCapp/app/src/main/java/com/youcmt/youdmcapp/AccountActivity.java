@@ -185,7 +185,7 @@ public class AccountActivity extends AppCompatActivity {
     private void tryUpdatingProfile(UpdateProfileRequest request) {
         checkToken();
         ApiEndPoint client = RetrofitClient.getApiEndpoint();
-        Call<ResponseBody> response = client.updateProfile(getAuthHeader(), request, header());
+        Call<ResponseBody> response = client.updateProfile(getAuthHeader(), request, Constants.jsonHeader());
 
         response.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -248,12 +248,6 @@ public class AccountActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, R.string.unknown_error, Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private HashMap<String,String> header() {
-        HashMap header = new HashMap();
-        header.put("Content-Type", "application/json");
-        return header;
     }
 
     @NonNull

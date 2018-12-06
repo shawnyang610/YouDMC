@@ -69,16 +69,13 @@ public class FetchVideoService extends IntentService {
                     }
                     else
                     {
-                        Log.d(TAG, String.valueOf(response.code()));
                         returnToActivity(FAIL);
                     }
                 }
 
                 @Override
                 public void onFailure(Call<Video> call, Throwable t) {
-                    Log.d(TAG, "onFailure() called");
                     returnToActivity(FAIL);
-
                 }
             });
 

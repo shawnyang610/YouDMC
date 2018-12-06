@@ -136,9 +136,9 @@ public class CommentFragment extends Fragment {
         ApiEndPoint endPoint = RetrofitClient.getApiEndpoint();
         Call<CommentResponse> call;
         if(mPreferences.getInt(USER_ID, ID_GUEST)==ID_GUEST) {
-            call = endPoint.loadComments(mVideo.getVid(), header());
+            call = endPoint.loadComments(mVideo.getVid(), Constants.jsonHeader());
         } else {
-            call = endPoint.loadCommentsLoggedIn(getAuthHeader(), mVideo.getVid(), header());
+            call = endPoint.loadCommentsLoggedIn(getAuthHeader(), mVideo.getVid(), Constants.jsonHeader());
         }
         call.enqueue(new Callback<CommentResponse>() {
             @Override
@@ -169,10 +169,10 @@ public class CommentFragment extends Fragment {
         Call<ResponseBody> response;
         if(mPreferences.getInt(USER_ID, ID_GUEST)==ID_GUEST)
         {
-            response = client.postCommentGuest(postRequest, header());
+            response = client.postCommentGuest(postRequest, Constants.jsonHeader());
         }
         else {
-            response = client.postComment(getAuthHeader(), postRequest, header());
+            response = client.postComment(getAuthHeader(), postRequest, Constants.jsonHeader());
         }
         response.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -260,14 +260,7 @@ public class CommentFragment extends Fragment {
     private String getAuthHeader() {
         return "Bearer " + mPreferences.getString(ACCESS_TOKEN, "");
     }
-
-    private HashMap header()
-    {
-        HashMap header = new HashMap();
-        header.put("Content-Type", "application/json");
-        return header;
-    }
-
+    
     /**
      * Seeks to choose an appropriate text size depending on video title length
      * @param string video title length

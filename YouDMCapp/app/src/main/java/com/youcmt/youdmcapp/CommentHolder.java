@@ -310,6 +310,7 @@ public class CommentHolder extends RecyclerView.ViewHolder
         }
         setListeners();
     }
+
     private String getTimeAgoString(String date)
     {
         int[] values = TimeConversionUtil.timeDifferencesValues(date);
@@ -383,10 +384,8 @@ public class CommentHolder extends RecyclerView.ViewHolder
         DeleteCommentRequest request =
                 new DeleteCommentRequest(mComment.getId());
         ApiEndPoint apiEndPoint = RetrofitClient.getApiEndpoint();
-        HashMap header = new HashMap();
-        header.put("Content-Type", "application/json");
 
-        Call<ResponseBody> response = apiEndPoint.deleteComment("Bearer " + mPreferences.getString(ACCESS_TOKEN, ""), request, header);
+        Call<ResponseBody> response = apiEndPoint.deleteComment("Bearer " + mPreferences.getString(ACCESS_TOKEN, ""), request, Constants.jsonHeader());
         response.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -424,10 +423,8 @@ public class CommentHolder extends RecyclerView.ViewHolder
         UpdateCommentRequest request =
                 new UpdateCommentRequest(mComment.getId(), mComment.getText());
         ApiEndPoint apiEndPoint = RetrofitClient.getApiEndpoint();
-        HashMap header = new HashMap();
-        header.put("Content-Type", "application/json");
 
-        Call<ResponseBody> response = apiEndPoint.updateComment("Bearer " + mPreferences.getString(ACCESS_TOKEN, ""), request, header);
+        Call<ResponseBody> response = apiEndPoint.updateComment("Bearer " + mPreferences.getString(ACCESS_TOKEN, ""), request, Constants.jsonHeader());
         response.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {

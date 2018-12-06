@@ -15,6 +15,7 @@ import com.youcmt.youdmcapp.model.ResetPasswordRequest;
 import com.youcmt.youdmcapp.model.UpdateCommentRequest;
 import com.youcmt.youdmcapp.model.UpdateProfileRequest;
 import com.youcmt.youdmcapp.model.Video;
+import com.youcmt.youdmcapp.model.WhatsHot;
 
 import java.util.HashMap;
 
@@ -41,7 +42,7 @@ public interface ApiEndPoint {
                              @HeaderMap HashMap<String, String> headerMap);
 
     @GET("video/whatshot")
-    Call<ResponseBody> getWhatsHot(@HeaderMap HashMap<String, String> headerMap);
+    Call<WhatsHot> getWhatsHot(@HeaderMap HashMap<String, String> headerMap);
 
     @POST("user/register")
     Call<LoginResponse> registerUser(@Body RegisterRequest registerRequest,
