@@ -53,7 +53,6 @@ public class AccountActivity extends AppCompatActivity {
     private LinearLayout mPassLayout;
     private LinearLayout mEmailLayout;
     private FrameLayout mAvatarLayout;
-    private boolean mTokenValid;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -62,6 +61,7 @@ public class AccountActivity extends AppCompatActivity {
         mAvatarFragment = getSupportFragmentManager().findFragmentById(R.id.image_layout);
         mPreferences = getSharedPreferences("com.youcmt.youdmcapp", MODE_PRIVATE);
         setTopText();
+
         Button expandPassButton = findViewById(R.id.expand_password_change);
         expandPassButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -293,8 +293,8 @@ public class AccountActivity extends AppCompatActivity {
 
                 if(response.code()!=200) {
                     try {
-                        Toast.makeText(AccountActivity.this, "Error code "
-                                + response.code() + ": " + response.errorBody().string(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(AccountActivity.this,
+                                response.errorBody().string(), Toast.LENGTH_LONG).show();
                     } catch (IOException e) {
                         Toast.makeText(AccountActivity.this, R.string.unknown_error, Toast.LENGTH_LONG).show();
                     }
@@ -335,10 +335,9 @@ public class AccountActivity extends AppCompatActivity {
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
                 if(response.code()==200) {
-                    mTokenValid = true;
+                    return;
                 }
                 else  {
-                    mTokenValid = false;
                     refreshAccessToken();
                 }
             }
@@ -346,7 +345,6 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Toast.makeText(AccountActivity.this, R.string.network_error, Toast.LENGTH_SHORT).show();
-                mTokenValid = false;
                 refreshAccessToken();
             }
         });
@@ -361,7 +359,6 @@ public class AccountActivity extends AppCompatActivity {
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
                 if(response.code()==200) {
-                    mTokenValid = true;
                     try {
                         JSONObject message = new JSONObject(response.body().string());
                         mPreferences.edit().putString(ACCESS_TOKEN, message.getString("access_token")).apply();

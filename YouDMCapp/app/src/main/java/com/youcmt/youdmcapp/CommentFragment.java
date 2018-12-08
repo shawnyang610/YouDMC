@@ -241,7 +241,6 @@ public class CommentFragment extends Fragment {
             mFragmentView.findViewById(R.id.no_comments_tv).setVisibility(VISIBLE);
         }
         else {
-            mRecyclerView.setVisibility(VISIBLE);
 
             mFragmentView.findViewById(R.id.no_comments_tv).setVisibility(View.GONE);
             if(mCommentAdapter==null)
@@ -253,6 +252,7 @@ public class CommentFragment extends Fragment {
                 mCommentAdapter.notifyDataSetChanged();
             }
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            mRecyclerView.setVisibility(VISIBLE);
         }
     }
 
