@@ -44,7 +44,7 @@ import static com.youcmt.youdmcapp.FetchVideoService.SUCCESS;
 /**
  * Created by Stanislav Ostrovskii on 9/18/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
- * The application's main activity, feauturing a URL entry search bar
+ * The application's main activity, featuring a URL entry search bar
  * and a menu with options.
  */
 
@@ -389,7 +389,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        unregisterReceiver(mReceiver);
+        if(mReceiver!=null)
+            unregisterReceiver(mReceiver);
         mIsReceiverSet = false;
         super.onPause();
     }
