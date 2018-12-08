@@ -3,6 +3,7 @@ package com.youcmt.youdmcapp;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -20,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
 import com.youcmt.youdmcapp.model.Comment;
 import com.youcmt.youdmcapp.model.DeleteCommentRequest;
 import com.youcmt.youdmcapp.model.RateRequest;
@@ -62,6 +64,8 @@ public class CommentHolder extends RecyclerView.ViewHolder
 
     private Comment mComment;
     private AppCompatActivity mActivity; //host activity
+
+    private ImageView mImageView;
     private TextView mTimestamp;
     private TextView mUsername;
     private TextView mCommentBody;
@@ -91,7 +95,9 @@ public class CommentHolder extends RecyclerView.ViewHolder
 
         mActivity = (AppCompatActivity) context;
         mPreferences = mActivity.getSharedPreferences("com.youcmt.youdmcapp", MODE_PRIVATE);
+
         mUsername = itemView.findViewById(R.id.username);
+        mImageView = itemView.findViewById(R.id.avatar);
         mCommentBody = itemView.findViewById(R.id.body);
         mTimestamp = itemView.findViewById(R.id.timestamp);
         mRankTextView = itemView.findViewById(R.id.rank);
@@ -100,6 +106,16 @@ public class CommentHolder extends RecyclerView.ViewHolder
         mDownButton = itemView.findViewById(R.id.down_button);
         mReplyButton = itemView.findViewById(R.id.reply_button);
         mCommentMenuButton = itemView.findViewById(R.id.comment_menu_button);
+    }
+
+    private void setImage() {
+        if(mComment.getProfile_img()!=null) {
+            String imgNumber = mComment.getProfile_img();
+            String url = Constants.BASE_AVATAR_URL + imgNumber + ".png";
+            Drawable placeholder = mActivity.getResources()
+                    .getDrawable(R.drawable.default_avatar);
+            Picasso.with(mActivity).load(url).placeholder(placeholder).into(mImageView);
+        }
     }
 
     private void setListeners() {
@@ -133,7 +149,7 @@ public class CommentHolder extends RecyclerView.ViewHolder
     private void rateComment(boolean up) {
         if(mPreferences.getInt(USER_ID, ID_GUEST)==ID_GUEST)
         {
-            Toast.makeText(mActivity, "You must log in to rate comments!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mActivity, R.string.login_to_rate, Toast.LENGTH_SHORT).show();
             return;
         }
         ApiEndPoint client = RetrofitClient.getApiEndpoint();
@@ -146,26 +162,23 @@ public class CommentHolder extends RecyclerView.ViewHolder
         response.enqueue(new Callback<RatingResponse>() {
             @Override
             public void onResponse(Call<RatingResponse> call, Response<RatingResponse> response) {
-                Log.d(TAG, "Response code: " + response.code());
-
                 if(response.code()==200)
                 {
-                    Toast.makeText(mActivity, "Feedback posted!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mActivity, R.string.feedback_posted, Toast.LENGTH_SHORT).show();
                     int rating = response.body().getRating();
                     toggleThumbs(rating);
                     mRankTextView.setText(String.valueOf(mComment.getLike()-mComment.getDislike()+rating));
                 }
                 else if(response.code()==404)
                 {
-                    Toast.makeText(mActivity, "Error code 404: Not Found", Toast.LENGTH_LONG).show();
+                    Toast.makeText(mActivity, R.string.error_404, Toast.LENGTH_LONG).show();
                 }
                 else
                 {
                     try {
                         JSONObject errorMessage = new JSONObject(response.errorBody().string());
                         String errorString = errorMessage.getString("message");
-                        Toast.makeText(mActivity, "Error code " +
-                                response.code() + ": " + errorString, Toast.LENGTH_LONG).show();
+                        Toast.makeText(mActivity, errorString, Toast.LENGTH_LONG).show();
                     } catch (IOException e) {
                         e.printStackTrace();
                         displayUnknownError();
@@ -309,6 +322,7 @@ public class CommentHolder extends RecyclerView.ViewHolder
             toggleThumbs(-1);
         }
         setListeners();
+        setImage();
     }
 
     private String getTimeAgoString(String date)

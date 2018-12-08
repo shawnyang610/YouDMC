@@ -10,6 +10,7 @@ import java.util.HashMap;
  */
 
 class Constants {
+    public static final String BASE_AVATAR_URL = "https://youcmt.com/static/images/avatars/";
     static final int ID_GUEST = 2;
     static final int ID_ADMIN = 1;
     static final int ID_NONE = 0;

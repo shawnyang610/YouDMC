@@ -102,4 +102,8 @@
     <string name="register_title">Please Register!</string>
     <string name="register_info">Registered users can rate comments, add personalized avatars, select unique usernames, and more! Register now?</string>
     <string name="yes_excited">Yes!</string>
+    <string name="change_avatar_prompt">Change your avatar?</string>
+    <string name="error_404">Error code 404: Not Found</string>
+    <string name="feedback_posted">Feedback posted!</string>
+    <string name="login_to_rate">You must log in to rate comments!</string>
 </resources>
