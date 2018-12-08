@@ -101,7 +101,6 @@
 
     <!-- TODO FIX THIS -->
     <Button
-        android:visibility="invisible"
         android:id="@+id/expand_image_change"
         android:text="@string/change_avatar"
         android:textAlignment="textStart"

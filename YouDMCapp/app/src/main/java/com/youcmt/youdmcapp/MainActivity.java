@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -27,6 +29,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -41,6 +44,8 @@ import static com.youcmt.youdmcapp.FetchVideoService.SUCCESS;
 /**
  * Created by Stanislav Ostrovskii on 9/18/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
+ * The application's main activity, feauturing a URL entry search bar
+ * and a menu with options.
  */
 
 public class MainActivity extends AppCompatActivity {
@@ -121,8 +126,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Launches an alertDialog to remind a Guest user
-     * of the advantages of registering
+     * Launches an AlertDialog to remind a guest user
+     * of the advantages of registering.
      */
     private void harassGuest() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -140,7 +145,8 @@ public class MainActivity extends AppCompatActivity {
                 dialogInterface.dismiss();
             }
         });
-        builder.show();
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void checkToken() {
