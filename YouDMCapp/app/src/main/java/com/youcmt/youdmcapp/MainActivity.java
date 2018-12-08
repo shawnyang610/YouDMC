@@ -389,11 +389,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        if(mIsReceiverSet)
-        {
-            unregisterReceiver(mReceiver);
-            mIsReceiverSet = false;
-        }
+        unregisterReceiver(mReceiver);
+        mIsReceiverSet = false;
         super.onPause();
     }
 }

@@ -81,8 +81,13 @@ public class LoginActivity extends AppCompatActivity implements LoginCallbacks {
                 .putString(USERNAME, response.getUsername())
                 .putBoolean(LOGGED_IN, true)
                 .putString(ACCESS_TOKEN, response.getAccess_token())
-                .putString(REFRESH_TOKEN, response.getRefresh_token())
-                .putString(PROFILE_IMG, response.getProfile_img()).apply();
+                .putString(REFRESH_TOKEN, response.getRefresh_token()).apply();
+        try {
+            mEditor.putInt(PROFILE_IMG, Integer.valueOf(response.getProfile_img())).apply();
+        } catch (ClassCastException cce)
+        {
+            Log.e(TAG, "ClassCastExceptionOccurred", cce);
+        }
         startMainActivity();
     }
 

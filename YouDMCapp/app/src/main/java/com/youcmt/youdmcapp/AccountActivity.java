@@ -2,6 +2,7 @@ package com.youcmt.youdmcapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -58,11 +59,15 @@ public class AccountActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
+        final Drawable arrowUp = getResources()
+                .getDrawable(R.drawable.ic_arrow_drop_up);
+        final Drawable arrowDown = getResources()
+                .getDrawable(R.drawable.ic_arrow_drop_down);
         mAvatarFragment = getSupportFragmentManager().findFragmentById(R.id.image_layout);
         mPreferences = getSharedPreferences("com.youcmt.youdmcapp", MODE_PRIVATE);
         setTopText();
 
-        Button expandPassButton = findViewById(R.id.expand_password_change);
+        final Button expandPassButton = findViewById(R.id.expand_password_change);
         expandPassButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -70,11 +75,17 @@ public class AccountActivity extends AppCompatActivity {
                     mPassLayout.setVisibility(View.VISIBLE);
                     mEmailLayout.setVisibility(View.GONE);
                     mAvatarLayout.setVisibility(View.GONE);
+                    expandPassButton.setCompoundDrawablesWithIntrinsicBounds(null, null, arrowUp, null);
+
                 }
-                else mPassLayout.setVisibility(View.GONE);
+                else
+                {
+                    expandPassButton.setCompoundDrawablesWithIntrinsicBounds(null, null, arrowDown, null);
+                    mPassLayout.setVisibility(View.GONE);
+                }
             }
         });
-        Button expandEmailButton = findViewById(R.id.expand_email_change);
+        final Button expandEmailButton = findViewById(R.id.expand_email_change);
         expandEmailButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -83,11 +94,16 @@ public class AccountActivity extends AppCompatActivity {
                     mPassLayout.setVisibility(View.GONE);
                     mEmailLayout.setVisibility(View.VISIBLE);
                     mAvatarLayout.setVisibility(View.GONE);
+                    expandEmailButton.setCompoundDrawablesWithIntrinsicBounds(null, null, arrowUp, null);
                 }
-                else mEmailLayout.setVisibility(View.GONE);
+                else
+                {
+                    expandEmailButton.setCompoundDrawablesWithIntrinsicBounds(null, null, arrowDown, null);
+                    mEmailLayout.setVisibility(View.GONE);
+                }
             }
         });
-        Button expandAvatarButton = findViewById(R.id.expand_image_change);
+        final Button expandAvatarButton = findViewById(R.id.expand_image_change);
         expandAvatarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -103,8 +119,13 @@ public class AccountActivity extends AppCompatActivity {
                         getSupportFragmentManager().beginTransaction()
                                 .add(R.id.image_layout, mAvatarFragment).commit();
                     }
+                    expandAvatarButton.setCompoundDrawablesWithIntrinsicBounds(null, null, arrowUp, null);
                 }
-                else mAvatarLayout.setVisibility(View.GONE);
+                else
+                {
+                    mAvatarLayout.setVisibility(View.GONE);
+                    expandAvatarButton.setCompoundDrawablesWithIntrinsicBounds(null, null, arrowDown, null);
+                }
             }
         });
 
@@ -232,7 +253,7 @@ public class AccountActivity extends AppCompatActivity {
         });
     }
 
-    private void logoutUser() {
+    public void logoutUser() {
         revokeTokens();
         Boolean success =
                 mPreferences.edit()

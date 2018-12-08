@@ -29,7 +29,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,6 +48,8 @@ import static com.youcmt.youdmcapp.Constants.USER_ID;
 /**
  * Created by Stanislav Ostrovskii on 10/25/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
+ * A fragment that holds all the top level comments for a given video,
+ * as well as it's description.
  */
 
 public class CommentFragment extends Fragment {
