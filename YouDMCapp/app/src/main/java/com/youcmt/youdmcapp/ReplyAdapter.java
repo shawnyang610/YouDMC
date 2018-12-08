@@ -12,7 +12,6 @@ import java.util.List;
 /**
  * Created by Stanislav Ostrovskii on 11/10/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
- * TODO:
  * Currently, this class exists only to hide comment reply button on reply comments.
  * Perhaps in the future it will have more functionality.
  */

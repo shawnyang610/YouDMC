@@ -45,6 +45,9 @@ import static com.youcmt.youdmcapp.Constants.USER_ID;
 /**
  * Created by Stanislav Ostrovskii on 10/25/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
+ * This fragment is displayed when user wishes to see the replies to a particular comment.
+ * The fragment displays the top level comment, a list of replies below it,
+ * and an option for user to add a reply.
  */
 public class ReplyFragment extends Fragment  implements CommentHolder.FragmentCallbacks {
     private static final String COMMENT_KEY = "comment_key";

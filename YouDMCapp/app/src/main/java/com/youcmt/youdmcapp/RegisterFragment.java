@@ -36,6 +36,8 @@ import static com.youcmt.youdmcapp.ValidationUtils.isPasswordValid;
 /**
  * Created by Stanislav Ostrovskii on 9/19/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
+ * This fragment contains the fields a user needs to enter to create an account
+ * as well as performs validation checks on them.
  */
 
 public class RegisterFragment extends Fragment {
