@@ -347,7 +347,7 @@ public class AccountActivity extends AppCompatActivity {
         });
     }
 
-    private void checkToken() {
+    public void checkToken() {
         String token = "Bearer " + mPreferences.getString(ACCESS_TOKEN, "");
         ApiEndPoint client = RetrofitClient.getApiEndpoint();
         Call<ResponseBody> call = client.checkToken(token);
@@ -378,7 +378,6 @@ public class AccountActivity extends AppCompatActivity {
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-
                 if(response.code()==200) {
                     try {
                         JSONObject message = new JSONObject(response.body().string());
