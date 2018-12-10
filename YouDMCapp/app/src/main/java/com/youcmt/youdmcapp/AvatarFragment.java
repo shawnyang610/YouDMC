@@ -140,6 +140,7 @@ public class AvatarFragment extends Fragment {
         builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                ((AccountActivity) getActivity()).checkToken();
                 mPreferences.edit().putInt(PROFILE_IMG, currentImage).apply();
                 mCurrentImage = currentImage;
                 updateProfileImg();
@@ -150,6 +151,7 @@ public class AvatarFragment extends Fragment {
     }
 
     private void updateProfileImg() {
+
         ApiEndPoint client = RetrofitClient.getApiEndpoint();
         UpdateProfileRequest request  = new UpdateProfileRequest();
         request.setNew_profile_img(String.valueOf(mCurrentImage));

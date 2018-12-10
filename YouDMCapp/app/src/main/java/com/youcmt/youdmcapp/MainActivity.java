@@ -102,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
         mWhatsHotTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d(TAG, "WhatsHot has been clicked");
                 Intent intent = new Intent(MainActivity.this, WhatsHotActivity.class);
                 startActivityForResult(intent, REQUEST_CODE_HOT_VIDEO);
             }
@@ -389,9 +390,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        if(mReceiver!=null)
+        if(mIsReceiverSet) {
             unregisterReceiver(mReceiver);
-        mIsReceiverSet = false;
+            mIsReceiverSet = false;
+        }
         super.onPause();
     }
 }
