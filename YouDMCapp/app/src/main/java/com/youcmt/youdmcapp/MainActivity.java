@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mSearchButton;
     private ProgressBar mProgressBar;
     private TextView mWhatsHotTv;
+    private AlertDialog mGuestDialog;
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -131,23 +132,26 @@ public class MainActivity extends AppCompatActivity {
      * of the advantages of registering.
      */
     private void harassGuest() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.register_title);
-        builder.setMessage(R.string.register_info);
-        builder.setPositiveButton(R.string.yes_excited, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                takeGuestToSignUp();
-            }
-        });
-        builder.setNegativeButton(R.string.skip, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        if (mGuestDialog == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.register_title);
+            builder.setMessage(R.string.register_info);
+            builder.setPositiveButton(R.string.yes_excited, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    takeGuestToSignUp();
+                }
+            });
+            builder.setNegativeButton(R.string.skip, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+            mGuestDialog = builder.create();
+        }
+        if(mGuestDialog.isShowing()) return;
+        else mGuestDialog.show();
     }
 
     private void checkToken() {
