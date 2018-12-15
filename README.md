@@ -74,6 +74,6 @@ Report inapproperiate comments
 
 ## Mobile App Screenshots
 
-![alt text](YouDMC/App_Screenshots/device-2018-12-15-124242.png)
+![alt text](https://github.com/stanostr/YouDMC/device-2018-12-15-124242.png)
 
 
