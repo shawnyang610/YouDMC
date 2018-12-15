@@ -74,6 +74,6 @@ Report inapproperiate comments
 
 ## Mobile App Screenshots
 
-Screenshots will go here.
+![alt text](app_screenshots/device-2018-12-15-124242.png)
 
 
