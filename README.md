@@ -72,6 +72,8 @@ Upload your own *not at all ugly* avatars.
 
 Report inapproperiate comments
 
-##Mobile App Screenshots
+## Mobile App Screenshots
+
+Screenshots will go here.
 
 
