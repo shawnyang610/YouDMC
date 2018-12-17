@@ -76,8 +76,11 @@ Report inapproperiate comments
 
 Some screenshots from of the Android mobile application in use.
 
-![alt text](https://github.com/stanostr/YouDMC/blob/stanostr-readme/App_Screenshots/device-2018-12-15-124242.png?raw=true) 
-*Login screen. A user can choose to register, login, or skip to sign in as guest.*
+
+| ![alt text](https://github.com/stanostr/YouDMC/blob/stanostr-readme/App_Screenshots/device-2018-12-15-124242.png?raw=true) | 
+|:--:| 
+| *Login screen. A user can choose to register, login, or skip to sign in as guest.* |
+
 
 ![alt text](https://github.com/stanostr/YouDMC/blob/master/App_Screenshots/device-2018-12-17-011031.png?raw=true) 
 *If a user has the YouTube app installed, they can simply press "share" on a YouTube video, and share it in our app (circled in red).*
