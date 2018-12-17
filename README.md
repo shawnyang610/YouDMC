@@ -76,19 +76,22 @@ Report inapproperiate comments
 
 Some screenshots from of the Android mobile application in use.
 
-![alt text](https://github.com/stanostr/YouDMC/blob/stanostr-readme/App_Screenshots/device-2018-12-15-124242.png?raw=true) 
 Login screen. A user can choose to register, login, or skip to sign in as guest.
+![alt text](https://github.com/stanostr/YouDMC/blob/stanostr-readme/App_Screenshots/device-2018-12-15-124242.png?raw=true) 
 
-![alt text](https://github.com/stanostr/YouDMC/blob/stanostr-readme/App_Screenshots/device-2018-12-15-124727.png?raw=true)
+If a user has the YouTube app installed, they can simply press "share" on a YouTube video, and share it in our app (circled in red).
+![alt text](https://github.com/stanostr/YouDMC/blob/master/App_Screenshots/device-2018-12-17-011031.png?raw=true) 
+
 The main activity (user interface) of the app. Here users can opt to enter a YouTube video URL or check out the "What's Hot" section, where recently discussed videos are displayed. When a user uses the YouTube app to share a YouTube video to this app, the URL is automatically placed into the URL field, and the user only has to click "Search Video" to reach the page.
+![alt text](https://github.com/stanostr/YouDMC/blob/stanostr-readme/App_Screenshots/device-2018-12-15-124727.png?raw=true)
 
-![alt text](https://github.com/stanostr/YouDMC/blob/stanostr-readme/App_Screenshots/device-2018-12-15-125320.png?raw=true)
 The registration screen, where user can create a new account.
+![alt text](https://github.com/stanostr/YouDMC/blob/stanostr-readme/App_Screenshots/device-2018-12-15-125320.png?raw=true)
 
-![alt text](https://github.com/stanostr/YouDMC/blob/stanostr-readme/App_Screenshots/device-2018-12-15-125441.png?raw=true) ![alt text](https://github.com/stanostr/YouDMC/blob/stanostr-readme/App_Screenshots/device-2018-12-15-125525.png?raw=true)
+The users can open a video's page to comment on it. The video itself is embedded into the app, considering the user has the YouTube app installed. If they do not, the embedding will not show and instead a prompt to encourage the user to get the app (this can be dismissed and won't affect other functionality of the app). 
+
+Users can reply to others comments and rate comments. They can also edit and delete their own comments.
+![alt text](https://github.com/stanostr/YouDMC/blob/stanostr-readme/App_Screenshots/device-2018-12-15-125525.png?raw=true)
+
 User can change their e-mail, password, and avatar in the account settings. Currently, avatars are only allowed from a collection of available avatars, but in the future, users will be able to upload their own.
-
-
-
-
-
+![alt text](https://github.com/stanostr/YouDMC/blob/stanostr-readme/App_Screenshots/device-2018-12-15-125441.png?raw=true) 
