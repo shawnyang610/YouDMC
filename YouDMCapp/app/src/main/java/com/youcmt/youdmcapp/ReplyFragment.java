@@ -45,6 +45,9 @@ import static com.youcmt.youdmcapp.Constants.USER_ID;
 /**
  * Created by Stanislav Ostrovskii on 10/25/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
+ * This fragment is displayed when user wishes to see the replies to a particular comment.
+ * The fragment displays the top level comment, a list of replies below it,
+ * and an option for user to add a reply.
  */
 public class ReplyFragment extends Fragment  implements CommentHolder.FragmentCallbacks {
     private static final String COMMENT_KEY = "comment_key";
@@ -125,9 +128,9 @@ public class ReplyFragment extends Fragment  implements CommentHolder.FragmentCa
         ApiEndPoint client = RetrofitClient.getApiEndpoint();
         retrofit2.Call<CommentResponse> call;
         if(mPreferences.getInt(USER_ID, ID_GUEST)==ID_GUEST) {
-            call = client.loadReplies(String.valueOf(mComment.getId()), header());
+            call = client.loadReplies(String.valueOf(mComment.getId()), Constants.jsonHeader());
         } else {
-            call = client.loadRepliesLoggedIn(getAuthHeader(), String.valueOf(mComment.getId()), header());
+            call = client.loadRepliesLoggedIn(getAuthHeader(), String.valueOf(mComment.getId()), Constants.jsonHeader());
         }
         call.enqueue(new Callback<CommentResponse>() {
             @Override
@@ -177,10 +180,10 @@ public class ReplyFragment extends Fragment  implements CommentHolder.FragmentCa
         Call<ResponseBody> response;
         if(mPreferences.getInt(USER_ID, ID_GUEST)==ID_GUEST)
         {
-            response = client.postReplyGuest(postRequest, header());
+            response = client.postReplyGuest(postRequest, Constants.jsonHeader());
         }
         else {
-            response = client.postReply(getAuthHeader(), postRequest, header());
+            response = client.postReply(getAuthHeader(), postRequest, Constants.jsonHeader());
 
         }
         Log.d(TAG, "URL: " + response.request().url().toString());
@@ -266,13 +269,6 @@ public class ReplyFragment extends Fragment  implements CommentHolder.FragmentCa
             }
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         }
-    }
-
-    private HashMap header()
-    {
-        HashMap header = new HashMap();
-        header.put("Content-Type", "application/json");
-        return header;
     }
 
     @Override

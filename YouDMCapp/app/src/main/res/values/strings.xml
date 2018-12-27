@@ -92,4 +92,18 @@
     <string name="comment_posted_toast">Comment posted!</string>
     <string name="security_error">Critical security error!</string>
     <string name="comment_updated">Comment updated</string>
+    <string name="no_youtube_app_error">Error. Do you have the YouTube app installed?</string>
+    <string name="login_again">Please log in again</string>
+    <string name="whats_hot_button_label">What\'s Hot?</string>
+    <string name="currently_discussed">Currently Discussed</string>
+    <string name="no_videos_to_show">Sorry, no videos to show! Click to refresh.</string>
+    <string name="unable_to_fetch_videos">Unable to fetch hot videos!</string>
+    <string name="error_retrieving_vid">Error retrieving video!</string>
+    <string name="register_title">Please Register!</string>
+    <string name="register_info">Registered users can rate comments, add personalized avatars, select unique usernames, and more! Register now?</string>
+    <string name="yes_excited">Yes!</string>
+    <string name="change_avatar_prompt">Change your avatar?</string>
+    <string name="error_404">Error code 404: Not Found</string>
+    <string name="feedback_posted">Feedback posted!</string>
+    <string name="login_to_rate">You must log in to rate comments!</string>
 </resources>

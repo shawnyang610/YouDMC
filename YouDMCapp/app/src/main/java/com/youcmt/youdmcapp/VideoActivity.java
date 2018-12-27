@@ -83,7 +83,7 @@ public class VideoActivity extends AppCompatActivity
     void displayAnnoyingError()
     {
         Toast.makeText(VideoActivity.this,
-                "Error. Do you have the YouTube app installed?",
+                R.string.no_youtube_app_error,
                 Toast.LENGTH_SHORT).show();
     }
 

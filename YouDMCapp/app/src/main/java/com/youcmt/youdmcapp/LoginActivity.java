@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.youcmt.youdmcapp.model.LoginResponse;
@@ -76,25 +77,22 @@ public class LoginActivity extends AppCompatActivity implements LoginCallbacks {
     //TODO these methods seem the same for all intents and purposes. Merge?
     @Override
     public void onSuccessfulLogin(LoginResponse response) {
-        mEditor.putInt(USER_ID, response.getId()).apply();
-        mEditor.putString(USERNAME, response.getUsername());
-        mEditor.putBoolean(LOGGED_IN, true).apply();
-        mEditor.putString(ACCESS_TOKEN, response.getAccess_token()).apply();
-        mEditor.putString(REFRESH_TOKEN, response.getRefresh_token()).apply();
-        mEditor.putString(PROFILE_IMG, response.getProfile_img());
+        mEditor.putInt(USER_ID, response.getId())
+                .putString(USERNAME, response.getUsername())
+                .putBoolean(LOGGED_IN, true)
+                .putString(ACCESS_TOKEN, response.getAccess_token())
+                .putString(REFRESH_TOKEN, response.getRefresh_token()).apply();
+        try {
+            mEditor.putInt(PROFILE_IMG, Integer.valueOf(response.getProfile_img())).apply();
+        } catch (ClassCastException cce)
+        {
+            Log.e(TAG, "ClassCastExceptionOccurred", cce);
+        }
         startMainActivity();
-        finish();
     }
 
     public void onSuccessfulRegistration(LoginResponse response) {
-        mEditor.putInt(USER_ID, response.getId()).apply();
-        mEditor.putString(USERNAME, response.getUsername());
-        mEditor.putBoolean(LOGGED_IN, true).apply();
-        mEditor.putString(ACCESS_TOKEN, response.getAccess_token()).apply();
-        mEditor.putString(REFRESH_TOKEN, response.getRefresh_token()).apply();
-        mEditor.putString(PROFILE_IMG, response.getProfile_img());
-        startMainActivity();
-        finish();
+        onSuccessfulLogin(response);
     }
 
     @Override

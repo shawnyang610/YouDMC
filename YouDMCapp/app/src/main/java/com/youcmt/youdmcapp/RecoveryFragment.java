@@ -30,6 +30,11 @@ import retrofit2.Response;
 /**
  * Created by Stanislav Ostrovskii on 11/13/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
+ * This fragment allows the user to recover an account.
+ * First user is prompted for an e-mail address.
+ * A recovery code is sent to the entered e-mail address.
+ * User is then prompted to enter recovery code and it is compared to what was sent.
+ * If all steps are successful, user is allowed to change password.
  */
 
 public class RecoveryFragment extends Fragment {
@@ -136,8 +141,7 @@ public class RecoveryFragment extends Fragment {
                         JSONObject errorMessage = new JSONObject(response.errorBody().string());
                         String errorString = errorMessage.getString("message");
                         errorString = errorString.substring(0, 1).toUpperCase() + errorString.substring(1);
-                        Toast.makeText(getActivity(), "Error " +
-                                response.code() + ": " + errorString, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), errorString, Toast.LENGTH_LONG).show();
                     } catch (IOException e) {
                         e.printStackTrace();
                         displayUnknownError();

@@ -29,7 +29,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,6 +48,8 @@ import static com.youcmt.youdmcapp.Constants.USER_ID;
 /**
  * Created by Stanislav Ostrovskii on 10/25/2018.
  * Copyright 2018 youcmt.com team. All rights reserved.
+ * A fragment that holds all the top level comments for a given video,
+ * as well as it's description.
  */
 
 public class CommentFragment extends Fragment {
@@ -136,9 +137,9 @@ public class CommentFragment extends Fragment {
         ApiEndPoint endPoint = RetrofitClient.getApiEndpoint();
         Call<CommentResponse> call;
         if(mPreferences.getInt(USER_ID, ID_GUEST)==ID_GUEST) {
-            call = endPoint.loadComments(mVideo.getVid(), header());
+            call = endPoint.loadComments(mVideo.getVid(), Constants.jsonHeader());
         } else {
-            call = endPoint.loadCommentsLoggedIn(getAuthHeader(), mVideo.getVid(), header());
+            call = endPoint.loadCommentsLoggedIn(getAuthHeader(), mVideo.getVid(), Constants.jsonHeader());
         }
         call.enqueue(new Callback<CommentResponse>() {
             @Override
@@ -169,10 +170,10 @@ public class CommentFragment extends Fragment {
         Call<ResponseBody> response;
         if(mPreferences.getInt(USER_ID, ID_GUEST)==ID_GUEST)
         {
-            response = client.postCommentGuest(postRequest, header());
+            response = client.postCommentGuest(postRequest, Constants.jsonHeader());
         }
         else {
-            response = client.postComment(getAuthHeader(), postRequest, header());
+            response = client.postComment(getAuthHeader(), postRequest, Constants.jsonHeader());
         }
         response.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -241,7 +242,6 @@ public class CommentFragment extends Fragment {
             mFragmentView.findViewById(R.id.no_comments_tv).setVisibility(VISIBLE);
         }
         else {
-            mRecyclerView.setVisibility(VISIBLE);
 
             mFragmentView.findViewById(R.id.no_comments_tv).setVisibility(View.GONE);
             if(mCommentAdapter==null)
@@ -253,6 +253,7 @@ public class CommentFragment extends Fragment {
                 mCommentAdapter.notifyDataSetChanged();
             }
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            mRecyclerView.setVisibility(VISIBLE);
         }
     }
 
@@ -260,14 +261,7 @@ public class CommentFragment extends Fragment {
     private String getAuthHeader() {
         return "Bearer " + mPreferences.getString(ACCESS_TOKEN, "");
     }
-
-    private HashMap header()
-    {
-        HashMap header = new HashMap();
-        header.put("Content-Type", "application/json");
-        return header;
-    }
-
+    
     /**
      * Seeks to choose an appropriate text size depending on video title length
      * @param string video title length
