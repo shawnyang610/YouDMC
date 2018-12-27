@@ -71,7 +71,7 @@ class VideoInfo(Resource):
 class WhatsHot (Resource):
 
     def get(self):
-        sql = "SELECT DISTINCT videos.vid, videos.title, videos.date FROM videos, comments WHERE videos.vid = comments.vid AND comments.date >= now()-INTERVAL '3 DAYS' LIMIT 20"
+        sql = "SELECT DISTINCT videos.vid, videos.title, videos.date FROM videos, comments WHERE videos.vid = comments.vid AND comments.date >= now()-INTERVAL '30 DAYS' LIMIT 25"
         engine = db.engine
         connection = engine.connect()
         result = connection.execute(sql)
